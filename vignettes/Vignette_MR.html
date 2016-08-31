@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Olena Yavorska" />
+<meta name="author" content="Stephen Burgess" />
+
+
+<title>Mendelian Randomization Vignette</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%7D%0Apre%20%7B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Mendelian Randomization Vignette</h1>
+<h4 class="author"><em>Olena Yavorska</em></h4>
+<h4 class="author"><em>Stephen Burgess</em></h4>
+<h4 class="date"><em>r Sys.Date()</em></h4>
+
+
+
+<div id="mendelianrandomization" class="section level1">
+<h1>MendelianRandomization</h1>
+<p>MendelianRandomization is a package developed to carry out various Mendelian randomization analyses on summarized genetic data in R. The package uses various methods to assess whether a risk factor (also called an exposure) has a causal effect on an outcome.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(MendelianRandomization)</code></pre>
+<div id="the-input" class="section level2">
+<h2>The Input</h2>
+<p>The package uses a special class called <em>MRInput</em> within the analyses in order to pass in all necessary information through one simple structure rather than inserting the object in parts. In order to make an <em>MRInput</em> object, one can do one of the following :</p>
+<ul>
+<li>assign values to each slot separately</li>
+<li>extract it from a PhenoScanner .csv output file</li>
+</ul>
+<p>We focus on the first method.</p>
+<p>The <em>MRInput</em> object has the following “slots” :</p>
+<ul>
+<li><em>betaX</em> and <em>betaXse</em> are both numeric vectors describing the associations of the genetic variants with the exposure. <em>betaX</em> are the beta-coefficients from univariable regression analyses of the exposure on each genetic variant in turn, and <em>betaXse</em> are the standard errors.</li>
+<li><em>betaY</em> and <em>betaYse</em> are both numeric vectors describing the associations of the genetic variants with the outcome. <em>betaY</em> are the beta-coefficients from regression analyses of the outcome on each genetic variant in turn, and <em>betaYse</em> are the standard errors.</li>
+<li><em>correlation</em> is a matrix outlining the correlations between the variants. If a correlation matrix is not provided, it is assumed that the variants are uncorrelated.</li>
+<li><em>exposure</em> is a character string giving the name of the risk factor, e.g. LDL-cholesterol.</li>
+<li><em>outcome</em> is a character string giving the name of the outcome, e.g. coronary heart disease.</li>
+<li><em>snps</em> is a character vector of the names of the various genetic variants (SNPs) in the dataset, e.g. rs12785878. It is not necessary to name the exposure, outcome, or SNPs, but these names are used in the graphing functions and may be helpful for keeping track of various analyses.</li>
+</ul>
+<p>To generate the <em>MRInput</em> object slot by slot, one can use the <em>mr_input()</em> function :</p>
+<pre class="sourceCode r"><code class="sourceCode r">MRInputObject &lt;-<span class="st"> </span><span class="kw">mr_input</span>(<span class="dt">bx =</span> ldlc, 
+                          <span class="dt">bxse =</span> ldlcse, 
+                          <span class="dt">by =</span> chdlodds, 
+                          <span class="dt">byse =</span> chdloddsse)
+
+MRInputObject  <span class="co"># example with uncorrelated variants</span></code></pre>
+<pre><code>##       SNP exposure.beta exposure.se outcome.beta outcome.se
+## 1   snp_1        0.0260       0.004       0.0677     0.0286
+## 2   snp_2       -0.0440       0.004      -0.1625     0.0300
+## 3   snp_3       -0.0380       0.004      -0.1054     0.0310
+## 4   snp_4       -0.0230       0.003      -0.0619     0.0243
+## 5   snp_5       -0.0170       0.003      -0.0834     0.0222
+## 6   snp_6       -0.0310       0.006      -0.1278     0.0667
+## 7   snp_7       -0.0180       0.004      -0.0408     0.0373
+## 8   snp_8        0.0460       0.007       0.0770     0.0543
+## 9   snp_9        0.0590       0.004       0.1570     0.0306
+## 10 snp_10        0.0040       0.003      -0.0305     0.0236
+## 11 snp_11        0.0110       0.004       0.0100     0.0277
+## 12 snp_12       -0.0050       0.005       0.1823     0.0403
+## 13 snp_13        0.0040       0.005      -0.0408     0.0344
+## 14 snp_14        0.0220       0.005       0.1989     0.0335
+## 15 snp_15       -0.0050       0.004       0.0100     0.0378
+## 16 snp_16       -0.0020       0.004       0.0488     0.0292
+## 17 snp_17       -0.0020       0.003       0.0100     0.0253
+## 18 snp_18        0.0040       0.004      -0.0408     0.0319
+## 19 snp_19        0.0110       0.004      -0.0305     0.0316
+## 20 snp_20        0.0090       0.003      -0.0408     0.0241
+## 21 snp_21       -0.0110       0.004      -0.0202     0.0285
+## 22 snp_22       -0.0030       0.003      -0.0619     0.0217
+## 23 snp_23       -0.0120       0.004       0.0296     0.0298
+## 24 snp_24        0.0003       0.003       0.0677     0.0239
+## 25 snp_25       -0.0150       0.003      -0.0726     0.0220
+## 26 snp_26       -0.0080       0.004      -0.0726     0.0246
+## 27 snp_27        0.0090       0.003       0.0000     0.0255
+## 28 snp_28       -0.0360       0.007       0.0198     0.0647</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">MRInputObject.cor &lt;-<span class="st"> </span><span class="kw">mr_input</span>(<span class="dt">bx =</span> calcium, 
+                             <span class="dt">bxse =</span> calciumse, 
+                             <span class="dt">by =</span> fastgluc, 
+                             <span class="dt">byse =</span> fastglucse,
+                             <span class="dt">corr =</span> calc.rho)
+
+MRInputObject.cor  <span class="co"># example with correlated variants</span></code></pre>
+<pre><code>##     SNP exposure.beta exposure.se outcome.beta outcome.se
+## 1 snp_1       0.00625     0.00233      0.02805     0.0122
+## 2 snp_2       0.00590     0.00338      0.00953     0.0198
+## 3 snp_3       0.01822     0.00318      0.03646     0.0173
+## 4 snp_4       0.00598     0.00233      0.01049     0.0119
+## 5 snp_5       0.00825     0.00229      0.02357     0.0122
+## 6 snp_6       0.00651     0.00352      0.00204     0.0179</code></pre>
+<p>It is not necessary for all the slots to be filled. For example, several of the methods do not require <em>bxse</em> to be specified; the <em>mr_ivw</em> function will still run with <em>bxse</em> set to zeros. If the vectors <em>bx</em>, <em>bxse</em>, <em>by</em>, and <em>byse</em> are not of equal length, then an error will be reported.</p>
+<p>It is also possible to run the analysis using the syntax:</p>
+<pre class="sourceCode r"><code class="sourceCode r">MRInputObject &lt;-<span class="st"> </span><span class="kw">mr_input</span>(ldlc, ldlcse, chdlodds, chdloddsse)</code></pre>
+<p>However, care must be taken in this case to give the vectors in the correct order (that is: <em>bx, bxse, by, byse</em>).</p>
+</div>
+<div id="the-data" class="section level2">
+<h2>The data</h2>
+<p>Two sets of data are provided as part of this package:</p>
+<ul>
+<li><em>ldlc, ldlcse, hdlc, hdlse, trig, trigse, chdlodds, chdloddsse</em>: these are the associations (beta-coefficients and standard errors) of 28 genetic variants with LDL-cholesterol, HDL-cholesterol, triglycerides, and coronary heart disease (CHD) risk (associations with CHD risk are log odds ratios) taken from Waterworth et al (2011) “Genetic variants influencing circulating lipid levels and risk of coronary artery disease”, doi: 10.1161/atvbaha.109.201020.</li>
+<li><em>calcium, calciumse, fastgluc, fastglucse</em>: these are the associations (beta-coefficients and standard errors) of 7 genetic variants in the /CASR/ gene region. These 7 variants are all correlated, and the correlation matrix is provided as <em>calc.rho</em>. These data were analysed in Burgess et al (2015) “Using published data in Mendelian randomization: a blueprint for efficient identification of causal risk factors”, doi: 10.1007/s10654-015-0011-z.</li>
+</ul>
+</div>
+<div id="methods" class="section level2">
+<h2>Methods</h2>
+<p>The MendelianRandomization package supports three main methods for causal estimation: the inverse-variance weighted method, the median-based method, and the MR-Egger method.</p>
+</div>
+<div id="inverse-variance-weighted-method" class="section level2">
+<h2>Inverse-variance weighted method</h2>
+<p>The inverse-variance method is the equivalent to the standard IV method using individual-level data (the two-stage least squares method). Either a fixed- or a random-effects analysis can be performed; the <em>“default”</em> option is a fixed-effect analysis when there are three variants or fewer, and a random-effects analysis otherwise. The <em>robust</em> option uses robust regression rather than standard regression in the analysis, and the <em>penalized</em> option downweights the contribution to the analysis of genetic variants with outlying (heterogeneous) causal estimates. If a correlation matrix is provided in the <em>MRInput</em> object, then the correlated method is used by default (<em>correl = TRUE</em>), and the <em>robust</em> and <em>penalized</em> arguments are ignored.</p>
+<p>The default options for constructing confidence intervals are based on a normal distribution and a 95% confidence level, however one can use the t-distribution (<em>distribution = “t-dist”</em>) and alternative significance level if desired.</p>
+<pre class="sourceCode r"><code class="sourceCode r">IVWObject &lt;-<span class="st"> </span><span class="kw">mr_ivw</span>(MRInputObject,
+                    <span class="dt">model =</span> <span class="st">&quot;default&quot;</span>,
+                    <span class="dt">robust =</span> <span class="ot">FALSE</span>,
+                    <span class="dt">penalized =</span> <span class="ot">FALSE</span>,
+                    <span class="dt">correl =</span> <span class="ot">FALSE</span>,
+                    <span class="dt">distribution =</span> <span class="st">&quot;normal&quot;</span>,
+                    <span class="dt">alpha =</span> <span class="fl">0.05</span>)
+
+IVWObject &lt;-<span class="st"> </span><span class="kw">mr_ivw</span>(<span class="kw">mr_input</span>(<span class="dt">bx =</span> ldlc, <span class="dt">bxse =</span> ldlcse,
+   <span class="dt">by =</span> chdlodds, <span class="dt">byse =</span> chdloddsse))
+
+IVWObject</code></pre>
+<pre><code>## 
+## Inverse-variance weighted method
+## (variants uncorrelated, random-effect model)
+## 
+## Number of Variants : 28 
+## 
+## ------------------------------------------------------------------
+##  Method Estimate Std Error 95% CI       p-value
+##     IVW    2.834     0.530 1.796, 3.873   0.000
+## ------------------------------------------------------------------
+## Residual standard error =  1.920 
+## Heterogeneity test statistic = 99.5304 on 27 degrees of freedom, (p-value = 0.0000)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">IVWObject.correl &lt;-<span class="st"> </span><span class="kw">mr_ivw</span>(MRInputObject.cor,
+                    <span class="dt">model =</span> <span class="st">&quot;default&quot;</span>,
+                    <span class="dt">correl =</span> <span class="ot">TRUE</span>,
+                    <span class="dt">distribution =</span> <span class="st">&quot;normal&quot;</span>,
+                    <span class="dt">alpha =</span> <span class="fl">0.05</span>)
+
+IVWObject.correl &lt;-<span class="st"> </span><span class="kw">mr_ivw</span>(<span class="kw">mr_input</span>(<span class="dt">bx =</span> calcium, <span class="dt">bxse =</span> calciumse,
+   <span class="dt">by =</span> fastgluc, <span class="dt">byse =</span> fastglucse, <span class="dt">corr =</span> calc.rho))
+
+IVWObject.correl</code></pre>
+<pre><code>## 
+## Inverse-variance weighted method
+## (variants correlated, random-effect model)
+## 
+## Number of Variants : 6 
+## 
+## ------------------------------------------------------------------
+##  Method Estimate Std Error 95% CI       p-value
+##     IVW    2.245     0.643 0.984, 3.505   0.000
+## ------------------------------------------------------------------
+## Residual standard error =  0.641 
+## Residual standard error is set to 1 in calculation of confidence interval when its estimate is less than 1.
+## Heterogeneity test statistic = 2.0530 on 5 degrees of freedom, (p-value = 0.8418)</code></pre>
+</div>
+<div id="median-based-method" class="section level2">
+<h2>Median-based method</h2>
+<p>The median-based method calculates a median of the SNP-specific causal estimates from the ratio method for each genetic variant individually. The default option is to calculate a weighted median using the inverse-variance weights. Alternatively, one can calculate a simple (unweighted) median, or a weighted median using penalization of weights for heterogeneous variants. Since the calculation of standard error requires bootstrapping, the number of bootstrap iterations can be varied. The random seed is set automatically so that results are reproducible; however, the value of the seed can be changed if required.</p>
+<p>The median-based method requires data on at least 3 genetic variants. Variants must be uncorrelated provided that the correlation matrix is specified.</p>
+<pre class="sourceCode r"><code class="sourceCode r">WeightedMedianObject &lt;-<span class="st"> </span><span class="kw">mr_median</span>(MRInputObject, 
+                                  <span class="dt">weighting =</span> <span class="st">&quot;weighted&quot;</span>, 
+                                  <span class="dt">distribution =</span> <span class="st">&quot;normal&quot;</span>, 
+                                  <span class="dt">alpha =</span> <span class="fl">0.05</span>, 
+                                  <span class="dt">iterations =</span> <span class="dv">10000</span>, 
+                                  <span class="dt">seed =</span> <span class="dv">314159265</span>)
+
+WeightedMedianObject &lt;-<span class="st"> </span><span class="kw">mr_median</span>(<span class="kw">mr_input</span>(<span class="dt">bx =</span> ldlc, <span class="dt">bxse =</span> ldlcse,
+  <span class="dt">by =</span> chdlodds, <span class="dt">byse =</span> chdloddsse))
+
+WeightedMedianObject </code></pre>
+<pre><code>## 
+##  Weighted median method 
+## 
+## Number of Variants : 28 
+## ------------------------------------------------------------------
+##                  Method Estimate Std Error 95% CI       p-value
+##  Weighted median method    2.683     0.419 1.862, 3.504   0.000
+## ------------------------------------------------------------------</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">SimpleMedianObject &lt;-<span class="st"> </span><span class="kw">mr_median</span>(<span class="kw">mr_input</span>(<span class="dt">bx =</span> ldlc, <span class="dt">bxse =</span> ldlcse,
+  <span class="dt">by =</span> chdlodds, <span class="dt">byse =</span> chdloddsse), <span class="dt">weighting =</span> <span class="st">&quot;simple&quot;</span>)
+
+SimpleMedianObject</code></pre>
+<pre><code>## 
+##  Simple median method 
+## 
+## Number of Variants : 28 
+## ------------------------------------------------------------------
+##                Method Estimate Std Error 95% CI       p-value
+##  Simple median method    1.755     0.740 0.305, 3.205   0.018
+## ------------------------------------------------------------------</code></pre>
+</div>
+<div id="mr-egger-method" class="section level2">
+<h2>MR-Egger method</h2>
+<p>The MR-Egger method is implemented here using a random-effects model only. The <em>robust</em> and <em>penalized</em> options are the same as for the inverse-variance weighted method. The method can be used for both correlated and uncorrelated sets of variants. Confidence intervals can be constructed either using a normal distribution (<em>distribution = “normal”</em>, the default option), or a t-distribution (<em>distribution = “t-dist”</em>).</p>
+<p>With a t-distribution, in case of under-dispersion (the estimated residual standard error in the regression model is less than 1), confidence intervals and p-values use either a t-distribution with no correction for under-dispersion, or a normal distribution with the residual standard error set to 1 – whichever is wider. This means that under-dispersion is not doubly penalized by setting the residual standard error to 1 and using a t-distribution, but also that the confidence intervals are not narrower (p-values not more extreme) than those using a fixed-effect model.</p>
+<p>The median-based method requires data on at least 3 genetic variants. Variants are permitted to be correlated.</p>
+<pre class="sourceCode r"><code class="sourceCode r">EggerObject &lt;-<span class="st"> </span><span class="kw">mr_egger</span>(MRInputObject, 
+                        <span class="dt">robust =</span> <span class="ot">FALSE</span>,
+                        <span class="dt">penalized =</span> <span class="ot">FALSE</span>,
+                        <span class="dt">correl =</span> <span class="ot">FALSE</span>,
+                        <span class="dt">distribution =</span> <span class="st">&quot;normal&quot;</span>,
+                        <span class="dt">alpha =</span> <span class="fl">0.05</span>)
+
+EggerObject &lt;-<span class="st"> </span><span class="kw">mr_egger</span>(<span class="kw">mr_input</span>(<span class="dt">bx =</span> ldlc, <span class="dt">bxse =</span> ldlcse,
+  <span class="dt">by =</span> chdlodds, <span class="dt">byse =</span> chdloddsse))
+
+EggerObject</code></pre>
+<pre><code>## 
+## MR-Egger method
+## (variants uncorrelated, random-effect model)
+## 
+## Number of Variants =  28 
+## 
+## ------------------------------------------------------------------
+##       Method Estimate Std Error  95% CI       p-value
+##     MR-Egger    3.253     0.770  1.743, 4.762   0.000
+##  (intercept)   -0.011     0.015 -0.041, 0.018   0.451
+## ------------------------------------------------------------------
+## Residual Standard Error :  1.935 
+## Heterogeneity test statistic = 97.3975 on 26 degrees of freedom, (p-value = 0.0000)
+## I^2_GX statistic: 91.9%</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">EggerObject.corr &lt;-<span class="st"> </span><span class="kw">mr_egger</span>(MRInputObject.cor, 
+                        <span class="dt">correl =</span> <span class="ot">TRUE</span>,
+                        <span class="dt">distribution =</span> <span class="st">&quot;both&quot;</span>,
+                        <span class="dt">alpha =</span> <span class="fl">0.05</span>)</code></pre>
+<pre><code>## Distribution must be one of : normal, t-dist. 
+## See documentation for details.</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">EggerObject.corr &lt;-<span class="st"> </span><span class="kw">mr_egger</span>(<span class="kw">mr_input</span>(<span class="dt">bx =</span> calcium, <span class="dt">bxse =</span> calciumse,
+  <span class="dt">by =</span> fastgluc, <span class="dt">byse =</span> fastglucse, <span class="dt">corr =</span> calc.rho))
+
+EggerObject.corr</code></pre>
+<pre><code>## 
+## MR-Egger method
+## (variants correlated, random-effect model)
+## 
+## Number of Variants =  6 
+## 
+## ------------------------------------------------------------------
+##       Method Estimate Std Error  95% CI       p-value
+##     MR-Egger    1.302     1.518 -1.672, 4.276   0.391
+##  (intercept)    0.009     0.013 -0.017, 0.035   0.493
+## ------------------------------------------------------------------
+## Residual Standard Error :  0.629 
+## Residual standard error is set to 1 in calculation of confidence interval when its estimate is less than 1.
+## Heterogeneity test statistic = 1.5825 on 4 degrees of freedom, (p-value = 0.8119)</code></pre>
+</div>
+<div id="summaries-of-multiple-methods" class="section level2">
+<h2>Summaries of multiple methods</h2>
+<p>The <em>mr_allmethods</em> function is provided to easily compare results (Estimate, Standard Error, 95% CI, and p-value) from multiple methods. One can look at results from all methods (<em>method = “all”</em>), or a partial result setting method to <em>“egger”</em>, <em>“ivw”</em>, or <em>“median”</em> to get a more selective set of results. The final option is <em>“main”</em>, which gives results from the simple median, weighted median, IVW, and MR-Egger methods only.</p>
+<pre class="sourceCode r"><code class="sourceCode r">MRAllObject_all &lt;-<span class="st"> </span><span class="kw">mr_allmethods</span>(MRInputObject, <span class="dt">method =</span> <span class="st">&quot;all&quot;</span>)
+MRAllObject_all</code></pre>
+<pre><code>## 
+## ==================================================================
+## Method                    Estimate Std Error 95% CI        P-value
+## ------------------------------------------------------------------
+## Simple median              1.755     0.740   0.305  3.205   0.018 
+## Weighted median            2.683     0.419   1.862  3.504   0.000 
+## Penalized weighted median  2.681     0.420   1.857  3.505   0.000 
+##                                                                   
+## IVW                        2.834     0.530   1.796  3.873   0.000 
+## Penalized IVW              2.734     0.339   2.069  3.399   0.000 
+## Robust IVW                 2.797     0.307   2.195  3.399   0.000 
+## Penalized robust IVW       2.730     0.257   2.226  3.235   0.000 
+##                                                                   
+## MR-Egger                   3.253     0.770   1.743  4.762   0.000 
+## (intercept)                -0.011    0.015   -0.041 0.018   0.451 
+## Penalized MR-Egger         3.589     0.456   2.695  4.483   0.000 
+## (intercept)                -0.027    0.010   -0.046 -0.007  0.007 
+## Robust MR-Egger            3.256     0.624   2.033  4.479   0.000 
+## (intercept)                -0.015    0.021   -0.055 0.026   0.474 
+## Penalized robust MR-Egger  3.626     0.441   2.762  4.489   0.000 
+## (intercept)                -0.030    0.011   -0.051 -0.009  0.005 
+## ------------------------------------------------------------------</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">MRAllObject_egger &lt;-<span class="st"> </span><span class="kw">mr_allmethods</span>(MRInputObject, <span class="dt">method =</span> <span class="st">&quot;egger&quot;</span>)
+MRAllObject_egger</code></pre>
+<pre><code>## 
+## ==================================================================
+## Method                    Estimate Std Error 95% CI        P-value
+## ------------------------------------------------------------------
+## MR-Egger                   3.253     0.770   1.743  4.762   0.000 
+## (intercept)                -0.011    0.015   -0.041 0.018   0.451 
+## Penalized MR-Egger         3.589     0.456   2.695  4.483   0.000 
+## (intercept)                -0.027    0.010   -0.046 -0.007  0.007 
+## Robust MR-Egger            3.256     0.624   2.033  4.479   0.000 
+## (intercept)                -0.015    0.021   -0.055 0.026   0.474 
+## Penalized robust MR-Egger  3.626     0.441   2.762  4.489   0.000 
+## (intercept)                -0.030    0.011   -0.051 -0.009  0.005 
+## ------------------------------------------------------------------</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">MRAllObject_main &lt;-<span class="st"> </span><span class="kw">mr_allmethods</span>(MRInputObject, <span class="dt">method =</span> <span class="st">&quot;main&quot;</span>)
+MRAllObject_main</code></pre>
+<pre><code>## 
+## =======================================================
+## Method          Estimate Std Error 95% CI       P-value
+## -------------------------------------------------------
+## Simple median    1.755     0.740   0.305  3.205  0.018 
+## Weighted median  2.683     0.419   1.862  3.504  0.000 
+## IVW              2.834     0.530   1.796  3.873  0.000 
+## MR-Egger         3.253    -0.011   0.770  0.015  1.743 
+## -------------------------------------------------------</code></pre>
+</div>
+<div id="graphical-summaries-of-results" class="section level2">
+<h2>Graphical summaries of results</h2>
+<p>The <em>mr_plot</em> function has two different functionalities. First, if the function is applied to an <em>MRInput</em> object, then the output is an interactive graph that can be used to explore the associations of the different genetic variants.</p>
+<p>The syntax is:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mr_plot</span>(<span class="kw">mr_input</span>(<span class="dt">bx =</span> ldlc, <span class="dt">bxse =</span> ldlcse, <span class="dt">by =</span> chdlodds, <span class="dt">byse =</span> chdloddsse), <span class="dt">error =</span> <span class="ot">TRUE</span>, <span class="dt">orientate =</span> <span class="ot">FALSE</span>, <span class="dt">line =</span> <span class="st">&quot;ivw&quot;</span>)</code></pre>
+<p>An interactive graph does not reproduce well in a vignette, so we encourage readers to input this code for themselves. The interactive graph allows the user to pinpoint outliers easily.</p>
+<p>The option <em>error = TRUE</em> plots error bars (95% confidence intervals) for the associations with the exposure and with the outcome. The option <em>orientate = TRUE</em> sets all the associations with the exposure to be positive, and re-orientates the associations with the outcome if needed. This option is encouraged for the MR-Egger method (as otherwise points having negative associations with the exposure can appear to be far from the regression line), although by default it is set to <em>FALSE</em>. The <em>line</em> option can be set to <em>“ivw”</em> (to show the inverse-variance weighted estimate) or to <em>“egger”</em> (to show the MR-Egger estimate).</p>
+<p>Secondly, if the <em>mr_plot</em> function is applied to the output of the <em>mr_allmethods</em> function, estimates from the different methods can be compared graphically.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mr_plot</span>(MRAllObject_all)</code></pre>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mr_plot</span>(MRAllObject_egger)</code></pre>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mr_plot</span>(<span class="kw">mr_allmethods</span>(<span class="kw">mr_input</span>(<span class="dt">bx =</span> hdlc, <span class="dt">bxse =</span> hdlcse,
+  <span class="dt">by =</span> chdlodds, <span class="dt">byse =</span> chdloddsse)))</code></pre>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>We see that estimates from all methods are similar when LDL-cholesterol is the risk factor, but the MR-Egger estimates differ substantially when HDL-cholesterol is the risk factor.</p>
+</div>
+<div id="extracting-association-estimates-from-publicly-available-datasets" class="section level2">
+<h2>Extracting association estimates from publicly available datasets</h2>
+<p>The PhenoScanner bioinformatic tool (<a href="http://phenoscanner.medschl.cam.ac.uk">http://phenoscanner.medschl.cam.ac.uk</a>) is a curated database of publicly available results from large-scale genetic association studies. The database currently contains over 350 million association results and over 10 million unique genetic variants, mostly single nucleotide polymorphisms.</p>
+<p>Our desire is to enable PhenoScanner to be queried directly from the MendelianRandomization package. Currently, PhenoScanner is only available via a web browser. The <em>extract.pheno.csv()</em> function takes the output from the web version of PhenoScanner, and converts this into an <em>MRInput</em> object. PhenoScanner is still under development, and so <em>extract.pheno.csv()</em> should be considered as an experimental function. This function is designed for output from PhenoScanner version 1.1 (Little Miss Sunshine).</p>
+<p>The initial steps required to run the <em>extract.pheno.csv()</em> function are:</p>
+<ol style="list-style-type: decimal">
+<li>Open <a href="http://www.phenoscanner.medschl.cam.ac.uk/">http://www.phenoscanner.medschl.cam.ac.uk/</a> in your browser.</li>
+<li>Input the SNPs in question by uploading a file with the rsIDs or hg19 chrN:pos names (separated by newline).</li>
+<li>Choose whether to include proxies or not for SNPs that do not have association data for the given risk factor and/or outcome (and if so, the R-squared threshold value for defining a proxy variant). PhenoScanner currently allows correlation estimates to be taken from the 1000 Genomes or HapMap datasets.</li>
+<li>Run the analysis and download the resulting association .csv file.</li>
+</ol>
+<p>In order to obtain the relevant SNP summary estimates, run the <em>extract.pheno.csv()</em> function with: - <em>exposure</em> is a character vector giving the name of the risk factor. - <em>pmidE</em> is the PubMed ID of the paper where the association estimates with the exposure were first published. - <em>ancestryE</em> is the ancestry of the participants on whom the association estimates with the exposure were estimated. (For some traits and PubMed IDs, results are given for multiple ancestries.) Usually, ancestry is <em>“European”</em> or <em>“Mixed”</em>. - <em>outcome</em> is a character vector giving the name of the outcome. - <em>pmidO</em> is the PubMed ID of the paper where the association estimates with the outcome were first published. - <em>ancestryE</em> is the ancestry of the participants on whom the association estimates with the exposure were estimated. - <em>file</em> is the file path to the PhenoScanner output .csv file. - <em>rsq.proxy</em> is the threshold R-squared value for proxies to be included in the analysis. If a proxy variant is used as part of the analysis, this is reported. The default value of <em>rsq.proxy</em> is 1, meaning that only perfect proxies will be used. - <em>snps</em> is the SNPs that will be included in the analysis. The default value is “all”, indicating that all SNPs in the .csv file will be used in the analysis. If only a limited number of SNPs are to be included, <em>snps</em> can be set as a character vector with the named to the SNPs to be included in the analysis.</p>
+<p>Two example .csv files from PhenoScanner are included as part of the package: vitD_snps_PhenoScanner.csv (which does not include proxies), and vitD_snps_PhenoScanner_proxies.csv (which includes proxies at an R-squared threshold of 0.6).</p>
+<pre class="sourceCode r"><code class="sourceCode r">path.noproxy &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;vitD_snps_PhenoScanner.csv&quot;</span>,
+  <span class="dt">package =</span> <span class="st">&quot;MendelianRandomization&quot;</span>)
+path.proxies &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;vitD_snps_PhenoScanner_proxies.csv&quot;</span>,
+  <span class="dt">package =</span> <span class="st">&quot;MendelianRandomization&quot;</span>)
+
+
+<span class="kw">extract.pheno.csv</span>(
+  <span class="dt">exposure =</span> <span class="st">&quot;log(eGFR creatinine)&quot;</span>, <span class="dt">pmidE =</span> <span class="dv">26831199</span>, <span class="dt">ancestryE =</span> <span class="st">&quot;European&quot;</span>,
+  <span class="dt">outcome =</span> <span class="st">&quot;Tanner stage&quot;</span>, <span class="dt">pmidO =</span> <span class="dv">24770850</span>, <span class="dt">ancestryO =</span> <span class="st">&quot;European&quot;</span>, 
+  <span class="dt">file =</span> path.noproxy)</code></pre>
+<pre><code>##          SNP log(eGFR creatinine).beta log(eGFR creatinine).se
+## 1 rs10741657                   -0.0018                 0.00092
+## 2  rs2282679                   -0.0066                 0.00110
+## 3 rs17217119                   -0.0016                 0.00100
+##   Tanner stage.beta Tanner stage.se
+## 1           -0.0136          0.0135
+## 2            0.0227          0.0165
+## 3           -0.0042          0.0148</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">extract.pheno.csv</span>(
+  <span class="dt">exposure =</span> <span class="st">&quot;log(eGFR creatinine)&quot;</span>, <span class="dt">pmidE =</span> <span class="dv">26831199</span>, <span class="dt">ancestryE =</span> <span class="st">&quot;European&quot;</span>,
+  <span class="dt">outcome =</span> <span class="st">&quot;Tanner stage&quot;</span>, <span class="dt">pmidO =</span> <span class="dv">24770850</span>, <span class="dt">ancestryO =</span> <span class="st">&quot;European&quot;</span>,
+  <span class="dt">rsq.proxy =</span> <span class="fl">0.6</span>, 
+  <span class="dt">file =</span> path.proxies)</code></pre>
+<pre><code>## Variant rs4944958 used as a proxy for rs12785878 in association with the outcome. R^2 value: 1.000.</code></pre>
+<pre><code>##          SNP log(eGFR creatinine).beta log(eGFR creatinine).se
+## 1 rs10741657                   -0.0018                 0.00092
+## 2 rs12785878                    0.0024                 0.00100
+## 3  rs2282679                   -0.0066                 0.00110
+## 4 rs17217119                   -0.0016                 0.00100
+##   Tanner stage.beta Tanner stage.se
+## 1           -0.0136          0.0135
+## 2            0.0102          0.0155
+## 3            0.0227          0.0165
+## 4           -0.0042          0.0148</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">extract.pheno.csv</span>(
+  <span class="dt">exposure =</span> <span class="st">&quot;log(eGFR creatinine)&quot;</span>, <span class="dt">pmidE =</span> <span class="dv">26831199</span>, <span class="dt">ancestryE =</span> <span class="st">&quot;European&quot;</span>,
+  <span class="dt">outcome =</span> <span class="st">&quot;Asthma&quot;</span>, <span class="dt">pmidO =</span> <span class="dv">20860503</span>, <span class="dt">ancestryO =</span> <span class="st">&quot;European&quot;</span>,
+  <span class="dt">rsq.proxy =</span> <span class="fl">0.6</span>, 
+  <span class="dt">file =</span> path.proxies)</code></pre>
+<pre><code>## Variant rs2060793 used as a proxy for rs10741657 in association with the outcome. R^2 value: 1.000.
+## Variant rs7944926 used as a proxy for rs12785878 in association with the outcome. R^2 value: 1.000.</code></pre>
+<pre><code>##          SNP log(eGFR creatinine).beta log(eGFR creatinine).se Asthma.beta
+## 1 rs10741657                   -0.0018                 0.00092     0.00897
+## 2 rs12785878                    0.0024                 0.00100    -0.00353
+## 3  rs2282679                   -0.0066                 0.00110    -0.03906
+## 4 rs17217119                   -0.0016                 0.00100    -0.01241
+##   Asthma.se
+## 1    0.0202
+## 2    0.0229
+## 3    0.0255
+## 4    0.0220</code></pre>
+<p>The output from the <em>extract.pheno.csv</em> function is an MRInput object, which can be plotted using <em>mr_plot</em>, causal estimates can be obtained using <em>mr_ivw</em>, and so on.</p>
+</div>
+<div id="final-note-of-caution" class="section level2">
+<h2>Final note of caution</h2>
+<p>Particularly with the development of Mendelian randomization with summarized data, two-sample Mendelian randomization (where associations with the risk factor and with the outcome are taken from separate datasets), and bioinformatic tools for obtaining and analysing summarized data (including this package), Mendelian randomization is becoming increasingly accessible as a tool for answering epidemiological questions. This is undoubtably a Good Thing. However, it is important to remember that the difficult part of a Mendelian randomization analysis is not the computational method, but deciding what should go into the analysis: which risk factor, which outcome, and (most importantly) which genetic variants. Hopefully, the availability of these tools will enable less attention to be paid to the mechanics of the analysis, and more attention to these choices. The note of caution is that tools that make Mendelian randomization simple to perform run the risk of encouraging large numbers of speculative analyses to be performed in an unprincipled way. It is important that Mendelian randomization is not performed in a way that avoids critical thought. In releasing this package, the hope is that it will lead to more comprehensive and more reproducible causal inferences from Mendelian randomization, and not simply add more noise to the literature.</p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

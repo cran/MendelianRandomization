@@ -1,0 +1,269 @@
+---
+title: "Mendelian Randomization Vignette"
+author:
+- Olena Yavorska
+- Stephen Burgess
+date: "r Sys.Date()"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Mendelian randomization vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+# MendelianRandomization
+
+MendelianRandomization is a package developed to carry out various Mendelian randomization analyses on summarized genetic data in R. The package uses various methods to assess whether a risk factor (also called an exposure) has a causal effect on an outcome.
+
+```{r}
+library(MendelianRandomization)
+```
+
+## The Input
+
+The package uses a special class called *MRInput* within the analyses in order to pass in all necessary information through one simple structure rather than inserting the object in parts. In order to make an *MRInput* object, one can do one of the following :
+
+- assign values to each slot separately 
+- extract it from a PhenoScanner .csv output file
+
+We focus on the first method.
+
+The *MRInput* object has the following "slots" :
+
+- *betaX* and *betaXse* are both numeric vectors describing the associations of the genetic variants with the exposure. *betaX* are the beta-coefficients from univariable regression analyses of the exposure on each genetic variant in turn, and *betaXse* are the standard errors.
+- *betaY* and *betaYse* are both numeric vectors describing the associations of the genetic variants with the outcome. *betaY* are the beta-coefficients from regression analyses of the outcome on each genetic variant in turn, and *betaYse* are the standard errors.
+- *correlation* is a matrix outlining the correlations between the variants. If a correlation matrix is not provided, it is assumed that the variants are uncorrelated.
+- *exposure* is a character string giving the name of the risk factor, e.g. LDL-cholesterol.
+- *outcome* is a character string giving the name of the outcome, e.g. coronary heart disease.
+- *snps* is a character vector of the names of the various genetic variants (SNPs) in the dataset, e.g. rs12785878. It is not necessary to name the exposure, outcome, or SNPs, but these names are used in the graphing functions and may be helpful for keeping track of various analyses.
+
+To generate the *MRInput* object slot by slot, one can use the *mr_input()* function :
+
+```{r}
+MRInputObject <- mr_input(bx = ldlc, 
+                          bxse = ldlcse, 
+                          by = chdlodds, 
+                          byse = chdloddsse)
+
+MRInputObject  # example with uncorrelated variants
+
+MRInputObject.cor <- mr_input(bx = calcium, 
+                             bxse = calciumse, 
+                             by = fastgluc, 
+                             byse = fastglucse,
+                             corr = calc.rho)
+
+MRInputObject.cor  # example with correlated variants
+
+```
+
+It is not necessary for all the slots to be filled. For example, several of the methods do not require *bxse* to be specified; the *mr_ivw* function will still run with *bxse* set to zeros. If the vectors *bx*, *bxse*, *by*, and *byse* are not of equal length, then an error will be reported.
+
+It is also possible to run the analysis using the syntax:
+```{r, eval=FALSE}
+MRInputObject <- mr_input(ldlc, ldlcse, chdlodds, chdloddsse)
+```
+However, care must be taken in this case to give the vectors in the correct order (that is: *bx, bxse, by, byse*).
+
+## The data
+
+Two sets of data are provided as part of this package:
+
+- *ldlc, ldlcse, hdlc, hdlse, trig, trigse, chdlodds, chdloddsse*: these are the associations (beta-coefficients and standard errors) of 28 genetic variants with LDL-cholesterol, HDL-cholesterol, triglycerides, and coronary heart disease (CHD) risk (associations with CHD risk are log odds ratios) taken from Waterworth et al (2011) "Genetic variants influencing circulating lipid levels and risk of coronary artery disease", doi: 10.1161/atvbaha.109.201020.
+- *calcium, calciumse, fastgluc, fastglucse*: these are the associations (beta-coefficients and standard errors) of 7 genetic variants in the /CASR/ gene region. These 7 variants are all correlated, and the correlation matrix is provided as *calc.rho*. These data were analysed in Burgess et al (2015) "Using published data in Mendelian randomization: a blueprint for efficient identification of causal risk factors", doi: 10.1007/s10654-015-0011-z.
+
+## Methods
+
+The MendelianRandomization package supports three main methods for causal estimation: the inverse-variance weighted method, the median-based method, and the MR-Egger method.
+
+## Inverse-variance weighted method
+
+The inverse-variance method is the equivalent to the standard IV method using individual-level data (the two-stage least squares method). Either a fixed- or a random-effects analysis can be performed; the *"default"* option is a fixed-effect analysis when there are three variants or fewer, and a random-effects analysis otherwise. The *robust* option uses robust regression rather than standard regression in the analysis, and the *penalized* option downweights the contribution to the analysis of genetic variants with outlying (heterogeneous) causal estimates. If a correlation matrix is provided in the *MRInput* object, then the correlated method is used by default (*correl = TRUE*), and the *robust* and *penalized* arguments are ignored. 
+
+The default options for constructing confidence intervals are based on a normal distribution and a 95% confidence level, however one can use the t-distribution (*distribution = "t-dist"*) and alternative significance level if desired.
+
+```{r}
+IVWObject <- mr_ivw(MRInputObject,
+                    model = "default",
+                    robust = FALSE,
+                    penalized = FALSE,
+                    correl = FALSE,
+                    distribution = "normal",
+                    alpha = 0.05)
+
+IVWObject <- mr_ivw(mr_input(bx = ldlc, bxse = ldlcse,
+   by = chdlodds, byse = chdloddsse))
+
+IVWObject
+
+IVWObject.correl <- mr_ivw(MRInputObject.cor,
+                    model = "default",
+                    correl = TRUE,
+                    distribution = "normal",
+                    alpha = 0.05)
+
+IVWObject.correl <- mr_ivw(mr_input(bx = calcium, bxse = calciumse,
+   by = fastgluc, byse = fastglucse, corr = calc.rho))
+
+IVWObject.correl
+```
+
+## Median-based method
+
+The median-based method calculates a median of the SNP-specific causal estimates from the ratio method for each genetic variant individually. The default option is to calculate a weighted median using the inverse-variance weights. Alternatively, one can calculate a simple (unweighted) median, or a weighted median using penalization of weights for heterogeneous variants. Since the calculation of standard error requires bootstrapping, the number of bootstrap iterations can be varied. The random seed is set automatically so that results are reproducible; however, the value of the seed can be changed if required.
+
+The median-based method requires data on at least 3 genetic variants. Variants must be uncorrelated provided that the correlation matrix is specified.
+
+```{r}
+WeightedMedianObject <- mr_median(MRInputObject, 
+                                  weighting = "weighted", 
+                                  distribution = "normal", 
+                                  alpha = 0.05, 
+                                  iterations = 10000, 
+                                  seed = 314159265)
+
+WeightedMedianObject <- mr_median(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse))
+
+WeightedMedianObject 
+
+SimpleMedianObject <- mr_median(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse), weighting = "simple")
+
+SimpleMedianObject
+```
+
+## MR-Egger method
+
+The MR-Egger method is implemented here using a random-effects model only. The *robust* and *penalized* options are the same as for the inverse-variance weighted method. The method can be used for both correlated and uncorrelated sets of variants. Confidence intervals can be constructed either using a normal distribution (*distribution = "normal"*, the default option), or a t-distribution (*distribution = "t-dist"*).
+
+With a t-distribution, in case of under-dispersion (the estimated residual standard error in the regression model is less than 1), confidence intervals and p-values use either a t-distribution with no correction for under-dispersion, or a normal distribution with the residual standard error set to 1 -- whichever is wider. This means that under-dispersion is not doubly penalized by setting the residual standard error to 1 and using a t-distribution, but also that the confidence intervals are not narrower (p-values not more extreme) than those using a fixed-effect model.
+
+The median-based method requires data on at least 3 genetic variants. Variants are permitted to be correlated.
+
+```{r}
+EggerObject <- mr_egger(MRInputObject, 
+                        robust = FALSE,
+                        penalized = FALSE,
+                        correl = FALSE,
+                        distribution = "normal",
+                        alpha = 0.05)
+
+EggerObject <- mr_egger(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse))
+
+EggerObject
+
+EggerObject.corr <- mr_egger(MRInputObject.cor, 
+                        correl = TRUE,
+                        distribution = "both",
+                        alpha = 0.05)
+
+EggerObject.corr <- mr_egger(mr_input(bx = calcium, bxse = calciumse,
+  by = fastgluc, byse = fastglucse, corr = calc.rho))
+
+EggerObject.corr
+```
+
+## Summaries of multiple methods
+
+The *mr_allmethods* function is provided to easily compare results (Estimate, Standard Error, 95% CI, and p-value) from multiple methods. One can look at results from all methods (*method = "all"*), or a partial result setting method to *"egger"*, *"ivw"*, or *"median"* to get a more selective set of results. The final option is *"main"*, which gives results from the simple median, weighted median, IVW, and MR-Egger methods only.
+
+```{r}
+MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
+MRAllObject_all
+
+MRAllObject_egger <- mr_allmethods(MRInputObject, method = "egger")
+MRAllObject_egger
+
+MRAllObject_main <- mr_allmethods(MRInputObject, method = "main")
+MRAllObject_main
+```
+
+## Graphical summaries of results
+
+The *mr_plot* function has two different functionalities. First, if the function is applied to an *MRInput* object, then the output is an interactive graph that can be used to explore the associations of the different genetic variants.
+
+The syntax is:
+
+```{r, eval = FALSE}
+mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse), error = TRUE, orientate = FALSE, line = "ivw")
+```
+
+An interactive graph does not reproduce well in a vignette, so we encourage readers to input this code for themselves. The interactive graph allows the user to pinpoint outliers easily.
+
+The option *error = TRUE* plots error bars (95% confidence intervals) for the associations with the exposure and with the outcome. The option *orientate = TRUE* sets all the associations with the exposure to be positive, and re-orientates the associations with the outcome if needed. This option is encouraged for the MR-Egger method (as otherwise points having negative associations with the exposure can appear to be far from the regression line), although by default it is set to *FALSE*. The *line* option can be set to *"ivw"* (to show the inverse-variance weighted estimate) or to *"egger"* (to show the MR-Egger estimate).
+
+Secondly, if the *mr_plot* function is applied to the output of the *mr_allmethods* function, estimates from the different methods can be compared graphically.
+
+```{r}
+mr_plot(MRAllObject_all)
+```
+
+```{r}
+mr_plot(MRAllObject_egger)
+```
+
+```{r}
+mr_plot(mr_allmethods(mr_input(bx = hdlc, bxse = hdlcse,
+  by = chdlodds, byse = chdloddsse)))
+```
+
+We see that estimates from all methods are similar when LDL-cholesterol is the risk factor, but the MR-Egger estimates differ substantially when HDL-cholesterol is the risk factor.
+
+## Extracting association estimates from publicly available datasets
+
+The PhenoScanner bioinformatic tool (http://phenoscanner.medschl.cam.ac.uk) is a curated database of publicly available results from large-scale genetic association studies. The database currently contains over 350 million association results and over 10 million unique genetic variants, mostly single nucleotide polymorphisms.
+
+Our desire is to enable PhenoScanner to be queried directly from the MendelianRandomization package. Currently, PhenoScanner is only available via a web browser. The *extract.pheno.csv()* function takes the output from the web version of PhenoScanner, and converts this into an *MRInput* object. PhenoScanner is still under development, and so *extract.pheno.csv()* should be considered as an experimental function. This function is designed for output from PhenoScanner version 1.1 (Little Miss Sunshine).
+
+The initial steps required to run the *extract.pheno.csv()* function are:
+
+1. Open http://www.phenoscanner.medschl.cam.ac.uk/ in your browser. 
+2. Input the SNPs in question by uploading a file with the rsIDs or hg19 chrN:pos names (separated by newline). 
+3. Choose whether to include proxies or not for SNPs that do not have association data for the given risk factor and/or outcome (and if so, the R-squared threshold value for defining a proxy variant). PhenoScanner currently allows correlation estimates to be taken from the 1000 Genomes or HapMap datasets.
+4. Run the analysis and download the resulting association .csv file. 
+
+In order to obtain the relevant SNP summary estimates, run the *extract.pheno.csv()* function with:
+  - *exposure* is a character vector giving the name of the risk factor.
+  - *pmidE* is the PubMed ID of the paper where the association estimates with the exposure were first published.
+  - *ancestryE* is the ancestry of the participants on whom the association estimates with the exposure were estimated. (For some traits and PubMed IDs, results are given for multiple ancestries.) Usually, ancestry is *"European"* or *"Mixed"*.
+  - *outcome* is a character vector giving the name of the outcome.
+  - *pmidO* is the PubMed ID of the paper where the association estimates with the outcome were first published.
+  - *ancestryE* is the ancestry of the participants on whom the association estimates with the exposure were estimated.
+  - *file* is the file path to the PhenoScanner output .csv file.
+  - *rsq.proxy* is the threshold R-squared value for proxies to be included in the analysis. If a proxy variant is used as part of the analysis, this is reported. The default value of *rsq.proxy* is 1, meaning that only perfect proxies will be used.
+  - *snps* is the SNPs that will be included in the analysis. The default value is "all", indicating that all SNPs in the .csv file will be used in the analysis. If only a limited number of SNPs are to be included, *snps* can be set as a character vector with the named to the SNPs to be included in the analysis.
+
+Two example .csv files from PhenoScanner are included as part of the package: vitD_snps_PhenoScanner.csv (which does not include proxies), and vitD_snps_PhenoScanner_proxies.csv (which includes proxies at an R-squared threshold of 0.6).
+
+```{r}
+path.noproxy <- system.file("extdata", "vitD_snps_PhenoScanner.csv",
+  package = "MendelianRandomization")
+path.proxies <- system.file("extdata", "vitD_snps_PhenoScanner_proxies.csv",
+  package = "MendelianRandomization")
+
+
+extract.pheno.csv(
+  exposure = "log(eGFR creatinine)", pmidE = 26831199, ancestryE = "European",
+  outcome = "Tanner stage", pmidO = 24770850, ancestryO = "European", 
+  file = path.noproxy)
+
+extract.pheno.csv(
+  exposure = "log(eGFR creatinine)", pmidE = 26831199, ancestryE = "European",
+  outcome = "Tanner stage", pmidO = 24770850, ancestryO = "European",
+  rsq.proxy = 0.6, 
+  file = path.proxies)
+
+extract.pheno.csv(
+  exposure = "log(eGFR creatinine)", pmidE = 26831199, ancestryE = "European",
+  outcome = "Asthma", pmidO = 20860503, ancestryO = "European",
+  rsq.proxy = 0.6, 
+  file = path.proxies)
+```
+
+The output from the *extract.pheno.csv* function is an MRInput object, which can be plotted using *mr_plot*, causal estimates can be obtained using *mr_ivw*, and so on.
+
+## Final note of caution
+
+Particularly with the development of Mendelian randomization with summarized data, two-sample Mendelian randomization (where associations with the risk factor and with the outcome are taken from separate datasets), and bioinformatic tools for obtaining and analysing summarized data (including this package), Mendelian randomization is becoming increasingly accessible as a tool for answering epidemiological questions. This is undoubtably a Good Thing. However, it is important to remember that the difficult part of a Mendelian randomization analysis is not the computational method, but deciding what should go into the analysis: which risk factor, which outcome, and (most importantly) which genetic variants. Hopefully, the availability of these tools will enable less attention to be paid to the mechanics of the analysis, and more attention to these choices. The note of caution is that tools that make Mendelian randomization simple to perform run the risk of encouraging large numbers of speculative analyses to be performed in an unprincipled way. It is important that Mendelian randomization is not performed in a way that avoids critical thought. In releasing this package, the hope is that it will lead to more comprehensive and more reproducible causal inferences from Mendelian randomization, and not simply add more noise to the literature.
