@@ -7,10 +7,11 @@
 \alias{mr_plot,MRInput-method}
 \title{Draw a scatter plot of the genetic associations and/or causal estimates}
 \usage{
-mr_plot(object, error = TRUE, line = "ivw", orientate = FALSE, ...)
+mr_plot(object, error = TRUE, line = "ivw", orientate = FALSE,
+  interactive = TRUE, labels = FALSE)
 
 \S4method{mr_plot}{MRInput}(object, error = TRUE, line = "ivw",
-  orientate = FALSE)
+  orientate = FALSE, interactive = TRUE, labels = FALSE)
 
 \S4method{mr_plot}{MRAll}(object)
 }
@@ -23,6 +24,10 @@ mr_plot(object, error = TRUE, line = "ivw", orientate = FALSE, ...)
 
 \item{orientate}{When viewing an \code{MRInput} object, one can choose whether to orientate all genetic variants so that the associations with the risk factor are all positive. This is recommended particularly when plotting the MR-Egger estimate, although the default setting is \code{FALSE}.}
 
+\item{interactive}{When viewing an \code{MRInput} object, one can choose whether to produce an interactive graph using the \code{plotly} package, or a static graph using the regular \code{plot} command.}
+
+\item{labels}{When viewing an \code{MRInput} object with \code{interactive} set to \code{FALSE}, setting \code{labels} to \code{TRUE} means that the name of each genetic variants appears above the corresponding datapoint.}
+
 \item{...}{Additional arguments to be passed to other methods.}
 }
 \description{
@@ -30,7 +35,9 @@ The function \code{mr_plot} has two functionalities. It can generate a visual re
 }
 \details{
 The result is dependent on the type of object passed to \code{mr_plot}.
-When the object is an \code{MRInput} object, the function uses \code{plotly} syntax to plot the association estimates against eachother. This plot is interactive and the user can hover over the various points to see the name of the associated genetic variant and its association estimates.
+When the object is an \code{MRInput} object, the function uses either the \code{plot} command (if \code{interactive} is set to \code{FALSE}) or \code{plotly} syntax (if \code{interactive} is set to \code{TRUE}) to plot the association estimates against each other.
+If \code{interactive} is set to \code{FALSE}, then a static graph is produced. By setting \code{labels} to \code{TRUE}, the names of the genetic variants appear above the points. This produces a less visually appealing graph, but one where it is easier to identify the individual genetic variants.
+If \code{interactive} is set to \code{TRUE}, then the plot is interactive and the user can hover over the various points to see the name of the associated genetic variant and its association estimates.
 When the object is an \code{MRAll} object, the function generates a \code{ggplot} to compare the causal estimates proposed by different methods.
 }
 \examples{
@@ -38,6 +45,8 @@ mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
   line="ivw")
 mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
   error=FALSE, line="egger", orientate = TRUE)
+mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+  line="ivw", interactive=FALSE) # produces a static graph
 mr_plot(mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
    by = chdlodds, byse = chdloddsse), method="all", iterations = 1000))
   # iterations is set to 1000 to reduce runtime for the mr_median method,

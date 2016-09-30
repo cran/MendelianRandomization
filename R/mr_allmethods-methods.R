@@ -46,14 +46,14 @@ setMethod("mr_allmethods",
               # IVW
               df[4,2:6] <- values(mr_ivw(object, model = "default"))
               df[5,2:6] <- values(mr_ivw(object, model = "default", penalized = T))
-              df[6,2:6] <- values(mr_ivw(object, model = "default", robust = T, ...))
-              df[7,2:6] <- values(mr_ivw(object, model = "default", robust = T, penalized = T, ...))
+              df[6,2:6] <- values(mr_ivw(object, model = "default", robust = T))
+              df[7,2:6] <- values(mr_ivw(object, model = "default", robust = T, penalized = T))
 
               # Egger
               df[8:9,2:6] <- values(mr_egger(object))
               df[10:11,2:6] <- values(mr_egger(object, penalized = T))
-              df[12:13,2:6] <- values(mr_egger(object, robust = T, ...))
-              df[14:15,2:6] <- values(mr_egger(object, robust = T, penalized = T, ...))
+              df[12:13,2:6] <- values(mr_egger(object, robust = T))
+              df[14:15,2:6] <- values(mr_egger(object, robust = T, penalized = T))
 
             } else if (method == "median") {
 
@@ -91,8 +91,8 @@ setMethod("mr_allmethods",
               # Egger
               df[1:2,2:6] <- values(mr_egger(object)) # simple egger
               df[3:4,2:6] <- values(mr_egger(object, penalized = T)) # penalised egger
-              df[5:6,2:6] <- values(mr_egger(object, robust = T, ...)) # robust egger
-              df[7:8,2:6] <- values(mr_egger(object, robust = T, penalized = T, ...)) # penalised robust egger
+              df[5:6,2:6] <- values(mr_egger(object, robust = T)) # robust egger
+              df[7:8,2:6] <- values(mr_egger(object, robust = T, penalized = T)) # penalised robust egger
 
             } else if (method == "ivw") {
 
@@ -108,24 +108,25 @@ setMethod("mr_allmethods",
               # IVW
               df[1,2:6] <- values(mr_ivw(object, model = "default")) # random simple ivw
               df[2,2:6] <- values(mr_ivw(object, model = "default", penalized = T)) # random penalised ivw
-              df[3,2:6] <- values(mr_ivw(object, model = "default", robust = T, ...)) # random robust ivw
-              df[4,2:6] <- values(mr_ivw(object, model = "default", robust = T, penalized = T, ...)) # random penalised robust ivw
+              df[3,2:6] <- values(mr_ivw(object, model = "default", robust = T)) # random robust ivw
+              df[4,2:6] <- values(mr_ivw(object, model = "default", robust = T, penalized = T)) # random penalised robust ivw
             }
              else if (method == "main") {
 
-              df <- data.frame(matrix(0, nrow = 4, ncol = 6))
+              df <- data.frame(matrix(0, nrow = 5, ncol = 6))
               colnames(df) <- headings
 
               Methods <- c("Simple median",
                            "Weighted median",
                            "IVW",
-                           "MR-Egger")
+                           "MR-Egger",
+                           "(intercept)")
               df[,1] <- Methods
 
               df[1,2:6] <- values(mr_median(object, weighting = "simple", ...)) # simple median
               df[2,2:6] <- values(mr_median(object, weighting = "weighted", ...)) # weighted median
               df[3,2:6] <- values(mr_ivw(object, model = "default")) # random simple ivw
-              df[4,2:6] <- values(mr_egger(object)) # random simple MR-Egger
+              df[4:5,2:6] <- values(mr_egger(object)) # random simple MR-Egger
             }
 
             return(new("MRAll", Data = object, Values = df, Method = method))

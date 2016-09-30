@@ -1,0 +1,9 @@
+MendelianRandomization v0.2.0
+=============================
+New functionality on mr_plot command: static graph (new options "interactive" and "labels").
+New command mr_maxlik: implements maximum-likelihood estimation method.
+Bug fixes on mr_allmethods command.
+
+MendelianRandomization v0.1.0
+=============================
+First release.

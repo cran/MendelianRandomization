@@ -19,14 +19,14 @@ MendelianRandomization is a package developed to carry out various Mendelian ran
 library(MendelianRandomization)
 ```
 
-## The Input
+## Data Input
 
 The package uses a special class called *MRInput* within the analyses in order to pass in all necessary information through one simple structure rather than inserting the object in parts. In order to make an *MRInput* object, one can do one of the following :
 
 - assign values to each slot separately 
 - extract it from a PhenoScanner .csv output file
 
-We focus on the first method.
+We initially focus on the first method.
 
 The *MRInput* object has the following "slots" :
 
@@ -65,7 +65,7 @@ MRInputObject <- mr_input(ldlc, ldlcse, chdlodds, chdloddsse)
 ```
 However, care must be taken in this case to give the vectors in the correct order (that is: *bx, bxse, by, byse*).
 
-## The data
+## Data supplied
 
 Two sets of data are provided as part of this package:
 
@@ -82,12 +82,16 @@ The inverse-variance method is the equivalent to the standard IV method using in
 
 The default options for constructing confidence intervals are based on a normal distribution and a 95% confidence level, however one can use the t-distribution (*distribution = "t-dist"*) and alternative significance level if desired.
 
+*ADDED IN VERSION 0.2.0* The default option for the weights is *"simple"*, which corresponds to an inverse-variance weighted meta-analysis of the ratio estimates *by/bx* using standard errors *byse/bx*. The expression for the standard error of the ratio estimate is the first-order term of a delta expansion for the variance of a ratio. The corresponding weights in the regression analysis are *byse\^-2*. These weights have been demonstrated to give reasonable inferences in realistic settings. However, they do not take into account uncertainty in the genetic associations with the exposure. Alternatively, the second-order term of the delta expansion is *sqrt(byse\^2/bx\^2+by\^2*bxse\^2/bx\^4-2*psi*by*bxse*byse/bx\^3)*, where *psi* is the correlation for each variant between its association with the exposure and with the outcome. This correlation will be zero (the default value) in a strict two-sample setting in which there is no overlap between the individuals used to estimate associations with the exposure and with the outcome. Paradoxically, although the standard error expression implied by the second-order weights (obtained by setting *weights* equal to *"delta"*) is larger, resulting in wider confidence intervals for a single genetic variant, the use of second-order weights often leads to less heterogeneity between the estimates for the individual variants, and so in narrower confidence intervals.
+
 ```{r}
 IVWObject <- mr_ivw(MRInputObject,
                     model = "default",
                     robust = FALSE,
                     penalized = FALSE,
                     correl = FALSE,
+                    weights = "simple",
+                    psi = 0,
                     distribution = "normal",
                     alpha = 0.05)
 
@@ -156,13 +160,39 @@ EggerObject
 
 EggerObject.corr <- mr_egger(MRInputObject.cor, 
                         correl = TRUE,
-                        distribution = "both",
+                        distribution = "normal",
                         alpha = 0.05)
 
 EggerObject.corr <- mr_egger(mr_input(bx = calcium, bxse = calciumse,
   by = fastgluc, byse = fastglucse, corr = calc.rho))
 
 EggerObject.corr
+```
+
+## Maximum likelihood method
+
+*ADDED IN VERSION 0.2.0* An additional method for causal estimation is the maximum likelihood method, introduced in Burgess et al (2013) "Mendelian randomization analysis with multiple genetic variants using summarized data", doi: 10.1002/gepi.21758. This method has not been used much in the literature, due to its similarity to the inverse-variance weighted method (both methods use the same underlying model), and its relative complexity: the method involves maximizing a likelihood that has one parameter for each genetic variant, plus a causal effect parameter. For large numbers of genetic variants, this entails optimization over a large parameter space, which can lead to numerical issues in the optimization algorithm.
+
+The method naturally assumes a fixed-effect model -- the same causal effect is estimated by each of the genetic variants. However, if there is heterogeneity between the causal estimates from the different genetic variants, then confidence intervals from a fixed-effect model will be overly precise. We implement a random-effects model by multiplying the standard error from the fixed-effect model by an estimate of the residual standard error obtained: the likelihood ratio heterogeneity test statistic divided by the number of genetic variants less 1, and then square rooted (provided this quantity is greater than 1, otherwise no modification to the standard error is made). This is similar to the residual standard error in a regression model, which can be calculated from the Cochran Q heterogeneity test statistic by the same steps. As with the IVW method, the default option is to implement a fixed-effect model with three variants or fewer, and a random-effects analysis otherwise.
+
+The method has two main advantages over the IVW method: it allows for uncertainty in the genetic associations with the exposure (which is ignored in the IVW method using simple weights), and it allows for genetic associations with the exposure and with the outcome for each variant to be correlated. This correlation arises if the samples for the associations with the exposure and the outcome overlap. In a strict two-sample Mendelian randomization setting, the correlation parameter *psi* is set to zero (the default option). If the associations are estimated in the same individuals (complete sample overlap), then the value of *psi* should be the observed correlation between the exposure and the outcome.
+
+```{r}
+MaxLikObject <- mr_maxlik(MRInputObject, 
+                          correl = FALSE,
+                          psi = 0,
+                          distribution = "normal",
+                          alpha = 0.05)
+
+MaxLikObject <- mr_maxlik(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse))
+
+MaxLikObject
+
+MaxLikObject.corr <- mr_maxlik(mr_input(bx = calcium, bxse = calciumse,
+  by = fastgluc, byse = fastglucse, corr = calc.rho))
+
+MaxLikObject.corr
 ```
 
 ## Summaries of multiple methods
@@ -182,17 +212,38 @@ MRAllObject_main
 
 ## Graphical summaries of results
 
+### Applied to MRInput object - display of data
+
 The *mr_plot* function has two different functionalities. First, if the function is applied to an *MRInput* object, then the output is an interactive graph that can be used to explore the associations of the different genetic variants.
 
 The syntax is:
 
 ```{r, eval = FALSE}
-mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse), error = TRUE, orientate = FALSE, line = "ivw")
+mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+ error = TRUE, orientate = FALSE, line = "ivw")
 ```
 
-An interactive graph does not reproduce well in a vignette, so we encourage readers to input this code for themselves. The interactive graph allows the user to pinpoint outliers easily.
+An interactive graph does not reproduce well in a vignette, so we encourage readers to input this code for themselves. The interactive graph allows the user to pinpoint outliers easily; when the user mouses over one of the points, the name of the variant is shown.
 
 The option *error = TRUE* plots error bars (95% confidence intervals) for the associations with the exposure and with the outcome. The option *orientate = TRUE* sets all the associations with the exposure to be positive, and re-orientates the associations with the outcome if needed. This option is encouraged for the MR-Egger method (as otherwise points having negative associations with the exposure can appear to be far from the regression line), although by default it is set to *FALSE*. The *line* option can be set to *"ivw"* (to show the inverse-variance weighted estimate) or to *"egger"* (to show the MR-Egger estimate).
+
+*ADDED IN VERSION 0.2.0* A static version of this graph is also available, by setting *interactive = FALSE*: 
+```{r}
+mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+ error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE)
+```
+
+This version of the graph is less useful for detecting outliers, but easier to save as a file and share with colleagues.
+
+Outliers can be detected using the *labels = TRUE* option:
+```{r}
+mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+ error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE, labels = TRUE)
+```
+
+The resulting graph is quite ugly, but it is easy to identify the individual points.
+
+### Applied to MRAll object - comparison of estimates
 
 Secondly, if the *mr_plot* function is applied to the output of the *mr_allmethods* function, estimates from the different methods can be compared graphically.
 
@@ -267,3 +318,5 @@ The output from the *extract.pheno.csv* function is an MRInput object, which can
 ## Final note of caution
 
 Particularly with the development of Mendelian randomization with summarized data, two-sample Mendelian randomization (where associations with the risk factor and with the outcome are taken from separate datasets), and bioinformatic tools for obtaining and analysing summarized data (including this package), Mendelian randomization is becoming increasingly accessible as a tool for answering epidemiological questions. This is undoubtably a Good Thing. However, it is important to remember that the difficult part of a Mendelian randomization analysis is not the computational method, but deciding what should go into the analysis: which risk factor, which outcome, and (most importantly) which genetic variants. Hopefully, the availability of these tools will enable less attention to be paid to the mechanics of the analysis, and more attention to these choices. The note of caution is that tools that make Mendelian randomization simple to perform run the risk of encouraging large numbers of speculative analyses to be performed in an unprincipled way. It is important that Mendelian randomization is not performed in a way that avoids critical thought. In releasing this package, the hope is that it will lead to more comprehensive and more reproducible causal inferences from Mendelian randomization, and not simply add more noise to the literature.
+
+

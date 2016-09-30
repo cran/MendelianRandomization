@@ -17,7 +17,7 @@ Penalized weights.
 \description{
 Internal function for calculating penalized weights in conjunction with \code{penalised.weights}.
 
-These weights are used in either the \code{mr_ivw} or \code{mr_egger} functions when \code{penalized = TRUE}, or in the \code{mr_median} function when \code{method = "penalized"}.
+These weights are used in either the \code{mr_ivw} or \code{mr_egger} functions when \code{penalized = TRUE}.
 }
 \details{
 None.

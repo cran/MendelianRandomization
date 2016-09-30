@@ -88,7 +88,9 @@ setGeneric(name = "mr_median",
 #' @param model What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The random-effects model (\code{"random"}) is a multiplicative random-effects model, allowing overdispersion in the weighted linear regression (the residual standard error is not fixed to be 1, but is not allowed to take values below 1). The fixed-effect model (\code{"fixed"}) sets the residual standard error to be 1. The \code{"default"} setting is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.
 #' @param robust Indicates whether robust regression using the \code{lmrob()} function from the package \code{robustbase} should be used in the method rather than standard linear regression (\code{lm}).
 #' @param penalized Indicates whether a penalty should be applied to the weights to downweight the contribution of genetic variants with outlying ratio estimates to the analysis.
-#' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRInput} object, then \code{correl} is set to \code{TRUE}. If \code{correl} is set to \code{TRUE}, then the values of \code{robust} and \code{penalized} are taken as \code{FALSE}.
+#' @param weights Which weights to use in the weighted regression. If \code{"simple"} (the default option), then the IVW estimate is equivalent to meta-analysing the ratio estimates from each variant using inverse-variance weights based on the simplest expression of the variance for the ratio estimate (first-order term from the delta expansion - standard error of the association with the outcome divided by the association with the exposure). If \code{"delta"}, then the variance expression is the second-order term from the delta expansion. The second-order term incorporates uncertainty in the genetic association with the exposure -- this uncertainty is ignored using the simple weighting.
+#' @param psi The correlation between the genetic associations with the exposure and the association with the outcome for each variant resulting from sample overlap. The default value is \code{0}, corresponding to a strict two-sample Mendelian randomization analysis (no overlap). If there is complete overlap between the samples, then the correlation should be set to the observational correlation between the exposure and the outcome. This correlation is only used in the calculation of standard errors if the option \code{weights} is set to \code{"delta"}.
+#' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRInput} object, then \code{correl} is set to \code{TRUE}. If \code{correl} is set to \code{TRUE}, then the values of \code{robust} and \code{penalized} are taken as \code{FALSE}, and \code{weights} is set to \code{"simple"}.
 #' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
 #' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
 #' @param ... Additional arguments to be passed to the regression method.
@@ -140,11 +142,13 @@ setGeneric(name = "mr_median",
 #'
 #' Heterogeneity test: Fabiola del Greco, Cosetta Minelli, Nuala A Sheehan, John R Thompson. Detecting pleiotropy in Mendelian randomisation studies with summary data and a continuous outcome. Stat Med 2015; 34(21):2926-2940. doi: 10.1002/sim.6522.
 #'
+#' Simple versus delta weights (first-order versus second-order): Stephen Burgess, Jack Bowden. Integrating summarized data from multiple genetic variants in Mendelian randomization: bias and coverage properties of inverse-variance weighted methods. arXiv:1512.04486.
+#'
 #' @export
 
 setGeneric(name = "mr_ivw",
            def = function(object, model = "default",
-                          robust = FALSE, penalized = FALSE, correl = FALSE,
+                          robust = FALSE, penalized = FALSE, weights = "simple", psi = 0, correl = FALSE, 
                           distribution = "normal", alpha = 0.05, ...)
            {standardGeneric("mr_ivw")})
 
@@ -226,7 +230,7 @@ setGeneric(name = "mr_egger",
 
 #' Mendelian randomization estimation using all methods
 #'
-#' The function \code{mr_allmethods} implements Mendelian randomization analyses using summarized data to calculate estimates (as well as standard
+#' @description The function \code{mr_allmethods} implements Mendelian randomization analyses using summarized data to calculate estimates (as well as standard
 #' errors and confidence interval limits) for all the methods included in the package (or alternatively for the group of methods chosen).
 #'
 #' @param object An \code{MRInput} object.
@@ -272,16 +276,22 @@ setGeneric(name = "mr_allmethods",
 #' @param error When viewing an \code{MRInput} object, one can choose whether to include error bars (default is to include).
 #' @param line When viewing an \code{MRInput} object, one can choose whether to include the IVW estimate (\code{line = "ivw"}) or the MR-Egger estimate (\code{line = "egger"}).
 #' @param orientate When viewing an \code{MRInput} object, one can choose whether to orientate all genetic variants so that the associations with the risk factor are all positive. This is recommended particularly when plotting the MR-Egger estimate, although the default setting is \code{FALSE}.
+#' @param interactive When viewing an \code{MRInput} object, one can choose whether to produce an interactive graph using the \code{plotly} package, or a static graph using the regular \code{plot} command.
+#' @param labels When viewing an \code{MRInput} object with \code{interactive} set to \code{FALSE}, setting \code{labels} to \code{TRUE} means that the name of each genetic variants appears above the corresponding datapoint.
 #' @param ... Additional arguments to be passed to other methods.
 #'
 #' @details The result is dependent on the type of object passed to \code{mr_plot}.
-#' When the object is an \code{MRInput} object, the function uses \code{plotly} syntax to plot the association estimates against eachother. This plot is interactive and the user can hover over the various points to see the name of the associated genetic variant and its association estimates.
+#' When the object is an \code{MRInput} object, the function uses either the \code{plot} command (if \code{interactive} is set to \code{FALSE}) or \code{plotly} syntax (if \code{interactive} is set to \code{TRUE}) to plot the association estimates against each other.
+#' If \code{interactive} is set to \code{FALSE}, then a static graph is produced. By setting \code{labels} to \code{TRUE}, the names of the genetic variants appear above the points. This produces a less visually appealing graph, but one where it is easier to identify the individual genetic variants.
+#' If \code{interactive} is set to \code{TRUE}, then the plot is interactive and the user can hover over the various points to see the name of the associated genetic variant and its association estimates.
 #' When the object is an \code{MRAll} object, the function generates a \code{ggplot} to compare the causal estimates proposed by different methods.
 #'
 #' @examples mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
 #'   line="ivw")
 #' mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
 #'   error=FALSE, line="egger", orientate = TRUE)
+#' mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+#'   line="ivw", interactive=FALSE) # produces a static graph
 #' mr_plot(mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
 #'    by = chdlodds, byse = chdloddsse), method="all", iterations = 1000))
 #'   # iterations is set to 1000 to reduce runtime for the mr_median method,
@@ -292,6 +302,63 @@ setGeneric(name = "mr_allmethods",
 #' @export
 
 setGeneric(name = "mr_plot",
-           def = function(object, error = TRUE, line = "ivw", orientate=FALSE, ...){standardGeneric("mr_plot")})
+           def = function(object, error = TRUE, line = "ivw", orientate=FALSE, interactive = TRUE, labels = FALSE){standardGeneric("mr_plot")})
 
 #--------------------------------------------------------------------------------------------
+
+#' Maximum-likelihood method
+#'
+#' @description The \code{mr_maxlik} function implements the maximum-likelihood method introduced by Burgess et al (2013).
+#' 
+#' @param object An \code{MRInput} object.
+#' @param model What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The method naturally estimates a fixed-effect model, assuming that the same causal effect is estimated by each of the genetic variants. However, if there is heterogeneity in the causal estimates of the different variants, then confidence intervals under a fixed-effect model will be overly narrow. The random-effects model adds additional uncertainty by multiplying the standard error by the square-root of the likelihood ratio heterogeneity statistic divided by the number of genetic variants less one (unless this quantity is less than 1, in which case no modification to the standard error is made). This parallels the residual standard error in a regression model (the Cochran Q heterogeneity test statistic is equal to the square of the RSE multiplied by the number of genetic variants less one). The default setting (\code{"default"}) is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.
+#' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1).
+#' @param psi The correlation between the association with the exposure and the association with the outcome for each variant resulting from sample overlap.
+#' @param distribution The type of distribution used to calculate the confidence intervals, can be \code{"normal"} (the default option) or \code{"t-dist"}.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#' @param ... Additional arguments to be passed to the optimization method.
+#'
+#' @details A likelihood function is defined by assuming that the summarized data for each genetic variant are normally distributed. A bivariate normal distribution is assumed for the associations of each genetic variant with the exposure and with the outcome. The mean of the association with the outcome is taken as the mean association with the exposure multiplied by the causal effect parameter.
+#'
+#' Thus, if there are \code{K} genetic variants, then \code{K+1} parameters are estimated by the method: one for each gene--exposure association, plus the causal parameter. If the number of genetic variants is large, then maximization of this function may be an issue. If the maximum likelihood estimate substantially differs from the inverse-variance weighted estimate, this may indicate that convergence has not occurred in the optimization algorithm.
+#'
+#' The variance-covariance matrices for the bivariate normal distributions are obtained from the standard error estimates provided. The correlation \code{psi} between genetic associations with the exposure and with the outcome due to sample overlap can be specified; its default value is zero.
+#'
+#' Two features why this method may be preferred over the inverse-variance weighted method are the incorporation in the model of uncertainty in the genetic associations with the exposure, and of correlation between the genetic association estimates with exposure and outcome for each variant. The method is implemented both for uncorrelated and correlated genetic variants. It can also be used for a single genetic variant.
+#'
+#' The original version of the maximum-likelihood method assumed that all genetic variants identify the same causal estimate; a fixed-effect model. The causal estimate may be overly precise if the fixed-effect model is incorrect and there is substantial heterogeneity in the causal estimates from the different variants. The random-effects analysis implemented here is an ad hoc solution to the problem of heterogeneity, but one that should result in reasonable confidence intervals that incorporate this heterogeneity.
+#'
+#' @return The output from the function is an \code{MaxLik} object containing:
+#'
+#'  \item{Model}{A character string giving the type of model used (\code{"fixed"}, \code{"random"}, or \code{"default"}).}
+#'  \item{Exposure}{A character string giving the name given to the exposure.}
+#'  \item{Outcome}{A character string giving the name given to the outcome.}
+#'  \item{Correlation}{The matrix of genetic correlations.}
+#'  \item{Psi}{The correlation between genetic associations with the exposure and with the outcome.}
+#'  \item{Estimate}{The value of the causal estimate.}
+#'  \item{StdError}{Standard error of the causal estimate.}
+#'  \item{CILower}{The lower bound of the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{CIUpper}{The upper bound of the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-value associated with the estimate (calculated as Estimate/StdError as per Wald test) using a normal or t-distribution (as specified in \code{distribution}).}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'  \item{RSE}{The estimated residual standard error from the regression model (always equal to 1, as a fixed-effect model is required.}
+#'  \item{Heter.Stat}{Heterogeneity statistic (likelihood ratio statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+#'
+#' @examples mr_maxlik(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
+#' mr_maxlik(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse), psi=0.2)
+#' mr_maxlik(mr_input(calcium, calciumse, fastgluc, fastglucse, corr=calc.rho))
+#'   ## correlated variants
+#'
+#' @references Stephen Burgess, Adam S Butterworth, Simon G Thompson. Mendelian randomization analysis with multiple genetic variants using summarized data. Genetic Epidemiology 2013; 37:658-665. doi: 10.1002/gepi.21758.
+#'
+#' @export
+
+setGeneric(name = "mr_maxlik",
+           def = function(object, model = "default", 
+                          correl = FALSE, psi = 0,
+                          distribution = "normal", alpha = 0.05, ...)
+             {standardGeneric("mr_maxlik")})
+
+#--------------------------------------------------------------------------------------------
+

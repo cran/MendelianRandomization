@@ -33,3 +33,8 @@ setMethod("$",
 setMethod("$",
           "MRInput",
           function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MaxLik",
+          function(x, name) slot(x, name))

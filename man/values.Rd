@@ -5,12 +5,15 @@
 \alias{values}
 \alias{values,Egger-method}
 \alias{values,IVW-method}
+\alias{values,MaxLik-method}
 \alias{values,WeightedMedian-method}
 \title{Applies method values() to different output classes}
 \usage{
 \S4method{values}{WeightedMedian}(object)
 
 \S4method{values}{IVW}(object)
+
+\S4method{values}{MaxLik}(object)
 
 \S4method{values}{Egger}(object)
 }

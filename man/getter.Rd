@@ -6,6 +6,7 @@
 \alias{$,IVW-method}
 \alias{$,MRAll-method}
 \alias{$,MRInput-method}
+\alias{$,MaxLik-method}
 \alias{$,WeightedMedian-method}
 \alias{getter}
 \title{Applies method $ to different classes}
@@ -19,6 +20,8 @@
 \S4method{$}{MRAll}(x, name)
 
 \S4method{$}{MRInput}(x, name)
+
+\S4method{$}{MaxLik}(x, name)
 }
 \arguments{
 \item{x}{Object.}

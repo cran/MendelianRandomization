@@ -215,3 +215,45 @@ setClass("MRAll",
 )
 
 #--------------------------------------------------------------------------------------------
+
+#' MaxLik Class
+#'
+#' @description An object containing the estimate produced using the maximum-likelihood method as well as various statistics.
+#'
+#' @slot Model The model used for estimation: fixed-effect (\code{"fixed"}) or random-effects (\code{"random"}).
+#' @slot Exposure The name of the exposure variable.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Correlation The matrix of correlations between genetic variants.
+#' @slot Psi The correlations between genetic associations with the exposure and with the outcome.
+#' @slot Estimate The causal point estimate from the inverse-variance weighted method.
+#' @slot StdError The standard error associated with \code{Estimate}.
+#' @slot CILower The lower bound of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper The upper bound of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+#' @slot Pvalue P-value associated with the causal estimate.
+#' @slot SNPs The number of SNPs that were used in the calculation.
+#' @slot RSE The estimated residual standard error from the regression model.
+#' @slot Heter.Stat Heterogeneity statistic (likelihood ratio statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.
+
+setClass("MaxLik",
+         representation(Model = "character",
+                        Exposure = "character",
+                        Outcome = "character",
+
+                        Correlation = "matrix",
+                        Psi = "numeric",
+
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        Alpha = "numeric",
+
+                        Pvalue = "numeric",
+                        SNPs = "numeric",
+
+                        RSE = "numeric",
+                        Heter.Stat = "numeric")
+)
+
+#--------------------------------------------------------------------------------------------

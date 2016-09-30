@@ -27,6 +27,8 @@ IVWObject <- mr_ivw(MRInputObject,
                     robust = FALSE,
                     penalized = FALSE,
                     correl = FALSE,
+                    weights = "simple",
+                    psi = 0,
                     distribution = "normal",
                     alpha = 0.05)
 
@@ -79,13 +81,30 @@ EggerObject
 
 EggerObject.corr <- mr_egger(MRInputObject.cor, 
                         correl = TRUE,
-                        distribution = "both",
+                        distribution = "normal",
                         alpha = 0.05)
 
 EggerObject.corr <- mr_egger(mr_input(bx = calcium, bxse = calciumse,
   by = fastgluc, byse = fastglucse, corr = calc.rho))
 
 EggerObject.corr
+
+## ------------------------------------------------------------------------
+MaxLikObject <- mr_maxlik(MRInputObject, 
+                          correl = FALSE,
+                          psi = 0,
+                          distribution = "normal",
+                          alpha = 0.05)
+
+MaxLikObject <- mr_maxlik(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse))
+
+MaxLikObject
+
+MaxLikObject.corr <- mr_maxlik(mr_input(bx = calcium, bxse = calciumse,
+  by = fastgluc, byse = fastglucse, corr = calc.rho))
+
+MaxLikObject.corr
 
 ## ------------------------------------------------------------------------
 MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
@@ -98,7 +117,16 @@ MRAllObject_main <- mr_allmethods(MRInputObject, method = "main")
 MRAllObject_main
 
 ## ---- eval = FALSE-------------------------------------------------------
-#  mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse), error = TRUE, orientate = FALSE, line = "ivw")
+#  mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+#   error = TRUE, orientate = FALSE, line = "ivw")
+
+## ------------------------------------------------------------------------
+mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+ error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE)
+
+## ------------------------------------------------------------------------
+mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+ error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE, labels = TRUE)
 
 ## ------------------------------------------------------------------------
 mr_plot(MRAllObject_all)

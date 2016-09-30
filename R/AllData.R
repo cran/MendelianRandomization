@@ -49,7 +49,7 @@
 #'
 #' Two sets of example data are included in the package: one illustrating uncorrelated variants, and the other correlated variants. These are the data on correlated variants.
 #'
-#' The variables \code{calcium}, and \code{fastgluc} are the genetic associations with calcium and fasting glucose for 7 genetic variants reported by Burgess et al (2015). The respective standard errors of the associations are given as \code{calciumse} and \code{fastglucse}. The matrix of correlations between the genetic variants is given as \code{calc.rho}.
+#' The variables \code{calcium}, and \code{fastgluc} are the genetic associations with calcium and fasting glucose for 6 genetic variants reported by Burgess et al (2015). The respective standard errors of the associations are given as \code{calciumse} and \code{fastglucse}. The matrix of correlations between the genetic variants is given as \code{calc.rho}.
 #' 
 #' These data can be used to test out the various functions in the package.
 #'
@@ -68,3 +68,14 @@
 
 #' @rdname calcium
 "calc.rho"
+
+#---------------
+
+#' Course data
+#'
+#' Data required for Mendelian randomization course.
+#'
+#' @keywords internal
+#'
+"coursedata"
+

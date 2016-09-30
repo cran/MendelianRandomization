@@ -1,8 +1,8 @@
 Package: MendelianRandomization
 Type: Package
 Title: Mendelian Randomization Package
-Version: 0.1.0
-Date: 2016-08-17
+Version: 0.2.0
+Date: 2016-09-30
 Author: Olena Yavorska <yavorsko@tcd.ie>
 Maintainer: Stephen Burgess <sb452@medschl.cam.ac.uk>
 Description: Encodes several methods for performing Mendelian randomization analyses with summarized data. Summarized data on genetic associations with the exposure and with the outcome can be obtained from large consortia. These data can be used for obtaining causal estimates using instrumental variable methods.
@@ -14,6 +14,6 @@ VignetteBuilder: knitr
 LazyData: TRUE
 RoxygenNote: 5.0.1
 NeedsCompilation: no
-Packaged: 2016-08-30 21:01:46 UTC; sb452
+Packaged: 2016-09-30 14:44:37 UTC; sb452
 Repository: CRAN
-Date/Publication: 2016-08-31 12:15:38
+Date/Publication: 2016-09-30 23:09:43

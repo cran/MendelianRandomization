@@ -7,11 +7,12 @@
 \title{Inverse-variance weighted method}
 \usage{
 mr_ivw(object, model = "default", robust = FALSE, penalized = FALSE,
-  correl = FALSE, distribution = "normal", alpha = 0.05, ...)
+  weights = "simple", psi = 0, correl = FALSE, distribution = "normal",
+  alpha = 0.05, ...)
 
 \S4method{mr_ivw}{MRInput}(object, model = "default", robust = FALSE,
-  penalized = FALSE, correl = FALSE, distribution = "normal",
-  alpha = 0.05, ...)
+  penalized = FALSE, weights = "simple", psi = 0, correl = FALSE,
+  distribution = "normal", alpha = 0.05, ...)
 }
 \arguments{
 \item{object}{An \code{MRInput} object.}
@@ -22,7 +23,11 @@ mr_ivw(object, model = "default", robust = FALSE, penalized = FALSE,
 
 \item{penalized}{Indicates whether a penalty should be applied to the weights to downweight the contribution of genetic variants with outlying ratio estimates to the analysis.}
 
-\item{correl}{If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRInput} object, then \code{correl} is set to \code{TRUE}. If \code{correl} is set to \code{TRUE}, then the values of \code{robust} and \code{penalized} are taken as \code{FALSE}.}
+\item{weights}{Which weights to use in the weighted regression. If \code{"simple"} (the default option), then the IVW estimate is equivalent to meta-analysing the ratio estimates from each variant using inverse-variance weights based on the simplest expression of the variance for the ratio estimate (first-order term from the delta expansion - standard error of the association with the outcome divided by the association with the exposure). If \code{"delta"}, then the variance expression is the second-order term from the delta expansion. The second-order term incorporates uncertainty in the genetic association with the exposure -- this uncertainty is ignored using the simple weighting.}
+
+\item{psi}{The correlation between the genetic associations with the exposure and the association with the outcome for each variant resulting from sample overlap. The default value is \code{0}, corresponding to a strict two-sample Mendelian randomization analysis (no overlap). If there is complete overlap between the samples, then the correlation should be set to the observational correlation between the exposure and the outcome. This correlation is only used in the calculation of standard errors if the option \code{weights} is set to \code{"delta"}.}
+
+\item{correl}{If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRInput} object, then \code{correl} is set to \code{TRUE}. If \code{correl} is set to \code{TRUE}, then the values of \code{robust} and \code{penalized} are taken as \code{FALSE}, and \code{weights} is set to \code{"simple"}.}
 
 \item{distribution}{The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.}
 
@@ -85,5 +90,7 @@ Detailed description of method: Stephen Burgess, Adam S Butterworth, Simon G Tho
 Robust and penalized weights: Stephen Burgess, Jack Bowden, Frank Dudbridge, Simon G Thompson. Robust instrumental variable methods using multiple candidate instruments with application to Mendelian randomization. arXiv 2016; 1606.03729.
 
 Heterogeneity test: Fabiola del Greco, Cosetta Minelli, Nuala A Sheehan, John R Thompson. Detecting pleiotropy in Mendelian randomisation studies with summary data and a continuous outcome. Stat Med 2015; 34(21):2926-2940. doi: 10.1002/sim.6522.
+
+Simple versus delta weights (first-order versus second-order): Stephen Burgess, Jack Bowden. Integrating summarized data from multiple genetic variants in Mendelian randomization: bias and coverage properties of inverse-variance weighted methods. arXiv:1512.04486.
 }
 

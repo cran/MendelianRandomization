@@ -105,6 +105,44 @@ setMethod("show",
 #--------------------------------------------------------------------------------------------
 
 setMethod("show",
+          "MaxLik",
+          function(object){
+
+            Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+            Statistic <- c("Method", "Estimate", "Std Error", Interval_type, "", "p-value")
+
+            Value <- c("MaxLik", decimals(c(object@Estimate, object@StdError),3),
+                       paste(decimals(object@CILower, 3), ",", sep = ""), decimals(c(object@CIUpper, object@Pvalue), 3))
+
+            output.table <- data.frame(matrix(Value, nrow = 1))
+            colnames(output.table) <- Statistic
+            correlation <- ifelse(sum(is.na(object@Correlation)) == 0,
+                                  "correlated", "uncorrelated")
+
+            cat("\nMaximum-likelihood method\n")
+            cat("(variants ", correlation, ", ", object@Model, "-effect model)\n\n" , sep = "")
+
+            cat("Number of Variants :", object@SNPs, "\n")
+
+            cat("------------------------------------------------------------------\n")
+            print(output.table, quote = F, row.names = FALSE, justify = "left")
+            cat("------------------------------------------------------------------\n")
+
+            cat("Residual standard error = ", decimals(object@RSE, 3), "\n")
+            if(object@Model == "fixed") { cat("Residual standard error is set to 1 in calculation of confidence interval by fixed-effect assumption.\n") }
+            if(object@RSE<1) { cat("Residual standard error is set to 1 in calculation of confidence interval when its estimate is less than 1.\n") }
+            if(object@Heter.Stat[1] < 1e-16) {
+              cat("Heterogeneity is not calculated when there is only one variant in the analysis.")
+            } else {
+            cat("Heterogeneity test statistic = ", decimals(object@Heter.Stat[1],4), " on ", object@SNPs -1,
+                    " degrees of freedom, (p-value = ", decimals(object@Heter.Stat[2], 4),")\n", sep = "")
+            }
+          }
+)
+
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
           "Egger",
           function(object){
             Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")

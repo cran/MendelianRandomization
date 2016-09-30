@@ -40,6 +40,21 @@ setMethod("values",
 
 #' @rdname values
 setMethod("values",
+          "MaxLik",
+          function(object){
+            return(c(object@Estimate,
+                     object@StdError,
+                     object@CILower,
+                     object@CIUpper,
+                     object@Pvalue
+            ))
+          }
+)
+
+#--------------------------------------------------------------------------------------------
+
+#' @rdname values
+setMethod("values",
           "Egger",
           function(object){
             return(rbind(c(object@Estimate,
