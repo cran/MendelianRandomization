@@ -25,4 +25,3 @@ decimals(number = 0.3, places = 3)
 
 }
 \keyword{internal}
-

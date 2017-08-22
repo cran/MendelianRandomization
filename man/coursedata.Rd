@@ -12,4 +12,3 @@ coursedata
 Data required for Mendelian randomization course.
 }
 \keyword{internal}
-

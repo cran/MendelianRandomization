@@ -24,7 +24,7 @@
 #' @export
 
 penalised.weights <- function(.Bx, .Bxse, .By, .Byse) {
-  theta <- sum(.By*.Bx/.Byse^2)/sum(.Bx^2/.Byse^2)
+  theta <- median(.By/.Bx)
   pen.weights <- pchisq((.Bx^2/.Byse^2)*(.By/.Bx - theta)^2, df = 1, lower.tail = F)
 
   return(pen.weights)
@@ -53,7 +53,8 @@ penalised.weights <- function(.Bx, .Bxse, .By, .Byse) {
 #' @export
 
 penalised.weights.delta <- function(.Bx, .Bxse, .By, .Byse, .psi) {
-  theta <- sum(.By/.Bx*(.Byse^2/.Bx^2+.By^2*.Bxse^2/.Bx^4-2*.psi*.By*.Bxse*.Byse/.Bx^3)^-1)/sum((.Byse^2/.Bx^2+.By^2*.Bxse^2/.Bx^4-2*.psi*.By*.Bxse*.Byse/.Bx^3)^-1)
+#  theta <- sum(.By/.Bx*(.Byse^2/.Bx^2+.By^2*.Bxse^2/.Bx^4-2*.psi*.By*.Bxse*.Byse/.Bx^3)^-1)/sum((.Byse^2/.Bx^2+.By^2*.Bxse^2/.Bx^4-2*.psi*.By*.Bxse*.Byse/.Bx^3)^-1)
+  theta <- median(.By/.Bx)
   pen.weights <- pchisq(((.Byse^2/.Bx^2+.By^2*.Bxse^2/.Bx^4-2*.psi*.By*.Bxse*.Byse/.Bx^3)^-1)*(.By/.Bx - theta)^2, df = 1, lower.tail = F)
 
   return(pen.weights)
@@ -80,7 +81,7 @@ penalised.weights.delta <- function(.Bx, .Bxse, .By, .Byse, .psi) {
 #' @export
 
 r.weights <- function(.Byse, .pen.weights){
-  return(.Byse^(-2)*pmin(1, .pen.weights*20))
+  return(.Byse^(-2)*pmin(1, .pen.weights*100))
 }
 
 #' Calculates p-values for penalization of weights with second-order weights
@@ -268,7 +269,8 @@ if (weights == "delta") {  pen.weights <- penalised.weights.delta(Bx, Bxse, By, 
                     if(model == "random") thetaIVWse <- penalised.robust.summary$coef[1,2]/min(penalised.robust.summary$sigma, 1)
                     else thetaIVWse <- penalised.robust.summary$coef[1,2]/penalised.robust.summary$sigma
 
-                    pvalue <- penalised.robust.summary$coef[1,4]
+  if (distribution == "normal") { pvalue <- 2*pnorm(-abs(thetaIVW/thetaIVWse)) }
+  if (distribution == "t-dist") { pvalue <- 2*pt(-abs(thetaIVW/thetaIVWse), df=length(Bx)-1) }
                     rse <- penalised.robust.summary$sigma
 
                     heter.stat <- NaN
@@ -285,7 +287,8 @@ if (weights == "delta") {
                     if(model == "random") thetaIVWse <- robust.summary$coef[1,2] / min(robust.summary$sigma, 1)
                     else thetaIVWse <- robust.summary$coef[1,2] / robust.summary$sigma
 
-                    pvalue <- robust.summary$coef[1,4]
+  if (distribution == "normal") { pvalue <- 2*pnorm(-abs(thetaIVW/thetaIVWse)) }
+  if (distribution == "t-dist") { pvalue <- 2*pt(-abs(thetaIVW/thetaIVWse), df=length(Bx)-1) }
                     rse <- robust.summary$sigma
 
                     heter.stat <- (length(Bx) - 1)*(rse^2)
@@ -306,7 +309,8 @@ if (weights == "delta") {  pen.weights <- penalised.weights.delta(Bx, Bxse, By, 
                   if(model == "random") thetaIVWse <- penalised.summary$coef[1,2]/min(penalised.summary$sigma, 1)
                   else thetaIVWse <- penalised.summary$coef[1,2]/penalised.summary$sigma
 
-                  pvalue <- penalised.summary$coef[1,4]
+  if (distribution == "normal") { pvalue <- 2*pnorm(-abs(thetaIVW/thetaIVWse)) }
+  if (distribution == "t-dist") { pvalue <- 2*pt(-abs(thetaIVW/thetaIVWse), df=length(Bx)-1) }
                   rse <- penalised.summary$sigma
 
                   heter.stat <- NaN
@@ -322,7 +326,8 @@ if (weights == "delta") { summary <- summary(lm(By ~ Bx - 1, weights =(Byse^2 + 
                   if(model == "random") thetaIVWse <- summary$coef[1,2]/min(summary$sigma,1)
                   else thetaIVWse <- summary$coef[1,2]/summary$sigma
 
-                  pvalue <- summary$coef[1,4]
+  if (distribution == "normal") { pvalue <- 2*pnorm(-abs(thetaIVW/thetaIVWse)) }
+  if (distribution == "t-dist") { pvalue <- 2*pt(-abs(thetaIVW/thetaIVWse), df=length(Bx)-1) }
                   rse <- summary$sigma
 
                   heter.stat <- (length(Bx) - 1)*(rse^2)

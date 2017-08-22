@@ -1,3 +1,12 @@
+MendelianRandomization v0.2.2
+=============================
+Penalization of weights altered to correspond to Rees et al 2017 (submitted): penalization is now about the median estimate, only variants with heterogeneity p-value less than 0.01 are penalized.
+
+MendelianRandomization v0.2.1
+=============================
+Minor fix on extract.pheno.csv function that was making SNPs out of order.
+Minor fix on p-values from mr_ivw and mr_egger functions.
+
 MendelianRandomization v0.2.0
 =============================
 New functionality on mr_plot command: static graph (new options "interactive" and "labels").

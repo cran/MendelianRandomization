@@ -36,4 +36,3 @@ r.weights.delta(ldlc, ldlcse, chdlodds, chdloddsse, 0,
 
 }
 \keyword{internal}
-

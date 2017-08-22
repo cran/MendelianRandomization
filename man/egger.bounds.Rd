@@ -37,4 +37,3 @@ egger.bounds(type = "l", dist = "normal", .theta = 0, .thetase = 1, df = 0, .rse
 
 }
 \keyword{internal}
-

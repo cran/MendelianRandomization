@@ -27,4 +27,3 @@ r.weights(chdloddsse, penalised.weights(ldlc, ldlcse, chdlodds, chdloddsse))
 
 }
 \keyword{internal}
-

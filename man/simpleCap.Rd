@@ -23,4 +23,3 @@ simpleCap(x = "weighted")
 
 }
 \keyword{internal}
-

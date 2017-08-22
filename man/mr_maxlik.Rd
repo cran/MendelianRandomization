@@ -69,4 +69,3 @@ mr_maxlik(mr_input(calcium, calciumse, fastgluc, fastglucse, corr=calc.rho))
 \references{
 Stephen Burgess, Adam S Butterworth, Simon G Thompson. Mendelian randomization analysis with multiple genetic variants using summarized data. Genetic Epidemiology 2013; 37:658-665. doi: 10.1002/gepi.21758.
 }
-

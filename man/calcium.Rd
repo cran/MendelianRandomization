@@ -2,11 +2,11 @@
 % Please edit documentation in R/AllData.R
 \docType{data}
 \name{calcium}
-\alias{calc.rho}
 \alias{calcium}
 \alias{calciumse}
 \alias{fastgluc}
 \alias{fastglucse}
+\alias{calc.rho}
 \title{Data on effect of calcium on fasting glucose (correlated variants)}
 \format{An object of class \code{numeric} of length 6.}
 \usage{
@@ -32,4 +32,3 @@ These data can be used to test out the various functions in the package.
 Stephen Burgess, Robert A Scott, Nic J Timpson, George Davey Smith, Simon G Thompson. Using published data in Mendelian randomization: a blueprint for efficient identification of causal risk factors. Eur J Epidemiol 2015; 30(7):543-552. doi: 10.1007/s10654-015-0011-z.
 }
 \keyword{datasets}
-

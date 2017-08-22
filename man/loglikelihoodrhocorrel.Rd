@@ -25,4 +25,3 @@ Internal function for calculating log-likelihood for for maximum-likelihood meth
 None.
 }
 \keyword{internal}
-

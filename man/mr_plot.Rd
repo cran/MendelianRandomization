@@ -3,8 +3,8 @@
 \docType{methods}
 \name{mr_plot}
 \alias{mr_plot}
-\alias{mr_plot,MRAll-method}
 \alias{mr_plot,MRInput-method}
+\alias{mr_plot,MRAll-method}
 \title{Draw a scatter plot of the genetic associations and/or causal estimates}
 \usage{
 mr_plot(object, error = TRUE, line = "ivw", orientate = FALSE,
@@ -42,17 +42,12 @@ When the object is an \code{MRAll} object, the function generates a \code{ggplot
 }
 \examples{
 mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-  line="ivw")
-mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-  error=FALSE, line="egger", orientate = TRUE)
+  line="egger", orientate = TRUE)
 mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
   line="ivw", interactive=FALSE) # produces a static graph
 mr_plot(mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-   by = chdlodds, byse = chdloddsse), method="all", iterations = 1000))
-  # iterations is set to 1000 to reduce runtime for the mr_median method,
+   by = chdlodds, byse = chdloddsse), method="all", iterations = 50))
+  # iterations is set to 50 to reduce runtime for the mr_median method,
   # 10000 iterations are recommended in practice
-mr_plot(mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-   by = chdlodds, byse = chdloddsse), method="ivw"))
 
 }
-

@@ -107,13 +107,13 @@ MaxLikObject.corr <- mr_maxlik(mr_input(bx = calcium, bxse = calciumse,
 MaxLikObject.corr
 
 ## ------------------------------------------------------------------------
-MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
+MRAllObject_all <- mr_allmethods(MRInputObject, method = "all", iterations = 100)
 MRAllObject_all
 
 MRAllObject_egger <- mr_allmethods(MRInputObject, method = "egger")
 MRAllObject_egger
 
-MRAllObject_main <- mr_allmethods(MRInputObject, method = "main")
+MRAllObject_main <- mr_allmethods(MRInputObject, method = "main", iterations = 100)
 MRAllObject_main
 
 ## ---- eval = FALSE-------------------------------------------------------
@@ -136,7 +136,7 @@ mr_plot(MRAllObject_egger)
 
 ## ------------------------------------------------------------------------
 mr_plot(mr_allmethods(mr_input(bx = hdlc, bxse = hdlcse,
-  by = chdlodds, byse = chdloddsse)))
+  by = chdlodds, byse = chdloddsse), iterations = 100))
 
 ## ------------------------------------------------------------------------
 path.noproxy <- system.file("extdata", "vitD_snps_PhenoScanner.csv",

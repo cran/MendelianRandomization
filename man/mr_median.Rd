@@ -73,17 +73,16 @@ When the weighting is \code{"penalized"}, the weighted method is used, but the c
 }
 \examples{
 mr_median(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-  weighting = "weighted", iterations = 1000)
-  # iterations is set to 1000 to reduce runtime for the mr_median method,
+  weighting = "weighted", iterations = 100)
+  # iterations is set to 100 to reduce runtime for the mr_median method,
   # 10000 iterations are recommended in practice
 mr_median(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-  weighting = "simple", iterations = 1000)
+  weighting = "simple", iterations = 100)
 mr_median(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-  weighting = "penalized", iterations = 1000)
+  weighting = "penalized", iterations = 100)
 
 }
 \references{
 Jack Bowden, George Davey Smith, Philip C Haycock, Stephen Burgess. Consistent estimation in Mendelian randomization with
 some invalid instruments using a weighted median estimator. Genetic Epidemiology 2016; 40(4):304-314. doi: 10.1002/gepi.21965.
 }
-

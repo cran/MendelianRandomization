@@ -1,7 +1,7 @@
 exportPattern("^[[:alpha:]]+")
   importFrom("graphics", "layout", "abline", "lines", "par", "plot", "text")
   importFrom("methods", "new", "slot")
-  importFrom("stats", "lm", "optim", "pchisq", "pnorm", "pt", "qnorm", "qt",
+  importFrom("stats", "lm", "median", "optim", "pchisq", "pnorm", "pt", "qnorm", "qt",
              "rnorm", "sd", "weighted.mean")
   importFrom("utils", "read.csv")
   importFrom("robustbase", "lmrob")

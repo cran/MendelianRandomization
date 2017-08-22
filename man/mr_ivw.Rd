@@ -93,4 +93,3 @@ Heterogeneity test: Fabiola del Greco, Cosetta Minelli, Nuala A Sheehan, John R 
 
 Simple versus delta weights (first-order versus second-order): Stephen Burgess, Jack Bowden. Integrating summarized data from multiple genetic variants in Mendelian randomization: bias and coverage properties of inverse-variance weighted methods. arXiv:1512.04486.
 }
-

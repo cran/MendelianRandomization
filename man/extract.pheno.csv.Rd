@@ -75,4 +75,3 @@ extract.pheno.csv(
 \references{
 James R Staley, James Blackshow, Mihir A Kamat, Steve Ellis, Prvaeen Surendran, Benjamin B Sun, Dirk S Paul, Daniel Freitag, Stephen Burgess, John Danesh, Robin Young, and Adam S Butterworth. PhenoScanner: a database of human genotype--phenotype associations. Bioinformatics 2016. doi: 10.1093/bioinformatics/btw373.
 }
-

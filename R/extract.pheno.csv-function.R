@@ -94,7 +94,7 @@ for (j in 1:length(snp.list)) {
 
   dataSet <- merge(Bx., By., "SNP")
 
-  return(mr_input(exposure = exposure, outcome = outcome, snps = as.character(snp.list),
+  return(mr_input(exposure = exposure, outcome = outcome, snps = as.character(dataSet[,1]),
                   bx=as.numeric(dataSet[,2]), bxse=as.numeric(dataSet[,3]), by=as.numeric(dataSet[,4]), byse=as.numeric(dataSet[,5]),
                   correlation = matrix()))
 }

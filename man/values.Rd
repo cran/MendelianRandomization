@@ -3,10 +3,10 @@
 \docType{methods}
 \name{values}
 \alias{values}
-\alias{values,Egger-method}
+\alias{values,WeightedMedian-method}
 \alias{values,IVW-method}
 \alias{values,MaxLik-method}
-\alias{values,WeightedMedian-method}
+\alias{values,Egger-method}
 \title{Applies method values() to different output classes}
 \usage{
 \S4method{values}{WeightedMedian}(object)
@@ -24,4 +24,3 @@
 Enables the internal function \code{values}.
 }
 \keyword{internal}
-

@@ -33,14 +33,14 @@ egger.bounds <- function(type, dist, .theta, .thetase, df = 0, .rse, .alpha){
 
     if (dist == "normal") return(.theta + qnorm(x)*.thetase)
     else if (dist == "t-dist") return(ifelse(.rse < 1,
-                                           max(.theta + qnorm(x)*.thetase, .theta + qt(x, df = df)*.thetase),
+                                           max(.theta + qnorm(x)*.thetase, .theta + qt(x, df = df)*.thetase*.rse),
                                            .theta + qt(x, df = df)*.thetase))
 
   } else if (type == "l") {
 
     if (dist == "normal") return(.theta - qnorm(x)*.thetase)
     else if (dist == "t-dist") return(ifelse(.rse < 1,
-                                           min(.theta - qnorm(x)*.thetase, .theta - qt(x, df = df)*.thetase),
+                                           min(.theta - qnorm(x)*.thetase, .theta - qt(x, df = df)*.thetase*.rse),
                                            .theta - qt(x, df = df)*.thetase))
 
   } else { return(NA) }
@@ -89,12 +89,13 @@ setMethod("mr_egger",
                 thetaInter <- theta.vals[1]
                 # first component is intercept term, second component is slope term (causal estimate)
                 rse <- By - thetaInter - thetaE*Bx
+                  rse.corr = as.numeric(sqrt(t(rse)%*%solve(omega)%*%rse/(nsnps-2)))
 
                   sigma <- solve(t(cbind(rep(1, nsnps), Bx))%*%solve(omega)%*%cbind(rep(1, nsnps), Bx))*max(sqrt(t(rse)%*%solve(omega)%*%rse/(nsnps-2)),1)
-                  thetaEse <- sqrt(sigma[2,2])
-                  thetaInterse <- sqrt(sigma[1,1])
+                  thetaEse <- sqrt(sigma[2,2])/min(1, rse.corr)
+                  thetaInterse <- sqrt(sigma[1,1])/min(1, rse.corr)
 
-                  rse.corr = as.numeric(sqrt(t(rse)%*%solve(omega)%*%rse/(nsnps-2)))
+
 
                 ciUpper <- egger.bounds("u", distribution, thetaE, thetaEse, nsnps - 2, rse.corr, alpha)
                 ciLower <- egger.bounds("l", distribution, thetaE, thetaEse, nsnps - 2, rse.corr, alpha)
@@ -177,7 +178,7 @@ if (distribution=="t-dist") {
                     slopeSE <- summary.intercept$coef[2,2]
 
                     pen.weights <- pchisq((1/Byse^2)*(By - intercept - slope*Bx)^2, df = 1, lower.tail = F)
-                    r.weights <- Byse^(-2)*pmin(1, pen.weights*20)
+                    r.weights <- Byse^(-2)*pmin(1, pen.weights*100)
 
 
                     penalised.summary <- summary(lmrob(By ~ Bx, weights = r.weights,  k.max = 500, maxit.scale = 500, ...))
@@ -189,7 +190,7 @@ if (distribution=="t-dist") {
                     ciLower <- egger.bounds("l", distribution, thetaE, thetaEse, nsnps - 2, rse, alpha)
 
                     thetaInter <- penalised.summary$coef[1,1]
-                    thetaInterse <- penalised.summary$coef[1,2]
+                    thetaInterse <- penalised.summary$coef[1,2]/min(penalised.summary$sigma, 1)
                     ciUpperInter <- egger.bounds("u", distribution, thetaInter, thetaInterse, nsnps - 2, rse, alpha)
                     ciLowerInter <- egger.bounds("l", distribution, thetaInter, thetaInterse, nsnps - 2, rse, alpha)
 
@@ -209,7 +210,7 @@ if (distribution=="t-dist") {
                     ciLower <- egger.bounds("l", distribution, thetaE, thetaEse, length(Bx) - 2, rse, alpha)
 
                     thetaInter <- robust.summary$coef[1,1]
-                    thetaInterse <- robust.summary$coef[1,2]
+                    thetaInterse <- robust.summary$coef[1,2]/min(robust.summary$sigma, 1)
                     ciUpperInter <- egger.bounds("u", distribution, thetaInter, thetaInterse, length(Bx) - 2, rse, alpha)
                     ciLowerInter <- egger.bounds("l", distribution, thetaInter, thetaInterse, length(Bx) - 2, rse, alpha)
 
@@ -228,7 +229,7 @@ if (distribution=="t-dist") {
                   slopeSE <- summary.intercept$coef[2,2]
 
                   pen.weights <- pchisq((1/Byse^2)*(By - intercept - slope*Bx)^2, df = 1, lower.tail = F)
-                  r.weights <- Byse^(-2)*pmin(1, pen.weights*20)
+                  r.weights <- Byse^(-2)*pmin(1, pen.weights*100)
 
 
                   penalised.summary <- summary(lm(By ~ Bx, weights = r.weights, ...))
@@ -242,7 +243,7 @@ if (distribution=="t-dist") {
                   ciLower <- egger.bounds("l", distribution, thetaE, thetaEse, length(Bx) - 2, rse, alpha)
 
                   thetaInter <- penalised.summary$coef[1,1]
-                  thetaInterse <- penalised.summary$coef[1,2]
+                  thetaInterse <- penalised.summary$coef[1,2]/min(penalised.summary$sigma, 1)
                   ciUpperInter <- egger.bounds("u", distribution, thetaInter, thetaInterse, length(Bx) - 2, rse, alpha)
                   ciLowerInter <- egger.bounds("l", distribution, thetaInter, thetaInterse, length(Bx) - 2, rse, alpha)
 
@@ -262,7 +263,7 @@ if (distribution=="t-dist") {
                   ciLower <- egger.bounds("l", distribution, thetaE, thetaEse, length(Bx) - 2, rse, alpha)
 
                   thetaInter <- summary$coef[1,1]
-                  thetaInterse <- summary$coef[1,2]
+                  thetaInterse <- summary$coef[1,2]/min(summary$sigma,1)
                   ciUpperInter <- egger.bounds("u", distribution, thetaInter, thetaInterse, length(Bx) - 2, rse, alpha)
                   ciLowerInter <- egger.bounds("l", distribution, thetaInter, thetaInterse, length(Bx) - 2, rse, alpha)
 

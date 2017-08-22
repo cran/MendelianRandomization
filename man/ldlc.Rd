@@ -2,17 +2,17 @@
 % Please edit documentation in R/AllData.R
 \docType{data}
 \name{ldlc}
-\alias{chdlodds}
-\alias{chdloddsse}
+\alias{ldlc}
 \alias{hdlc}
 \alias{hdlcse}
-\alias{ldlc}
 \alias{ldlcse}
-\alias{lipid_eaf}
-\alias{lipid_effect}
-\alias{lipid_other}
 \alias{trig}
 \alias{trigse}
+\alias{chdlodds}
+\alias{chdloddsse}
+\alias{lipid_effect}
+\alias{lipid_other}
+\alias{lipid_eaf}
 \title{Data on lipid effects on coronary artery disease (uncorrelated variants)}
 \format{An object of class \code{numeric} of length 28.}
 \usage{
@@ -49,4 +49,3 @@ These data can be used to test out the various functions in the package.
 Dawn Waterworth, Sally Ricketts, ..., Manj Sandhu: Genetic variants influencing circulating lipid levels and risk of coronary artery disease. Arterioscler Thromb Vasc Biol 2010; 30:2264-227. doi: 10.1161/atbvaha.109.201020.
 }
 \keyword{datasets}
-

@@ -57,4 +57,3 @@ If the four variables are not all the same length, then an error message will be
 \seealso{
 \code{extract.pheno.csv()} for a description of how an \code{MRInput} object can be extracted from PhenoScanner (\url{http://www.phenoscanner.medschl.cam.ac.uk/}).
 }
-

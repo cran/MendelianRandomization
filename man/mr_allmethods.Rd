@@ -33,20 +33,11 @@ See \code{mr_median}, \code{mr_egger}, and \code{mr_ivw} for details of how each
 }
 \examples{
 mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse, 
-  by = chdlodds, byse = chdloddsse), method="all", iterations = 1000)
-  # iterations is set to 1000 to reduce runtime for the mr_median method,
+  by = chdlodds, byse = chdloddsse), method="main", iterations = 100)
+  # iterations is set to 100 to reduce runtime for the mr_median method,
   # at least 10000 iterations are recommended in practice
-mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-  by = chdlodds, byse = chdloddsse), method="ivw")
-mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-  by = chdlodds, byse = chdloddsse), method="egger")
-mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-  by = chdlodds, byse = chdloddsse), method="median", iterations = 1000)
-mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-  by = chdlodds, byse = chdloddsse), method="main", iterations = 1000)
 
 }
 \references{
 See \code{mr_median}, \code{mr_egger}, and \code{mr_ivw}.
 }
-

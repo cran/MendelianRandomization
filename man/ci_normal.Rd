@@ -29,4 +29,3 @@ ci_normal(type = "l", mean = 0, se = 1, alpha = 0.05)
 
 }
 \keyword{internal}
-

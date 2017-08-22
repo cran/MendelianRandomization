@@ -2,13 +2,13 @@
 % Please edit documentation in R/getter-methods.R
 \docType{methods}
 \name{getter}
-\alias{$,Egger-method}
+\alias{getter}
+\alias{$,WeightedMedian-method}
 \alias{$,IVW-method}
+\alias{$,Egger-method}
 \alias{$,MRAll-method}
 \alias{$,MRInput-method}
 \alias{$,MaxLik-method}
-\alias{$,WeightedMedian-method}
-\alias{getter}
 \title{Applies method $ to different classes}
 \usage{
 \S4method{$}{WeightedMedian}(x, name)
@@ -32,4 +32,3 @@
 Enables slots of objects in this package to be referenced easily.
 }
 \keyword{internal}
-

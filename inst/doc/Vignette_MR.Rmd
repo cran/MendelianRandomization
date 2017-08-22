@@ -200,13 +200,13 @@ MaxLikObject.corr
 The *mr_allmethods* function is provided to easily compare results (Estimate, Standard Error, 95% CI, and p-value) from multiple methods. One can look at results from all methods (*method = "all"*), or a partial result setting method to *"egger"*, *"ivw"*, or *"median"* to get a more selective set of results. The final option is *"main"*, which gives results from the simple median, weighted median, IVW, and MR-Egger methods only.
 
 ```{r}
-MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
+MRAllObject_all <- mr_allmethods(MRInputObject, method = "all", iterations = 100)
 MRAllObject_all
 
 MRAllObject_egger <- mr_allmethods(MRInputObject, method = "egger")
 MRAllObject_egger
 
-MRAllObject_main <- mr_allmethods(MRInputObject, method = "main")
+MRAllObject_main <- mr_allmethods(MRInputObject, method = "main", iterations = 100)
 MRAllObject_main
 ```
 
@@ -257,7 +257,7 @@ mr_plot(MRAllObject_egger)
 
 ```{r}
 mr_plot(mr_allmethods(mr_input(bx = hdlc, bxse = hdlcse,
-  by = chdlodds, byse = chdloddsse)))
+  by = chdlodds, byse = chdloddsse), iterations = 100))
 ```
 
 We see that estimates from all methods are similar when LDL-cholesterol is the risk factor, but the MR-Egger estimates differ substantially when HDL-cholesterol is the risk factor.

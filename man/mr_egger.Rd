@@ -86,4 +86,3 @@ Confidence intervals, and robust and penalized weights: Stephen Burgess, Jack Bo
 
 I-squared statistic: Jack Bowden and others. Assessing the suitability of summary data for Mendelian randomization analyses using MR-Egger regression: The role of the I2 statistic. Int J Epidemiol 2016 (to appear).
 }
-

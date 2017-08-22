@@ -32,8 +32,7 @@ None.
 }
 \examples{
 weighted.median.boot.se(Bx = ldlc, By = chdlodds, Bxse = ldlcse, Byse = chdloddsse,
-weights = chdloddsse, iter = 1000, seed = 314)
+weights = chdloddsse, iter = 100, seed = 314)
 
 }
 \keyword{internal}
-

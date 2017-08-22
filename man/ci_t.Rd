@@ -31,4 +31,3 @@ ci_t(type = "l", mean = 0, se = 1, df = 8, alpha = 0.05)
 
 }
 \keyword{internal}
-

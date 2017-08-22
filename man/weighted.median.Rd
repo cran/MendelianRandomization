@@ -21,8 +21,7 @@ Internal function for calculating weighted median estimate (or simple median est
 None.
 }
 \examples{
-weighted.median(theta = chdlodds/ldlc, weights = chdloddsse/ldlc)
+weighted.median(theta = chdlodds/ldlc, weights = abs(chdloddsse/ldlc))
 
 }
 \keyword{internal}
-

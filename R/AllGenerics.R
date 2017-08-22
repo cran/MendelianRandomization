@@ -57,13 +57,13 @@ setGeneric(name = "values",
 #'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
 #'
 #' @examples mr_median(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-#'   weighting = "weighted", iterations = 1000)
-#'   # iterations is set to 1000 to reduce runtime for the mr_median method,
+#'   weighting = "weighted", iterations = 100)
+#'   # iterations is set to 100 to reduce runtime for the mr_median method,
 #'   # 10000 iterations are recommended in practice
 #' mr_median(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-#'   weighting = "simple", iterations = 1000)
+#'   weighting = "simple", iterations = 100)
 #' mr_median(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-#'   weighting = "penalized", iterations = 1000)
+#'   weighting = "penalized", iterations = 100)
 #'
 #' @references Jack Bowden, George Davey Smith, Philip C Haycock, Stephen Burgess. Consistent estimation in Mendelian randomization with
 #' some invalid instruments using a weighted median estimator. Genetic Epidemiology 2016; 40(4):304-314. doi: 10.1002/gepi.21965.
@@ -246,17 +246,9 @@ setGeneric(name = "mr_egger",
 #'  \item{Method}{The choice of methods estimated (default is \code{"all"}).}
 #'
 #' @examples mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse, 
-#'   by = chdlodds, byse = chdloddsse), method="all", iterations = 1000)
-#'   # iterations is set to 1000 to reduce runtime for the mr_median method,
+#'   by = chdlodds, byse = chdloddsse), method="main", iterations = 100)
+#'   # iterations is set to 100 to reduce runtime for the mr_median method,
 #'   # at least 10000 iterations are recommended in practice
-#' mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-#'   by = chdlodds, byse = chdloddsse), method="ivw")
-#' mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-#'   by = chdlodds, byse = chdloddsse), method="egger")
-#' mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-#'   by = chdlodds, byse = chdloddsse), method="median", iterations = 1000)
-#' mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-#'   by = chdlodds, byse = chdloddsse), method="main", iterations = 1000)
 #'
 #' @references See \code{mr_median}, \code{mr_egger}, and \code{mr_ivw}.
 #'
@@ -287,17 +279,13 @@ setGeneric(name = "mr_allmethods",
 #' When the object is an \code{MRAll} object, the function generates a \code{ggplot} to compare the causal estimates proposed by different methods.
 #'
 #' @examples mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-#'   line="ivw")
-#' mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
-#'   error=FALSE, line="egger", orientate = TRUE)
+#'   line="egger", orientate = TRUE)
 #' mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
 #'   line="ivw", interactive=FALSE) # produces a static graph
 #' mr_plot(mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-#'    by = chdlodds, byse = chdloddsse), method="all", iterations = 1000))
-#'   # iterations is set to 1000 to reduce runtime for the mr_median method,
+#'    by = chdlodds, byse = chdloddsse), method="all", iterations = 50))
+#'   # iterations is set to 50 to reduce runtime for the mr_median method,
 #'   # 10000 iterations are recommended in practice
-#' mr_plot(mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
-#'    by = chdlodds, byse = chdloddsse), method="ivw"))
 #'
 #' @export
 
