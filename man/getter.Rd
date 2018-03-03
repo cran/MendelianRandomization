@@ -5,15 +5,21 @@
 \alias{getter}
 \alias{$,WeightedMedian-method}
 \alias{$,IVW-method}
+\alias{$,MRMBE-method}
 \alias{$,Egger-method}
 \alias{$,MRAll-method}
 \alias{$,MRInput-method}
 \alias{$,MaxLik-method}
+\alias{$,MVIVW-method}
+\alias{$,MRMVInput-method}
+\alias{$,MRHetPen-method}
 \title{Applies method $ to different classes}
 \usage{
 \S4method{$}{WeightedMedian}(x, name)
 
 \S4method{$}{IVW}(x, name)
+
+\S4method{$}{MRMBE}(x, name)
 
 \S4method{$}{Egger}(x, name)
 
@@ -22,6 +28,12 @@
 \S4method{$}{MRInput}(x, name)
 
 \S4method{$}{MaxLik}(x, name)
+
+\S4method{$}{MVIVW}(x, name)
+
+\S4method{$}{MRMVInput}(x, name)
+
+\S4method{$}{MRHetPen}(x, name)
 }
 \arguments{
 \item{x}{Object.}

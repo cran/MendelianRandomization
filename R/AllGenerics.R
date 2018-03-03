@@ -350,3 +350,152 @@ setGeneric(name = "mr_maxlik",
 
 #--------------------------------------------------------------------------------------------
 
+#' Multivariable inverse-variance weighted method
+#'
+#' @description The \code{mr_mvivw} function performs multivariable Mendelian randomization via the inverse-variance method. This is implemented by multivariable weighted linear regression.
+#'
+#' @param object An \code{MRMVInput} object.
+#' @param model What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The random-effects model (\code{"random"}) is a multiplicative random-effects model, allowing overdispersion in the weighted linear regression (the residual standard error is not fixed to be 1, but is not allowed to take values below 1). The fixed-effect model (\code{"fixed"}) sets the residual standard error to be 1. The \code{"default"} setting is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.
+#' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRInput} object, then \code{correl} is set to \code{TRUE}.
+#' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#' @param ... Additional arguments to be passed to the regression method.
+#'
+#' @details Multivariable Mendelian randomization is an extension of Mendelian randomization to deal with genetic variants that are associated with multiple risk factors. Two scenarios are envisioned for its use: 1) risk factors that are biologically related, such as lipid fractions; and 2) risk factors where there is potentially a network of causal effects (mediation) from one risk factor to another. In both cases, under the extended assumptions of multivariable Mendelian randomization, coefficients represent the direct causal effects of each risk factor in turn with the other risk factors being fixed.
+#'
+#' We implement the method using multivariable weighted linear regression. If the variants are correlated, the method is implemented using generalized weighted linear regression; this is hard coded using matrix algebra.
+#'
+#' The causal estimate is obtained by regression of the associations with the outcome on the associations with the risk factors, with the intercept set to zero and weights being the inverse-variances of the associations with the outcome.
+#'
+#' @return The output from the function is an \code{MVIVW} object containing:
+#'
+#'  \item{Model}{A character string giving the type of model used (\code{"fixed"}, \code{"random"}, or \code{"default"}).}
+#'  \item{Exposure}{A character vector with the names given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Correlation}{The matrix of genetic correlations.}
+#'  \item{Estimate}{A vector of causal estimates.}
+#'  \item{StdError}{A vector of standard errors of the causal estimates.}
+#'  \item{CILower}{The lower bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{CIUpper}{The upper bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-values associated with the estimates (calculated as Estimate/StdError as per Wald test) using a normal or t-distribution (as specified in \code{distribution}).}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'  \item{RSE}{The estimated residual standard error from the regression model.}
+#'  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+#'
+#' @examples mr_mvivw(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse))
+#'
+#' @references Description of approach: Stephen Burgess, Simon G Thompson. Multivariable Mendelian Randomization: the use of pleiotropic genetic variants to estimate causal effects. American Journal of Epidemiology 2015; 181(4):251-260. doi: 10.1093/aje/kwu283.
+#'
+#' Description of inverse-variance weighted method: Stephen Burgess, Frank Dudbridge, Simon G Thompson. Re: "Multivariable Mendelian randomization: the use of pleiotropic genetic variants to estimate causal effects." American Journal of Epidemiology 2015; 181(4):290-291. doi: 10.1093/aje/kwv017.
+#'
+#' Use for mediation analysis: Stephen Burgess, Deborah J Thompson, Jessica MB Rees, Felix R Day, John R Perry, Ken K Ong. Dissecting causal pathways using Mendelian randomization with summarized genetic data: Application to age at menarche and risk of breast cancer. Genetics 2017; 207(2):481-487. doi: 10.1534/genetics.117.300191.
+#'
+#' @export
+
+setGeneric(name = "mr_mvivw",
+           def = function(object, model = "default",
+                          correl = FALSE, 
+                          distribution = "normal", alpha = 0.05, ...)
+           {standardGeneric("mr_mvivw")})
+
+#--------------------------------------------------------------------------------------------
+
+#' Mode-based method of Hartwig
+#'
+#' @description The \code{mr_mbe} function implements the mode-based method introduced by Hartwig, Bowden and Davey Smith (2017).
+#' 
+#' @param object An \code{MRInput} object.
+#' @param weighting Whether the analysis should be \code{"weighted"} (the default option) or \code{"unweighted"}.
+#' @param stderror Whether standard error estimates should be i) \code{"simple"} - calculated as the first-order term from the delta expansion - standard error of the association with the outcome divided by the association with the exposure), or ii) \code{"delta"} - calculated as the second-order term from the delta expansion (the default option). The second-order term incorporates uncertainty in the genetic association with the exposure -- this uncertainty is ignored using the simple weighting. The \code{"simple"} option is referred to by Hartwig et al as "assuming NOME", and the \code{"delta"} option as "not assuming NOME".
+#' @param phi The choice of bandwidth in the kernel-smoothly density method. A value of 1 (the default value) represents the bandwidth value selected by the modified Silverman's bandwidth rule, as recommended by Hartwig et al. A value of 0.5 represents half that value, and so on.
+#' @param seed The random seed to use when generating the bootstrap samples used to calculate the confidence intervals (for reproducibility). The default value is 314159265. If set to \code{NA}, the random seed will not be set (for example, if the function is used as part of a larger simulation).
+#' @param iterations Number of iterations to use in the bootstrap procedure.
+#' @param distribution The type of distribution used to calculate the confidence intervals, can be \code{"normal"} (the default option) or \code{"t-dist"}.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#'
+#' @details The mode-based estimation (MBE) method takes the variant-specific ratio estimates from each genetic variant in turn, and calculates the modal estimate. This is implemented by constructing a kernel-smoothed density out of the ratio estimates, and taking the maximum value as the modal estimate. The standard error is calculated by a bootstrap procedure, and confidence intervals based on the estimate having a normal distribution.
+#'
+#' The method should give consistent estimates as the sample size increases if a plurality (or weighted plurality) of the genetic variants are valid instruments. This means that the largest group of variants with the same causal estimate in the asymptotic limit are the valid instruments.
+#'
+#' @return The output from the function is an \code{MRMBE} object containing:
+#'
+#'  \item{Exposure}{A character string giving the name given to the exposure.}
+#'  \item{Outcome}{A character string giving the name given to the outcome.}
+#'  \item{Weighting}{A character string \code{"weighted"} or \code{"unweighted"}.}
+#'  \item{StdErr}{A character string \code{"simple"} or \code{"delta"}.}
+#'  \item{Phi}{The value of the bandwidth factor.}
+#'  \item{Estimate}{The value of the causal estimate.}
+#'  \item{StdError}{Standard error of the causal estimate.}
+#'  \item{CILower}{The lower bound of the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{CIUpper}{The upper bound of the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-value associated with the estimate (calculated as Estimate/StdError as per Wald test) using a normal or t-distribution (as specified in \code{distribution}).}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'
+#' @examples mr_mbe(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse), iterations=100)
+#' mr_mbe(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+#'    phi=0.5, iterations=100)
+#' mr_mbe(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+#'    weighting="weighted", stderror="delta", iterations=100)
+#' # iterations set to 100 to reduce computational time,
+#' #  more iterations are recommended in practice
+#'
+#' @references Fernando Pires Hartwig, George Davey Smith, Jack Bowden. Robust inference in summary data Mendelian randomization via the zero modal pleiotropy assumption. International Journal of Epidemiology 2017; 46(6): 1985-1998. doi: 10.1093/ije/dyx102.
+#'
+#' @export
+
+setGeneric(name = "mr_mbe",
+           def = function(object, weighting = "weighted", stderror = "simple", phi = 1, seed = 314159265, iterations = 10000,
+                          distribution = "normal", alpha = 0.05)
+             {standardGeneric("mr_mbe")})
+
+#--------------------------------------------------------------------------------------------
+
+#' Heterogeneity-penalized method
+#'
+#' @description Heterogeneity-penalized model-averaging method for efficient modal-based estimation.
+#' 
+#' @param object An \code{MRInput} object.
+#' @param prior The prior probability of a genetic variant being a valid instrument (default is 0.5).
+#' @param CIMin The smallest value to use in the search to find the confidence interval (default is -1).
+#' @param CIMax The largest value to use in the search to find the confidence interval (default is +1).
+#' @param CIStep The step size to use in the search to find the confidence interval (default is 0.001). The confidence interval is determined by a grid search algorithm. Using the default settings, we calculate the likelihood at all values from -1 to +1 increasing in units of 0.001. If this range is too large or the step size is too small, then the grid search algorithm will take a long time to converge.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#'
+#' @details This method was developed as a more efficient version of the mode-based estimation method of Hartwig et al. It proceeds by evaluating weights for all subsets of genetic variants (excluding the null set and singletons). Subsets receive greater weight if they include more variants, but are severely downweighted if the variants in the subset have heterogeneous causal estimates. As such, the method will identify the subset with the largest number (by weight) of variants having similar causal estimates.
+#'
+#' Confidence intervals are evaluated by calculating a log-likelihood function, and finding all points within a given vertical distance of the maximum of the log-likelihood function (which is the causal estimate). As such, if the log-likelihood function is multimodal, then the confidence interval may include multiple disjoint ranges. This may indicate the presence of multiple causal mechanisms by which the exposure may influence the outcome with different magnitudes of causal effect. As the confidence interval is determined by a grid search, care must be taken when chosing the minimum (\code{CIMin}) and maximum (\code{CIMax}) values in the search, as well as the step size (\code{CIStep}). The default values will not be suitable for all applications.
+#'
+#' The method should give consistent estimates as the sample size increases if a weighted plurality of the genetic variants are valid instruments. This means that the largest group of variants with the same causal estimate in the asymptotic limit are the valid instruments.
+#'
+#' The current implementation of the method evaluates a weight and an estimate for each of the subsets of genetic variants. This means that the method complexity doubles for each additional genetic variant included in the analysis. Currently, the method provides a warning message when used with 25+ variants, and fails to run with 30+.
+#'
+#' @return The output from the function is an \code{MRHetPen} object containing:
+#'
+#'  \item{Exposure}{A character string giving the name given to the exposure.}
+#'  \item{Outcome}{A character string giving the name given to the outcome.}
+#'  \item{Prior}{The value of the bandwidth factor.}
+#'  \item{Estimate}{The value of the causal estimate.}
+#'  \item{CIRange}{The range of values in the confidence interval based on a grid search between the minimum and maximum values for the causal effect provided.}
+#'  \item{CILower}{The lower limit of the confidence interval. If the confidence interval contains multiple ranges, then lower limits of all ranges will be reported.}
+#'  \item{CIUpper}{The upper limit of the confidence interval. If the confidence interval contains multiple ranges, then upper limits of all ranges will be reported.}
+#'  \item{CIMin}{The smallest value used in the search to find the confidence interval.}
+#'  \item{CIMax}{The largest value used in the search to find the confidence interval.}
+#'  \item{CIStep}{The step size used in the search to find the confidence interval.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'
+#' @examples mr_hetpen(mr_input(bx = ldlc[1:10], bxse = ldlcse[1:10], by = chdlodds[1:10],
+#'    byse = chdloddsse[1:10]), CIMin = -1, CIMax = 5, CIStep = 0.01)
+#'
+#' @references Stephen Burgess, Verena Zuber, Apostolos Gkatzionis, Christopher N Foley. Improving on a modal-based estimation method: model averaging for consistent and efficient estimation in Mendelian randomization when a plurality of candidate instruments are valid. bioRxiv 2017. doi: 10.1101/175372.
+#'
+#' @export
+
+setGeneric(name = "mr_hetpen",
+           def = function(object, prior=0.5, CIMin=-1, CIMax=1, CIStep=0.001, alpha = 0.05)
+             {standardGeneric("mr_hetpen")})
+
+#--------------------------------------------------------------------------------------------

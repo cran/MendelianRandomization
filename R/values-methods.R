@@ -1,6 +1,6 @@
 #' Applies method values() to different output classes
 #'
-#' @description Enables the internal function \code{values}.
+#' @description Enables the internal function \code{values}, used in the \code{mr_allmethods} function.
 #' @docType methods
 #' @name values
 #' @param object Object (could be an object of class "WeightedMedian", "Egger", or "IVW").
@@ -26,21 +26,6 @@ setMethod("values",
 #' @rdname values
 setMethod("values",
           "IVW",
-          function(object){
-            return(c(object@Estimate,
-                     object@StdError,
-                     object@CILower,
-                     object@CIUpper,
-                     object@Pvalue
-            ))
-          }
-)
-
-#--------------------------------------------------------------------------------------------
-
-#' @rdname values
-setMethod("values",
-          "MaxLik",
           function(object){
             return(c(object@Estimate,
                      object@StdError,

@@ -21,6 +21,11 @@ setMethod("$",
 
 #' @rdname getter
 setMethod("$",
+          "MRMBE",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
           "Egger",
           function(x, name) slot(x, name))
 
@@ -37,4 +42,19 @@ setMethod("$",
 #' @rdname getter
 setMethod("$",
           "MaxLik",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MVIVW",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MRMVInput",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MRHetPen",
           function(x, name) slot(x, name))

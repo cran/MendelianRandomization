@@ -1,3 +1,8 @@
+MendelianRandomization v0.3.0
+=============================
+Added mr_mvinput and mr_mvivw for multivariable Mendelian randomization
+Added mode-based estimation method of Hartwig et al (mr_mbe) and heterogeneity-penalized mode-based method (mr_hetpen)
+
 MendelianRandomization v0.2.2
 =============================
 Penalization of weights altered to correspond to Rees et al 2017 (submitted): penalization is now about the median estimate, only variants with heterogeneity p-value less than 0.01 are penalized.

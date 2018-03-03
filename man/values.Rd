@@ -5,7 +5,6 @@
 \alias{values}
 \alias{values,WeightedMedian-method}
 \alias{values,IVW-method}
-\alias{values,MaxLik-method}
 \alias{values,Egger-method}
 \title{Applies method values() to different output classes}
 \usage{
@@ -13,14 +12,12 @@
 
 \S4method{values}{IVW}(object)
 
-\S4method{values}{MaxLik}(object)
-
 \S4method{values}{Egger}(object)
 }
 \arguments{
 \item{object}{Object (could be an object of class "WeightedMedian", "Egger", or "IVW").}
 }
 \description{
-Enables the internal function \code{values}.
+Enables the internal function \code{values}, used in the \code{mr_allmethods} function.
 }
 \keyword{internal}

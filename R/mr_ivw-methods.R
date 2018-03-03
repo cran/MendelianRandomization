@@ -159,7 +159,7 @@ setMethod("mr_ivw",
 
                   omega <- Byse%o%Byse*rho
 
-                  thetaIVW <- solve(t(Bx)%*%solve(omega)%*%Bx)*t(Bx)%*%solve(omega)%*%By
+                  thetaIVW <- as.numeric(solve(t(Bx)%*%solve(omega)%*%Bx)*t(Bx)%*%solve(omega)%*%By)
                     rse <- By - thetaIVW*Bx
 
                     if(model == "random") {
@@ -218,7 +218,7 @@ setMethod("mr_ivw",
 if (weights == "simple") {    thetaIVWse <- abs(Byse/Bx)  }
 if (weights == "delta")  {    thetaIVWse <- sqrt(Byse^2/Bx^2+By^2*Bxse^2/Bx^4-2*psi*By*Bxse*Byse/Bx^3) }
               rse <- 1
-              pvalue <- 2*pnorm(-abs(By/Byse))
+              pvalue <- 2*pnorm(-abs(thetaIVW/thetaIVWse))
 
               robust <- FALSE
               penalized <- FALSE

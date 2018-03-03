@@ -1,8 +1,8 @@
 Package: MendelianRandomization
 Type: Package
 Title: Mendelian Randomization Package
-Version: 0.2.2
-Date: 2017-08-22
+Version: 0.3.0
+Date: 2018-02-22
 Author: Olena Yavorska <yavorsko@tcd.ie>
 Maintainer: Stephen Burgess <sb452@medschl.cam.ac.uk>
 Description: Encodes several methods for performing Mendelian randomization
@@ -12,11 +12,11 @@ Description: Encodes several methods for performing Mendelian randomization
 License: GPL-2 | GPL-3
 Depends: R (>= 3.0.1), methods
 Imports: knitr, rmarkdown, plotly (>= 3.6.0), ggplot2 (>= 1.0.1),
-        stargazer (>= 5.2), robustbase (>= 0.92-6)
+        robustbase (>= 0.92-6), Matrix (>= 1.2), iterpc (>= 0.3)
 VignetteBuilder: knitr
 LazyData: TRUE
 RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2017-08-22 18:45:25 UTC; Stephen
+Packaged: 2018-02-22 10:20:21 UTC; stephenb
 Repository: CRAN
-Date/Publication: 2017-08-22 18:56:18 UTC
+Date/Publication: 2018-03-03 16:56:59 UTC

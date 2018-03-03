@@ -19,14 +19,14 @@ MendelianRandomization is a package developed to carry out various Mendelian ran
 library(MendelianRandomization)
 ```
 
-## Data Input
+## The Input
 
 The package uses a special class called *MRInput* within the analyses in order to pass in all necessary information through one simple structure rather than inserting the object in parts. In order to make an *MRInput* object, one can do one of the following :
 
 - assign values to each slot separately 
 - extract it from a PhenoScanner .csv output file
 
-We initially focus on the first method.
+We focus on the first method.
 
 The *MRInput* object has the following "slots" :
 
@@ -65,11 +65,11 @@ MRInputObject <- mr_input(ldlc, ldlcse, chdlodds, chdloddsse)
 ```
 However, care must be taken in this case to give the vectors in the correct order (that is: *bx, bxse, by, byse*).
 
-## Data supplied
+## The data
 
 Two sets of data are provided as part of this package:
 
-- *ldlc, ldlcse, hdlc, hdlse, trig, trigse, chdlodds, chdloddsse*: these are the associations (beta-coefficients and standard errors) of 28 genetic variants with LDL-cholesterol, HDL-cholesterol, triglycerides, and coronary heart disease (CHD) risk (associations with CHD risk are log odds ratios) taken from Waterworth et al (2011) "Genetic variants influencing circulating lipid levels and risk of coronary artery disease", doi: 10.1161/atvbaha.109.201020.
+- *ldlc, ldlcse, hdlc, hdlcse, trig, trigse, chdlodds, chdloddsse*: these are the associations (beta-coefficients and standard errors) of 28 genetic variants with LDL-cholesterol, HDL-cholesterol, triglycerides, and coronary heart disease (CHD) risk (associations with CHD risk are log odds ratios) taken from Waterworth et al (2011) "Genetic variants influencing circulating lipid levels and risk of coronary artery disease", doi: 10.1161/atvbaha.109.201020.
 - *calcium, calciumse, fastgluc, fastglucse*: these are the associations (beta-coefficients and standard errors) of 7 genetic variants in the /CASR/ gene region. These 7 variants are all correlated, and the correlation matrix is provided as *calc.rho*. These data were analysed in Burgess et al (2015) "Using published data in Mendelian randomization: a blueprint for efficient identification of causal risk factors", doi: 10.1007/s10654-015-0011-z.
 
 ## Methods
@@ -179,6 +179,7 @@ The method has two main advantages over the IVW method: it allows for uncertaint
 
 ```{r}
 MaxLikObject <- mr_maxlik(MRInputObject, 
+                          model = "default",
                           correl = FALSE,
                           psi = 0,
                           distribution = "normal",
@@ -195,18 +196,123 @@ MaxLikObject.corr <- mr_maxlik(mr_input(bx = calcium, bxse = calciumse,
 MaxLikObject.corr
 ```
 
+## Multivariable Mendelian randomization
+
+*ADDED IN VERSION 0.3.0* An additional method for causal estimation when genetic variants are associated with multiple risk factors is multivariable Mendelian randomization, introduced in Burgess and Thompson (2015) "Multivariable Mendelian randomization: the use of pleiotropic genetic variants to estimate causal effects", doi: 10.1093/aje/kwu283.
+
+There are two contexts in which we envision the method being used. First, when there is a set of related risk factors, such as lipid fractions. It is difficult to find genetic predictors of HDL-cholesterol that do not also predict LDL-cholesterol and/or triglycerides. Multivariable Mendelian randomization allows genetic variants to be associated with all the risk factors in the model provided that they do not influence the outcome via other pathways. Secondly, when there is a network of risk factors, typically a primary risk factor and a secondary risk factor or mediator. In both cases, causal estimates reflect direct causal effects - the result of intervening on the risk factor under analysis while keeping other risk factors in the model fixed.
+
+As the multivariable method requires genetic associations with multiple risk factors, a different input function is needed: *mr_mvinput*:
+
+```{r}
+MRMVInputObject <- mr_mvinput(bx = cbind(ldlc, hdlc, trig),
+                              bxse = cbind(ldlcse, hdlcse, trigse),
+                              by = chdlodds, 
+                              byse = chdloddsse)
+
+MRMVInputObject
+```
+
+The *mr_mvivw* command performs an extension of the inverse-variance weighted method for multivariable Mendelian randomization, performing multivariable weighted linear regression (the standard IVW method method performs univariable weighted linear regression) with the intercept term set to zero. As with the standard IVW method, a correlation matrix can be specified. Multivariable Mendelian randomization requires the number of genetic variants to exceed the number of risk factors; if this is not the case, the method will return an error.
+
+```{r}
+MRMVObject <- mr_mvivw(MRMVInputObject, 
+                          model = "default",
+						  correl = FALSE,
+                          distribution = "normal",
+                          alpha = 0.05)
+
+MRMVObject <- mr_mvivw(MRMVInputObject)
+
+MRMVObject
+```
+
+## Mode-based estimation method of Hartwig et al
+
+*ADDED IN VERSION 0.3.0* An additional method for robust causal estimation that gives consistent when a plurality of genetic variants is valid is the mode-based estimation method, introduced in Hartwig, Davey Smith and Bowden (2017) "Robust inference in summary data Mendelian randomization via the zero modal pleiotropy assumption", doi: 10.1093/ije/dyx102.
+
+While the median-based method calculates the variant-specific estimates and then obtains the mean of these estimates, the mode-based method obtains the "mode" of the estimates. However, in finite samples, no two estimates will be exactly the same, so a mode does not exist. The method proceeds by constructing a kernel-weighted density of the variant-specific estimates, and taking the maximum point of this density as the point estimate. A confidence interval is obtained by bootstrapping.
+
+Several options can be specified: whether the mode should be *"weighted"* or *"unweighted"* (default is weighted), whether the standard errors should be calculated using the *"simple"* or *"delta"* formula above (default is delta), the value of the bandwidth parameter multiplication factor (default is 1), the random seed, and number of iterations in the bootstrap procedure.
+
+```{r}
+MBEObject <- mr_mbe(MRInputObject, 
+                    weighting = "weighted",
+					stderror = "delta",
+					phi = 1,
+					seed = 314159265,
+					iterations = 10000,
+                    distribution = "normal",
+                    alpha = 0.05)
+
+MBEObject <- mr_mbe(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse))
+
+MBEObject
+```
+
+## Heterogeneity-penalized method
+
+*ADDED IN VERSION 0.3.0* An additional method for robust causal estimation that also gives consistent when a plurality of genetic variants is valid is the heterogeneity-penalized model-averaging method, introduced in Burgess et al (2017) "Improving on a modal-based estimation method: model averaging for consistent and efficient estimation in Mendelian randomization when a plurality of candidate instruments are valid", doi: 10.1101/175372.
+
+There are several aspects of the mode-based estimation method that could be improved upon. The choice of bandwidth is arbitrary and has a large effect on estimates and their confidence intervals. The bootstrap procedure is not ideal, as it makes the assumption that the estimate is normally distributed. The method is not particularly efficient.
+
+The heterogeneity-penalized method uses the same consistency criterion as the mode-based estimation method, but evaluates the modal estimate in a different way. It proceeds by evaluating weights for all subsets of genetic variants (excluding the null set and singletons). Subsets receive greater weight if they include more variants, but are severely downweighted if the variants in the subset have heterogeneous causal estimates. As such, the method will identify the subset with the largest number (by weight) of variants having similar causal estimates.
+
+Confidence intervals are evaluated by calculating a log-likelihood function, and finding all points within a given vertical distance of the maximum of the log-likelihood function (which is the causal estimate). As such, if the log-likelihood function is multimodal, then the confidence interval may include multiple disjoint ranges. This may indicate the presence of multiple causal mechanisms by which the exposure may influence the outcome with different magnitudes of causal effect. As the confidence interval is determined by a grid search, care must be taken when chosing the minimum (*CIMin*) and maximum (*CIMax*) values in the search, as well as the step size (*CIStep*). The default values will not be suitable for all applications.
+
+```{r, eval = FALSE}
+HetPenObject <- mr_hetpen(MRInputObject, 
+                          prior = 0.5,
+					      CIMin = -1,
+						  CIMax = 1,
+						  CIStep = 0.001,
+                          alpha = 0.05)
+```
+
+As the method evaluates estimates and weights for each subset of variants, the method is quite computationally expensive to run, as the complexity doubles with each additional variant. We run the method for a subset of 10 genetic variants:
+
+```{r}
+HetPenObject <- mr_hetpen(mr_input(bx = ldlc[1:10], bxse = ldlcse[1:10],
+  by = chdlodds[1:10], byse = chdloddsse[1:10]), CIMin = -1, CIMax = 5, CIStep = 0.01)
+
+HetPenObject
+```
+
+As an example of a multimodal confidence interval:
+
+```{r}
+bcrp    =c(0.160, 0.236, 0.149, 0.09, 0.079, 0.072, 0.047, 0.069)
+bcrpse  =c(0.006, 0.009, 0.006, 0.005, 0.005, 0.005, 0.006, 0.011)
+bchd    =c(0.0237903, -0.1121942, -0.0711906, -0.030848, 0.0479207, 0.0238895,
+  0.005528, 0.0214852)
+bchdse  =c(0.0149064, 0.0303084, 0.0150552, 0.0148339, 0.0143077, 0.0145478,
+  0.0160765, 0.0255237)
+  
+HetPenObject.multimode <- mr_hetpen(mr_input(bx = bcrp, bxse = bcrpse,
+  by = bchd, byse = bchdse))
+
+HetPenObject.multimode
+```
+
+
 ## Summaries of multiple methods
 
 The *mr_allmethods* function is provided to easily compare results (Estimate, Standard Error, 95% CI, and p-value) from multiple methods. One can look at results from all methods (*method = "all"*), or a partial result setting method to *"egger"*, *"ivw"*, or *"median"* to get a more selective set of results. The final option is *"main"*, which gives results from the simple median, weighted median, IVW, and MR-Egger methods only.
 
 ```{r}
-MRAllObject_all <- mr_allmethods(MRInputObject, method = "all", iterations = 100)
+MRInputObject <- mr_input(bx = ldlc, 
+                          bxse = ldlcse, 
+                          by = chdlodds, 
+                          byse = chdloddsse)
+
+MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
 MRAllObject_all
 
 MRAllObject_egger <- mr_allmethods(MRInputObject, method = "egger")
 MRAllObject_egger
 
-MRAllObject_main <- mr_allmethods(MRInputObject, method = "main", iterations = 100)
+MRAllObject_main <- mr_allmethods(MRInputObject, method = "main")
 MRAllObject_main
 ```
 
@@ -257,7 +363,7 @@ mr_plot(MRAllObject_egger)
 
 ```{r}
 mr_plot(mr_allmethods(mr_input(bx = hdlc, bxse = hdlcse,
-  by = chdlodds, byse = chdloddsse), iterations = 100))
+  by = chdlodds, byse = chdloddsse)))
 ```
 
 We see that estimates from all methods are similar when LDL-cholesterol is the risk factor, but the MR-Egger estimates differ substantially when HDL-cholesterol is the risk factor.
@@ -318,5 +424,4 @@ The output from the *extract.pheno.csv* function is an MRInput object, which can
 ## Final note of caution
 
 Particularly with the development of Mendelian randomization with summarized data, two-sample Mendelian randomization (where associations with the risk factor and with the outcome are taken from separate datasets), and bioinformatic tools for obtaining and analysing summarized data (including this package), Mendelian randomization is becoming increasingly accessible as a tool for answering epidemiological questions. This is undoubtably a Good Thing. However, it is important to remember that the difficult part of a Mendelian randomization analysis is not the computational method, but deciding what should go into the analysis: which risk factor, which outcome, and (most importantly) which genetic variants. Hopefully, the availability of these tools will enable less attention to be paid to the mechanics of the analysis, and more attention to these choices. The note of caution is that tools that make Mendelian randomization simple to perform run the risk of encouraging large numbers of speculative analyses to be performed in an unprincipled way. It is important that Mendelian randomization is not performed in a way that avoids critical thought. In releasing this package, the hope is that it will lead to more comprehensive and more reproducible causal inferences from Mendelian randomization, and not simply add more noise to the literature.
-
 
