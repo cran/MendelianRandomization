@@ -66,10 +66,11 @@ setMethod("mr_egger",
 
             # Ensure that the betaX estimate has positive values
             By = sign(object@betaX)*object@betaY
+            rho = object@correlation
             Bx = abs(object@betaX)
             Bxse = object@betaXse
             Byse = object@betaYse
-            rho = object@correlation
+
 
             nsnps <- length(Bx)
 
@@ -82,6 +83,8 @@ setMethod("mr_egger",
                 cat("Correlation matrix not given.")
 
               } else {
+
+            rho = object@correlation*(sign(object@betaX)%o%sign(object@betaX))
 
                 omega <- Byse%o%Byse*rho
                 theta.vals <- solve(t(cbind(rep(1, nsnps), Bx))%*%solve(omega)%*%cbind(rep(1, nsnps), Bx))%*%t(cbind(rep(1, nsnps), Bx))%*%solve(omega)%*%By

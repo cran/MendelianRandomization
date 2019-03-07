@@ -1,9 +1,10 @@
 Package: MendelianRandomization
 Type: Package
 Title: Mendelian Randomization Package
-Version: 0.3.0
-Date: 2018-02-22
-Author: Olena Yavorska <yavorsko@tcd.ie>
+Version: 0.4.0
+Date: 2019-03-06
+Author: Olena Yavorska <olena.yavorska@ludwig.ox.ac.uk>
+        James Staley <james.staley@bristol.ac.uk>
 Maintainer: Stephen Burgess <sb452@medschl.cam.ac.uk>
 Description: Encodes several methods for performing Mendelian randomization
     analyses with summarized data. Summarized data on genetic associations with the
@@ -12,11 +13,11 @@ Description: Encodes several methods for performing Mendelian randomization
 License: GPL-2 | GPL-3
 Depends: R (>= 3.0.1), methods
 Imports: knitr, rmarkdown, plotly (>= 3.6.0), ggplot2 (>= 1.0.1),
-        robustbase (>= 0.92-6), Matrix (>= 1.2), iterpc (>= 0.3)
+        robustbase (>= 0.92-6), Matrix (>= 1.2), iterpc (>= 0.3), rjson
 VignetteBuilder: knitr
 LazyData: TRUE
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2018-02-22 10:20:21 UTC; stephenb
+Packaged: 2019-03-07 11:03:38 UTC; stephenb
 Repository: CRAN
-Date/Publication: 2018-03-03 16:56:59 UTC
+Date/Publication: 2019-03-07 11:33:29 UTC

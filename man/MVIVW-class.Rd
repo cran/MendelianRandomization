@@ -5,7 +5,7 @@
 \alias{MVIVW-class}
 \title{MVIVW Class}
 \description{
-An object containing the estimate produced using the multivariable inverse-variance weighted (IVW) method as well as various statistics.
+An object containing the estimates produced using the multivariable inverse-variance weighted (IVW) method as well as various statistics.
 }
 \section{Slots}{
 

@@ -323,7 +323,7 @@ setValidity("MRMVInput",
 
 #' MVIVW Class
 #'
-#' @description An object containing the estimate produced using the multivariable inverse-variance weighted (IVW) method as well as various statistics.
+#' @description An object containing the estimates produced using the multivariable inverse-variance weighted (IVW) method as well as various statistics.
 #'
 #' @slot Model The model used for estimation: random-effects (\code{"random"}) or fixed-effect (\code{"fixed"}). The default option (\code{"default"}) is to use a fixed-effect model when there are three or fewer genetic variants, and a random-effects model when there are four or more. The (multiplicative) random-effects model allows for heterogeneity between the causal estimates targeted by the genetic variants by allowing over-dispersion in the regression model. Under-dispersion is not permitted (in case of under-dispersion, the residual standard error is set to 1, as in a fixed-effect analysis).
 #' @slot Exposure The names of the exposure variables.
@@ -358,6 +358,60 @@ setClass("MVIVW",
                         RSE = "numeric",
                         Heter.Stat = "numeric")
 )
+
+#--------------------------------------------------------------------------------------------
+
+#' MVEgger Class
+#'
+#' @description An object containing the estimates produced using the multivariable MR-Egger method as well as various statistics.
+#'
+#' @slot Model Model always takes the value \code{random}, as only random-effects analyses are permitted.
+#' @slot Orientate The number of the risk factor that genetic associations are orientated to. The default value is \code{1}, meaning that genetic associations with the first risk factor are set to be positive.
+#' @slot Exposure The names of the exposure variables.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Correlation The matrix of correlations between genetic variants.
+#' @slot Estimate The causal estimates from the inverse-variance weighted method.
+#' @slot StdError.Est The standard errors associated with \code{Estimate}.
+#' @slot CILower.Est The lower bounds of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper.Est The upper bounds of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot Pvalue.Est P-value associated with the causal estimate.
+#' @slot Intercept The intercept estimate from the MR-Egger method. Under the InSIDE assumption, the intercept represents the average pleiotropic effect (average direct effect on the outcome) of a genetic variant. If the intercept differs from zero, this is evidence that the genetic variants are not all valid instruments; specifically, there is directional pleiotropy.
+#' @slot StdError.Int The standard error associated with \code{Intercept}.
+#' @slot CILower.Int The lower bound of the confidence interval for \code{Intercept} based on \code{StdError.Int}.
+#' @slot CIUpper.Int The upper bound of the confidence interval for \code{Estimate} based on \code{StdError.Int}.
+#' @slot Pvalue.Int P-value associated with the intercept.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+#' @slot SNPs The number of SNPs that were used in the calculation.
+#' @slot RSE The estimated residual standard error from the regression model.
+#' @slot Heter.Stat Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.
+
+setClass("MVEgger",
+         representation(Model = "character",
+                        Orientate = "numeric",
+                        Exposure = "character",
+                        Outcome = "character",
+
+                        Correlation = "matrix",
+
+                        Estimate = "numeric",
+                        StdError.Est = "numeric",
+                        CILower.Est = "numeric",
+                        CIUpper.Est = "numeric",
+                        Pvalue.Est = "numeric",
+
+                        Intercept = "numeric",
+                        StdError.Int = "numeric",
+                        CILower.Int = "numeric",
+                        CIUpper.Int = "numeric",
+                        Pvalue.Int = "numeric",
+
+                        Alpha = "numeric",
+                        SNPs = "numeric",
+
+                        RSE = "numeric",
+                        Heter.Stat = "numeric")
+)
+
 
 #--------------------------------------------------------------------------------------------
 
@@ -403,7 +457,7 @@ setClass("MRMBE",
 #' @slot Exposure The names of the exposure variables.
 #' @slot Outcome The name of the outcome variable.
 #' @slot Prior The value of the prior probability of a genetic variant being a valid instrument (default is 0.5).
-#' @slot Estimate The causal estimates from the heterogeneity-penalized method.
+#' @slot Estimate The causal estimate from the heterogeneity-penalized method.
 #' @slot CIRange The confidence interval for \code{Estimate} based on a grid search.
 #' @slot CILower The lower limit of the confidence interval. If the confidence interval contains multiple ranges, then lower limits of all ranges will be reported.
 #' @slot CIUpper The upper limit of the confidence interval. If the confidence interval contains multiple ranges, then upper limits of all ranges will be reported.
@@ -427,3 +481,38 @@ setClass("MRHetPen",
                         Alpha    = "numeric",
                         SNPs = "numeric")
 )
+
+#--------------------------------------------------------------------------------------------
+
+#' MRConMix Class
+#'
+#' @description An object containing the estimate produced using the contamination mixture method as well as various statistics.
+#'
+#' @slot Exposure The names of the exposure variables.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Psi The value of the standard deviation of the distribution of invalid estimands (default is 1.5 times the standard deviation of the ratio estimates).
+#' @slot Estimate The causal estimate from the contamination mixture method.
+#' @slot CIRange The confidence interval for \code{Estimate} based on a grid search.
+#' @slot CILower The lower limit of the confidence interval. If the confidence interval contains multiple ranges, then lower limits of all ranges will be reported.
+#' @slot CIUpper The upper limit of the confidence interval. If the confidence interval contains multiple ranges, then upper limits of all ranges will be reported.
+#' @slot CIMin The smallest value used in the search to find the confidence interval.
+#' @slot CIMax The largest value used in the search to find the confidence interval.
+#' @slot CIStep The step size used in the search to find the confidence interval.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+#' @slot SNPs The number of SNPs that were used in the calculation.
+
+setClass("MRConMix",
+         representation(Exposure = "character",
+                        Outcome  = "character",
+                        Psi      = "numeric",
+                        Estimate = "numeric",
+                        CIRange  = "numeric",
+                        CILower  = "numeric",
+                        CIUpper  = "numeric",
+                        CIMin    = "numeric",
+                        CIMax    = "numeric", 
+                        CIStep   = "numeric",                    
+                        Alpha    = "numeric",
+                        SNPs = "numeric")
+)
+

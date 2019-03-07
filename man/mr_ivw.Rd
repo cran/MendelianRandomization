@@ -7,8 +7,8 @@
 \title{Inverse-variance weighted method}
 \usage{
 mr_ivw(object, model = "default", robust = FALSE, penalized = FALSE,
-  weights = "simple", psi = 0, correl = FALSE, distribution = "normal",
-  alpha = 0.05, ...)
+  weights = "simple", psi = 0, correl = FALSE,
+  distribution = "normal", alpha = 0.05, ...)
 
 \S4method{mr_ivw}{MRInput}(object, model = "default", robust = FALSE,
   penalized = FALSE, weights = "simple", psi = 0, correl = FALSE,

@@ -9,15 +9,15 @@
 mr_mvivw(object, model = "default", correl = FALSE,
   distribution = "normal", alpha = 0.05, ...)
 
-\S4method{mr_mvivw}{MRMVInput}(object, model = "default", correl = FALSE,
-  distribution = "normal", alpha = 0.05, ...)
+\S4method{mr_mvivw}{MRMVInput}(object, model = "default",
+  correl = FALSE, distribution = "normal", alpha = 0.05, ...)
 }
 \arguments{
 \item{object}{An \code{MRMVInput} object.}
 
 \item{model}{What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The random-effects model (\code{"random"}) is a multiplicative random-effects model, allowing overdispersion in the weighted linear regression (the residual standard error is not fixed to be 1, but is not allowed to take values below 1). The fixed-effect model (\code{"fixed"}) sets the residual standard error to be 1. The \code{"default"} setting is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.}
 
-\item{correl}{If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRInput} object, then \code{correl} is set to \code{TRUE}.}
+\item{correl}{If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRMVInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRMVInput} object, then \code{correl} is set to \code{TRUE}.}
 
 \item{distribution}{The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.}
 

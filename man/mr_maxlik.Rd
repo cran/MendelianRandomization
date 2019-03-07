@@ -9,8 +9,9 @@
 mr_maxlik(object, model = "default", correl = FALSE, psi = 0,
   distribution = "normal", alpha = 0.05, ...)
 
-\S4method{mr_maxlik}{MRInput}(object, model = "default", correl = FALSE,
-  psi = 0, distribution = "normal", alpha = 0.05, ...)
+\S4method{mr_maxlik}{MRInput}(object, model = "default",
+  correl = FALSE, psi = 0, distribution = "normal", alpha = 0.05,
+  ...)
 }
 \arguments{
 \item{object}{An \code{MRInput} object.}

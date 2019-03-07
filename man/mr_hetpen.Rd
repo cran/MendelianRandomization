@@ -6,11 +6,11 @@
 \alias{mr_hetpen,MRInput-method}
 \title{Heterogeneity-penalized method}
 \usage{
-mr_hetpen(object, prior = 0.5, CIMin = -1, CIMax = 1, CIStep = 0.001,
-  alpha = 0.05)
-
-\S4method{mr_hetpen}{MRInput}(object, prior = 0.5, CIMin = -1, CIMax = 1,
+mr_hetpen(object, prior = 0.5, CIMin = -1, CIMax = 1,
   CIStep = 0.001, alpha = 0.05)
+
+\S4method{mr_hetpen}{MRInput}(object, prior = 0.5, CIMin = -1,
+  CIMax = 1, CIStep = 0.001, alpha = 0.05)
 }
 \arguments{
 \item{object}{An \code{MRInput} object.}

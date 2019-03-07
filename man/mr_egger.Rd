@@ -30,7 +30,7 @@ mr_egger(object, robust = FALSE, penalized = FALSE, correl = FALSE,
 \value{
 The output of the function is an \code{Egger} object containing:
 
- \item{Model}{A character string giving the type of model used ("random").}
+ \item{Model}{A character string giving the type of model used (\code{"random"}).}
  \item{Exposure}{A character string giving the name given to the exposure.}
  \item{Outcome}{A character string giving the name given to the outcome.}
  \item{Correlation}{The matrix of genetic correlations.}

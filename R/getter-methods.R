@@ -51,10 +51,20 @@ setMethod("$",
 
 #' @rdname getter
 setMethod("$",
+          "MVEgger",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
           "MRMVInput",
           function(x, name) slot(x, name))
 
 #' @rdname getter
 setMethod("$",
           "MRHetPen",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MRConMix",
           function(x, name) slot(x, name))

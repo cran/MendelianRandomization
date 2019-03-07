@@ -179,7 +179,7 @@ setGeneric(name = "mr_ivw",
 #'
 #' @return The output of the function is an \code{Egger} object containing:
 #'
-#'  \item{Model}{A character string giving the type of model used ("random").}
+#'  \item{Model}{A character string giving the type of model used (\code{"random"}).}
 #'  \item{Exposure}{A character string giving the name given to the exposure.}
 #'  \item{Outcome}{A character string giving the name given to the outcome.}
 #'  \item{Correlation}{The matrix of genetic correlations.}
@@ -356,7 +356,7 @@ setGeneric(name = "mr_maxlik",
 #'
 #' @param object An \code{MRMVInput} object.
 #' @param model What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The random-effects model (\code{"random"}) is a multiplicative random-effects model, allowing overdispersion in the weighted linear regression (the residual standard error is not fixed to be 1, but is not allowed to take values below 1). The fixed-effect model (\code{"fixed"}) sets the residual standard error to be 1. The \code{"default"} setting is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.
-#' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRInput} object, then \code{correl} is set to \code{TRUE}.
+#' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRMVInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRMVInput} object, then \code{correl} is set to \code{TRUE}.
 #' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
 #' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
 #' @param ... Additional arguments to be passed to the regression method.
@@ -401,6 +401,63 @@ setGeneric(name = "mr_mvivw",
            {standardGeneric("mr_mvivw")})
 
 #--------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------
+
+#' Multivariable MR-Egger method
+#'
+#' @description The \code{mr_mvegger} function performs multivariable Mendelian randomization via the MR-Egger method. This is implemented by multivariable weighted linear regression.
+#'
+#' @param object An \code{MRMVInput} object.
+#' @param orientate The risk factor that genetic associations are orientated to. The univariable and multivariable versions of MR-Egger are both sensitive to the choice of parameterization of the genetic associations - which allele the associations are orientated with respect to (in other words, which allele is the effect allele). For univariable MR-Egger, this is resolved by setting the genetic associations with the exposure all to be positive. In multivariable MR-Egger, we have to choose which of the exposures to orientate the genetic associations to. The default option is \code{1}, meaning that genetic associations with the first exposure are set to be positive.
+#' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRInput} object, then \code{correl} is set to \code{TRUE}.
+#' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#'
+#' @details Multivariable MR-Egger is an extension of the MR-Egger method to deal with genetic variants that are associated with multiple risk factors.
+#'
+#' We implement the method using multivariable weighted linear regression. If the variants are correlated, the method is implemented using generalized weighted linear regression; this is hard coded using matrix algebra.
+#'
+#' The causal estimate is obtained by regression of the associations with the outcome on the associations with the risk factors, with the intercept estimated and weights being the inverse-variances of the associations with the outcome.
+#'
+#' @return The output from the function is an \code{MVEgger} object containing:
+#'
+#'  \item{Model}{A character string giving the type of model used (\code{"random"}).}
+#'  \item{Orientate}{The number corresponding to the risk factor that the genetic associations are orientated to.}
+#'  \item{Exposure}{A character vector with the names given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Correlation}{The matrix of genetic correlations.}
+#'  \item{Estimate}{A vector of the causal estimates (slope coefficient).}
+#'  \item{StdError.Est}{Standard errors of the causal estimates.}
+#'  \item{Pvalue.Est}{The p-values associated with the estimates using a normal or t-distribution (as specified in \code{distribution}).}
+#'  \item{CILower.Est}{The lower bound of the causal estimates based on the estimated standard error and the significance level provided.}
+#'  \item{CIUpper.Est}{The upper bound of the causal estimates based on the estimated standard error and the significance level provided.}
+#'  \item{Intercept}{The value of the intercept estimate.}
+#'  \item{StdError.Int}{Standard error of the intercept estimate.}
+#'  \item{Pvalue.Int}{The p-value associated with the intercept.}
+#'  \item{CILower.Int}{The lower bound of the intercept based on the estimated standard error and the significance level provided.}
+#'  \item{CIUpper.Int}{The upper bound of the intercept based on the estimated standard error and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-values associated with the estimates (calculated as Estimate/StdError as per Wald test) using a normal or t-distribution (as specified in \code{distribution}).}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'  \item{RSE}{The estimated residual standard error from the regression model.}
+#'  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+#'
+#' @examples mr_mvegger(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse), orientate = 1)
+#'
+#' @references Jessica Rees, Angela Wood, Stephen Burgess. Extending the MR?Egger method for multivariable Mendelian randomization to correct for both measured and unmeasured pleiotropy. Statistics in Medicine 2017; 36(29): 4705-4718. doi: 10.1002/sim.7492.
+#'
+#' @export
+
+setGeneric(name = "mr_mvegger",
+           def = function(object, orientate = 1,
+                          correl = FALSE, 
+                          distribution = "normal", alpha = 0.05)
+           {standardGeneric("mr_mvegger")})
+
+#--------------------------------------------------------------------------------------------
+
 
 #' Mode-based method of Hartwig
 #'
@@ -497,5 +554,53 @@ setGeneric(name = "mr_mbe",
 setGeneric(name = "mr_hetpen",
            def = function(object, prior=0.5, CIMin=-1, CIMax=1, CIStep=0.001, alpha = 0.05)
              {standardGeneric("mr_hetpen")})
+
+#--------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------
+
+#' Contamination mixture method
+#'
+#' @description Contamination mixture method for robust and efficient estimation under the 'plurality valid' assumption.
+#' 
+#' @param object An \code{MRInput} object.
+#' @param psi The value of the standard deviation of the distribution of invalid estimands (default value is 0, corresponding to 1.5 times the standard deviation of the ratio estimates).
+#' @param CIMin The smallest value to use in the search to find the confidence interval (default is -1).
+#' @param CIMax The largest value to use in the search to find the confidence interval (default is +1).
+#' @param CIStep The step size to use in the search to find the confidence interval (default is 0.001). The confidence interval is determined by a grid search algorithm. Using the default settings, we calculate the likelihood at all values from -1 to +1 increasing in units of 0.001. If this range is too large or the step size is too small, then the grid search algorithm will take a long time to converge.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#'
+#' @details The contamination mixture method is implemented by constructing a likelihood function based on the variant-specific causal estimates. If a genetic variant is a valid instrument, then its causal estimate will be normally distributed about the true value of the causal effect. If a genetic variant is not a valid instrument, then its causal estimate will be normally distributed about some other value. We assume that the values estimated by invalid instruments are normally distributed about zero with a large standard deviation. This enables a likelihood function to be specified that is a product of two-component mixture distributions, with one mixture distribution for each variant. The computational time for maximizing this likelihood directly is exponential in the number of genetic variants. We use a profile likelihood approach to reduce the computational complexity to be linear in the number of variants.
+#'
+#' We consider different values of the causal effect in turn. For each value, we calculate the contribution to the likelihood for each genetic variant as a valid instrument and as an invalid instrument. If the contribution to the likelihood as a valid instrument is greater, then we take the variant's contribution as a valid instrument; if less, then its contribution is taken as an invalid instrument. This gives us the configuration of valid and invalid instruments that maximizes the likelihood for the given value of the causal effect. This is a profile likelihood, a one-dimensional function of the causal effect. The point estimate is then taken as the value of the causal effect that maximizes the profile likelihood.
+#'
+#' Confidence intervals are evaluated by calculating the log-likelihood function, and finding all points within a given vertical distance of the maximum of the log-likelihood function (which is the causal estimate). As such, if the log-likelihood function is multimodal, then the confidence interval may include multiple disjoint ranges. This may indicate the presence of multiple causal mechanisms by which the exposure may influence the outcome with different magnitudes of causal effect. As the confidence interval is determined by a grid search, care must be taken when chosing the minimum (\code{CIMin}) and maximum (\code{CIMax}) values in the search, as well as the step size (\code{CIStep}). The default values will not be suitable for all applications.
+#'
+#'
+#' @return The output from the function is an \code{MRConMix} object containing:
+#'
+#'  \item{Exposure}{A character string giving the name given to the exposure.}
+#'  \item{Outcome}{A character string giving the name given to the outcome.}
+#'  \item{Psi}{The value of the standard deviation parameter.}
+#'  \item{Estimate}{The value of the causal estimate.}
+#'  \item{CIRange}{The range of values in the confidence interval based on a grid search between the minimum and maximum values for the causal effect provided.}
+#'  \item{CILower}{The lower limit of the confidence interval. If the confidence interval contains multiple ranges, then lower limits of all ranges will be reported.}
+#'  \item{CIUpper}{The upper limit of the confidence interval. If the confidence interval contains multiple ranges, then upper limits of all ranges will be reported.}
+#'  \item{CIMin}{The smallest value used in the search to find the confidence interval.}
+#'  \item{CIMax}{The largest value used in the search to find the confidence interval.}
+#'  \item{CIStep}{The step size used in the search to find the confidence interval.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'
+#' @examples mr_conmix(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds,
+#'    byse = chdloddsse), psi = 3, CIMin = -1, CIMax = 5, CIStep = 0.01)
+#'
+#' @references Stephen Burgess, Christopher N Foley, Elias Allara, Joanna Howson. A robust and efficient method for Mendelian randomization with hundreds of genetic variants: unravelling mechanisms linking HDL-cholesterol and coronary heart disease. bioRxiv 2019. doi: [to add].
+#'
+#' @export
+
+setGeneric(name = "mr_conmix",
+           def = function(object, psi=0, CIMin=-1, CIMax=1, CIStep=0.001, alpha = 0.05)
+             {standardGeneric("mr_conmix")})
 
 #--------------------------------------------------------------------------------------------

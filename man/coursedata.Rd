@@ -4,7 +4,7 @@
 \name{coursedata}
 \alias{coursedata}
 \title{Course data}
-\format{An object of class \code{data.frame} with 1000 rows and 7 columns.}
+\format{An object of class \code{list} of length 11.}
 \usage{
 coursedata
 }

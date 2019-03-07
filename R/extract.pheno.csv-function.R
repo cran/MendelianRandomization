@@ -1,8 +1,10 @@
-#' Extract summarized data from a PhenoScanner .csv file
+#' Extract summarized data from a PhenoScanner .csv file (legacy)
 #'
 #' @description The function \code{extract.pheno.csv} extracts summarized data on associations with named exposure and outcome variables from a .csv file provided by PhenoScanner.
 #'
-#' @details The PhenoScanner bioinformatic tool (\url{http://phenoscanner.medschl.cam.ac.uk}) is a curated database of publicly available results from large-scale genetic association studies. Queries can be made for individual genetic variants (SNPs and small indels), or for multiple variants in a single batch query. One of the output files is a .csv file containing all associations of variables with each of the SNPs. For commonly genotyped variants, associations with up to 200 variables may be reported. These association estimates and their standard errors can be used in Mendelian randomization analyses.
+#' @details Note that this function was written for a previous version of PhenoScanner. It has not been updated, as it has been overtaken by the \code{pheno_input} function that queries PhenoScanner directly from R. 
+#'
+#' The PhenoScanner bioinformatic tool (\url{http://phenoscanner.medschl.cam.ac.uk}) is a curated database of publicly available results from large-scale genetic association studies. Queries can be made for individual genetic variants (SNPs and small indels), or for multiple variants in a single batch query. One of the output files is a .csv file containing all associations of variables with each of the SNPs. For commonly genotyped variants, associations with up to 200 variables may be reported. These association estimates and their standard errors can be used in Mendelian randomization analyses.
 #'
 #' The plan is to enable PhenoScanner to be queried directly from the MendelianRandomization package. However, this functionality is currently unavailable.
 #'

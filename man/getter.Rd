@@ -11,8 +11,10 @@
 \alias{$,MRInput-method}
 \alias{$,MaxLik-method}
 \alias{$,MVIVW-method}
+\alias{$,MVEgger-method}
 \alias{$,MRMVInput-method}
 \alias{$,MRHetPen-method}
+\alias{$,MRConMix-method}
 \title{Applies method $ to different classes}
 \usage{
 \S4method{$}{WeightedMedian}(x, name)
@@ -31,9 +33,13 @@
 
 \S4method{$}{MVIVW}(x, name)
 
+\S4method{$}{MVEgger}(x, name)
+
 \S4method{$}{MRMVInput}(x, name)
 
 \S4method{$}{MRHetPen}(x, name)
+
+\S4method{$}{MRConMix}(x, name)
 }
 \arguments{
 \item{x}{Object.}
