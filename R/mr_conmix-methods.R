@@ -5,9 +5,9 @@ setMethod("mr_conmix",
           "MRInput",
           function(object,
                    psi    = 0,
-                   CIMin  = -1,
-                   CIMax  = 1,
-                   CIStep = 0.001,
+                   CIMin  = NA,
+                   CIMax  = NA,
+                   CIStep = 0.01,
                    alpha = 0.05){
 
             Bx = object@betaX
@@ -18,22 +18,24 @@ setMethod("mr_conmix",
             nsnps = length(Bx)
 
             ratio = By/Bx; ratio.se = abs(Byse/Bx);
+   if (is.na(CIMin)) { CIMin = min((By-2*Byse)/Bx) }
+   if (is.na(CIMax)) { CIMax = max((By+2*Byse)/Bx) }
    if (psi < 0 | psi == 0) {   psi = 1.5*sd(ratio)  }
             theta = seq(from = CIMin, to = CIMax, by = CIStep)
             iters = length(theta)
 lik=NULL
  for (j1 in 1:iters) {
-  lik.inc = exp(-(theta[j1]-ratio)^2/2/ratio.se^2)/sqrt(2*pi*ratio.se^2)
-  lik.exc = exp(-ratio^2/2/(psi^2+ratio.se^2))/(sqrt(2*pi*(psi^2+ratio.se^2)))
+  lik.inc = -(theta[j1]-ratio)^2/2/ratio.se^2 - log(sqrt(2*pi*ratio.se^2))
+  lik.exc = -ratio^2/2/(psi^2+ratio.se^2) - log(sqrt(2*pi*(psi^2+ratio.se^2)))
   valid = (lik.inc>lik.exc)*1
-  lik[j1] = prod(c(lik.inc[valid==1], lik.exc[valid==0]))
+  lik[j1] = sum(c(lik.inc[valid==1], lik.exc[valid==0]))
   if (which.max(lik)==length(lik)) { valid.best = valid }
  }
   phi = ifelse(sum(valid.best)<1.5, 1,
     max(sqrt(sum(((ratio[valid.best==1]-weighted.mean(ratio[valid.best==1],
            ratio.se[valid.best==1]^-2))^2*
            ratio.se[valid.best==1]^-2))/(sum(valid.best)-1)), 1))
- loglik = log(lik)
+ loglik = lik
 
 whichin = which(2*loglik>(2*max(loglik)-qchisq(1-alpha, df=1)*phi^2))
    # provides an index of estimate values in the 95% confidence interval
@@ -57,6 +59,8 @@ whichin = which(2*loglik>(2*max(loglik)-qchisq(1-alpha, df=1)*phi^2))
                              CIMin    = as.numeric(CIMin),
                              CIMax    = as.numeric(CIMax),
                              CIStep   = as.numeric(CIStep),
+                             Valid    = as.numeric(which(valid.best==1)),
+                             ValidSNPs= as.character(object$snps[which(valid.best==1)]),
 
                              SNPs = nsnps,
                              Alpha = alpha))

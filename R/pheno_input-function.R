@@ -142,6 +142,7 @@ phenoscanner <- function(snpquery=NULL, genequery=NULL, regionquery=NULL, catalo
     output <- list(regions=regions, results=results)
   }
   if(is.null(output)) stop("there is no output")
+  cat("Thank you for using the PhenoScanner tool. If you use these results, please ensure that you follow the terms and conditions of PhenoScanner (http://www.phenoscanner.medschl.cam.ac.uk/about/), including citing all of the relevant references of the data used and the PhenoScanner publication: Staley JR et al., Bioinformatics 2016; 32(20):3207-3209. \n")
   return(output)
 }
 

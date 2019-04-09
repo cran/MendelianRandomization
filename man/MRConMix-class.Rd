@@ -30,6 +30,10 @@ An object containing the estimate produced using the contamination mixture metho
 
 \item{\code{CIStep}}{The step size used in the search to find the confidence interval.}
 
+\item{\code{Valid}}{The numbers of genetic variants that were considered valid instruments at the causal estimate.}
+
+\item{\code{ValidSNPs}}{The names of genetic variants that were considered valid instruments at the causal estimate.}
+
 \item{\code{Alpha}}{The significance level used in constructing the confidence interval (default is 0.05).}
 
 \item{\code{SNPs}}{The number of SNPs that were used in the calculation.}

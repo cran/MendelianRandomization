@@ -6,22 +6,22 @@
 \alias{mr_conmix,MRInput-method}
 \title{Contamination mixture method}
 \usage{
-mr_conmix(object, psi = 0, CIMin = -1, CIMax = 1, CIStep = 0.001,
+mr_conmix(object, psi = 0, CIMin = NA, CIMax = NA, CIStep = 0.01,
   alpha = 0.05)
 
-\S4method{mr_conmix}{MRInput}(object, psi = 0, CIMin = -1, CIMax = 1,
-  CIStep = 0.001, alpha = 0.05)
+\S4method{mr_conmix}{MRInput}(object, psi = 0, CIMin = NA,
+  CIMax = NA, CIStep = 0.01, alpha = 0.05)
 }
 \arguments{
 \item{object}{An \code{MRInput} object.}
 
 \item{psi}{The value of the standard deviation of the distribution of invalid estimands (default value is 0, corresponding to 1.5 times the standard deviation of the ratio estimates).}
 
-\item{CIMin}{The smallest value to use in the search to find the confidence interval (default is -1).}
+\item{CIMin}{The smallest value to use in the search to find the confidence interval. The default value is NA, which means that the method uses the smallest value of the lower bound of the 95\% confidence interval for the variant-specific ratio estimates as the smallest value.}
 
-\item{CIMax}{The largest value to use in the search to find the confidence interval (default is +1).}
+\item{CIMax}{The largest value to use in the search to find the confidence interval. The default value is NA, which means that the method uses the greatest value of the upper bound of the 95\% confidence interval for the variant-specific ratio estimates as the largest value.}
 
-\item{CIStep}{The step size to use in the search to find the confidence interval (default is 0.001). The confidence interval is determined by a grid search algorithm. Using the default settings, we calculate the likelihood at all values from -1 to +1 increasing in units of 0.001. If this range is too large or the step size is too small, then the grid search algorithm will take a long time to converge.}
+\item{CIStep}{The step size to use in the search to find the confidence interval (default is 0.01). The confidence interval is determined by a grid search algorithm. Using the default settings, we calculate the likelihood at all values from -1 to +1 increasing in units of 0.01. If this range is too large or the step size is too small, then the method will take a long time to run.}
 
 \item{alpha}{The significance level used to calculate the confidence interval. The default value is 0.05.}
 }
@@ -38,6 +38,8 @@ The output from the function is an \code{MRConMix} object containing:
  \item{CIMin}{The smallest value used in the search to find the confidence interval.}
  \item{CIMax}{The largest value used in the search to find the confidence interval.}
  \item{CIStep}{The step size used in the search to find the confidence interval.}
+ \item{Valid}{The numbers of genetic variants that were considered valid instruments at the causal estimate.}
+ \item{ValidSNPs}{The names of genetic variants that were considered valid instruments at the causal estimate.}
  \item{Alpha}{The significance level used when calculating the confidence intervals.}
  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
 }

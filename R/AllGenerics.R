@@ -565,9 +565,9 @@ setGeneric(name = "mr_hetpen",
 #' 
 #' @param object An \code{MRInput} object.
 #' @param psi The value of the standard deviation of the distribution of invalid estimands (default value is 0, corresponding to 1.5 times the standard deviation of the ratio estimates).
-#' @param CIMin The smallest value to use in the search to find the confidence interval (default is -1).
-#' @param CIMax The largest value to use in the search to find the confidence interval (default is +1).
-#' @param CIStep The step size to use in the search to find the confidence interval (default is 0.001). The confidence interval is determined by a grid search algorithm. Using the default settings, we calculate the likelihood at all values from -1 to +1 increasing in units of 0.001. If this range is too large or the step size is too small, then the grid search algorithm will take a long time to converge.
+#' @param CIMin The smallest value to use in the search to find the confidence interval. The default value is NA, which means that the method uses the smallest value of the lower bound of the 95\% confidence interval for the variant-specific ratio estimates as the smallest value.
+#' @param CIMax The largest value to use in the search to find the confidence interval. The default value is NA, which means that the method uses the greatest value of the upper bound of the 95\% confidence interval for the variant-specific ratio estimates as the largest value.
+#' @param CIStep The step size to use in the search to find the confidence interval (default is 0.01). The confidence interval is determined by a grid search algorithm. Using the default settings, we calculate the likelihood at all values from -1 to +1 increasing in units of 0.01. If this range is too large or the step size is too small, then the method will take a long time to run.
 #' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
 #'
 #' @details The contamination mixture method is implemented by constructing a likelihood function based on the variant-specific causal estimates. If a genetic variant is a valid instrument, then its causal estimate will be normally distributed about the true value of the causal effect. If a genetic variant is not a valid instrument, then its causal estimate will be normally distributed about some other value. We assume that the values estimated by invalid instruments are normally distributed about zero with a large standard deviation. This enables a likelihood function to be specified that is a product of two-component mixture distributions, with one mixture distribution for each variant. The computational time for maximizing this likelihood directly is exponential in the number of genetic variants. We use a profile likelihood approach to reduce the computational complexity to be linear in the number of variants.
@@ -589,6 +589,8 @@ setGeneric(name = "mr_hetpen",
 #'  \item{CIMin}{The smallest value used in the search to find the confidence interval.}
 #'  \item{CIMax}{The largest value used in the search to find the confidence interval.}
 #'  \item{CIStep}{The step size used in the search to find the confidence interval.}
+#'  \item{Valid}{The numbers of genetic variants that were considered valid instruments at the causal estimate.}
+#'  \item{ValidSNPs}{The names of genetic variants that were considered valid instruments at the causal estimate.}
 #'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
 #'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
 #'
@@ -600,7 +602,7 @@ setGeneric(name = "mr_hetpen",
 #' @export
 
 setGeneric(name = "mr_conmix",
-           def = function(object, psi=0, CIMin=-1, CIMax=1, CIStep=0.001, alpha = 0.05)
+           def = function(object, psi=0, CIMin=NA, CIMax=NA, CIStep=0.01, alpha = 0.05)
              {standardGeneric("mr_conmix")})
 
 #--------------------------------------------------------------------------------------------

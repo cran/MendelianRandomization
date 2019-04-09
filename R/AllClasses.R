@@ -498,6 +498,8 @@ setClass("MRHetPen",
 #' @slot CIMin The smallest value used in the search to find the confidence interval.
 #' @slot CIMax The largest value used in the search to find the confidence interval.
 #' @slot CIStep The step size used in the search to find the confidence interval.
+#' @slot Valid The numbers of genetic variants that were considered valid instruments at the causal estimate.
+#' @slot ValidSNPs The names of genetic variants that were considered valid instruments at the causal estimate.
 #' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
 #' @slot SNPs The number of SNPs that were used in the calculation.
 
@@ -511,7 +513,9 @@ setClass("MRConMix",
                         CIUpper  = "numeric",
                         CIMin    = "numeric",
                         CIMax    = "numeric", 
-                        CIStep   = "numeric",                    
+                        CIStep   = "numeric",       
+                        Valid    = "numeric",
+                        ValidSNPs= "character",             
                         Alpha    = "numeric",
                         SNPs = "numeric")
 )

@@ -1,8 +1,8 @@
 Package: MendelianRandomization
 Type: Package
 Title: Mendelian Randomization Package
-Version: 0.4.0
-Date: 2019-03-06
+Version: 0.4.1
+Date: 2019-04-09
 Author: Olena Yavorska <olena.yavorska@ludwig.ox.ac.uk>
         James Staley <james.staley@bristol.ac.uk>
 Maintainer: Stephen Burgess <sb452@medschl.cam.ac.uk>
@@ -18,6 +18,6 @@ VignetteBuilder: knitr
 LazyData: TRUE
 RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2019-03-07 11:03:38 UTC; stephenb
+Packaged: 2019-04-09 10:19:19 UTC; stephenb
 Repository: CRAN
-Date/Publication: 2019-03-07 11:33:29 UTC
+Date/Publication: 2019-04-09 10:42:41 UTC
