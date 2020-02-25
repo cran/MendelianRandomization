@@ -6,13 +6,27 @@
 \alias{mr_mbe,MRInput-method}
 \title{Mode-based method of Hartwig}
 \usage{
-mr_mbe(object, weighting = "weighted", stderror = "simple", phi = 1,
-  seed = 314159265, iterations = 10000, distribution = "normal",
-  alpha = 0.05)
+mr_mbe(
+  object,
+  weighting = "weighted",
+  stderror = "simple",
+  phi = 1,
+  seed = 314159265,
+  iterations = 10000,
+  distribution = "normal",
+  alpha = 0.05
+)
 
-\S4method{mr_mbe}{MRInput}(object, weighting = "weighted",
-  stderror = "delta", phi = 1, seed = 314159265,
-  iterations = 10000, distribution = "normal", alpha = 0.05)
+\S4method{mr_mbe}{MRInput}(
+  object,
+  weighting = "weighted",
+  stderror = "delta",
+  phi = 1,
+  seed = 314159265,
+  iterations = 10000,
+  distribution = "normal",
+  alpha = 0.05
+)
 }
 \arguments{
 \item{object}{An \code{MRInput} object.}

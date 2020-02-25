@@ -6,11 +6,25 @@
 \alias{mr_egger,MRInput-method}
 \title{MR-Egger method}
 \usage{
-mr_egger(object, robust = FALSE, penalized = FALSE, correl = FALSE,
-  distribution = "normal", alpha = 0.05, ...)
+mr_egger(
+  object,
+  robust = FALSE,
+  penalized = FALSE,
+  correl = FALSE,
+  distribution = "normal",
+  alpha = 0.05,
+  ...
+)
 
-\S4method{mr_egger}{MRInput}(object, robust = FALSE, penalized = FALSE,
-  correl = FALSE, distribution = "normal", alpha = 0.05, ...)
+\S4method{mr_egger}{MRInput}(
+  object,
+  robust = FALSE,
+  penalized = FALSE,
+  correl = FALSE,
+  distribution = "normal",
+  alpha = 0.05,
+  ...
+)
 }
 \arguments{
 \item{object}{An \code{MRInput} object.}

@@ -6,11 +6,21 @@
 \alias{mr_mvegger,MRMVInput-method}
 \title{Multivariable MR-Egger method}
 \usage{
-mr_mvegger(object, orientate = 1, correl = FALSE,
-  distribution = "normal", alpha = 0.05)
+mr_mvegger(
+  object,
+  orientate = 1,
+  correl = FALSE,
+  distribution = "normal",
+  alpha = 0.05
+)
 
-\S4method{mr_mvegger}{MRMVInput}(object, orientate = 1, correl = FALSE,
-  distribution = "normal", alpha = 0.05)
+\S4method{mr_mvegger}{MRMVInput}(
+  object,
+  orientate = 1,
+  correl = FALSE,
+  distribution = "normal",
+  alpha = 0.05
+)
 }
 \arguments{
 \item{object}{An \code{MRMVInput} object.}

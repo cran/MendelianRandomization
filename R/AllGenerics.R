@@ -270,7 +270,6 @@ setGeneric(name = "mr_allmethods",
 #' @param orientate When viewing an \code{MRInput} object, one can choose whether to orientate all genetic variants so that the associations with the risk factor are all positive. This is recommended particularly when plotting the MR-Egger estimate, although the default setting is \code{FALSE}.
 #' @param interactive When viewing an \code{MRInput} object, one can choose whether to produce an interactive graph using the \code{plotly} package, or a static graph using the regular \code{plot} command.
 #' @param labels When viewing an \code{MRInput} object with \code{interactive} set to \code{FALSE}, setting \code{labels} to \code{TRUE} means that the name of each genetic variants appears above the corresponding datapoint.
-#' @param ... Additional arguments to be passed to other methods.
 #'
 #' @details The result is dependent on the type of object passed to \code{mr_plot}.
 #' When the object is an \code{MRInput} object, the function uses either the \code{plot} command (if \code{interactive} is set to \code{FALSE}) or \code{plotly} syntax (if \code{interactive} is set to \code{TRUE}) to plot the association estimates against each other.
@@ -333,8 +332,10 @@ setGeneric(name = "mr_plot",
 #'  \item{RSE}{The estimated residual standard error from the regression model (always equal to 1, as a fixed-effect model is required.}
 #'  \item{Heter.Stat}{Heterogeneity statistic (likelihood ratio statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
 #'
-#' @examples mr_maxlik(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
-#' mr_maxlik(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse), psi=0.2)
+#' @examples mr_maxlik(mr_input(bx = ldlc[1:10], bxse = ldlcse[1:10],
+#'   by = chdlodds[1:10], byse = chdloddsse[1:10]))
+#' mr_maxlik(mr_input(bx = ldlc[1:10], bxse = ldlcse[1:10],
+#'   by = chdlodds[1:10], byse = chdloddsse[1:10]), psi=0.2)
 #' mr_maxlik(mr_input(calcium, calciumse, fastgluc, fastglucse, corr=calc.rho))
 #'   ## correlated variants
 #'
@@ -589,6 +590,7 @@ setGeneric(name = "mr_hetpen",
 #'  \item{CIMin}{The smallest value used in the search to find the confidence interval.}
 #'  \item{CIMax}{The largest value used in the search to find the confidence interval.}
 #'  \item{CIStep}{The step size used in the search to find the confidence interval.}
+#'  \item{Pvalue}{The p-value associated with the estimate calculated using the likelihood function and a chi-squared distribution.}
 #'  \item{Valid}{The numbers of genetic variants that were considered valid instruments at the causal estimate.}
 #'  \item{ValidSNPs}{The names of genetic variants that were considered valid instruments at the causal estimate.}
 #'  \item{Alpha}{The significance level used when calculating the confidence intervals.}

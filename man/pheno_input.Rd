@@ -4,8 +4,16 @@
 \alias{pheno_input}
 \title{Extract summarized data from PhenoScanner}
 \usage{
-pheno_input(snps, exposure, pmidE, ancestryE, outcome, pmidO, ancestryO,
-  correl = NULL)
+pheno_input(
+  snps,
+  exposure,
+  pmidE,
+  ancestryE,
+  outcome,
+  pmidO,
+  ancestryO,
+  correl = NULL
+)
 }
 \arguments{
 \item{snps}{The names (rsid) of the genetic variants to be included in the analysis.}

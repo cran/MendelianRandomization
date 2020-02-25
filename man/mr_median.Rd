@@ -6,12 +6,23 @@
 \alias{mr_median,MRInput-method}
 \title{Median-based method}
 \usage{
-mr_median(object, weighting = "weighted", distribution = "normal",
-  alpha = 0.05, iterations = 10000, seed = 314159265)
+mr_median(
+  object,
+  weighting = "weighted",
+  distribution = "normal",
+  alpha = 0.05,
+  iterations = 10000,
+  seed = 314159265
+)
 
-\S4method{mr_median}{MRInput}(object, weighting = "weighted",
-  distribution = "normal", alpha = 0.05, iterations = 10000,
-  seed = 314159265)
+\S4method{mr_median}{MRInput}(
+  object,
+  weighting = "weighted",
+  distribution = "normal",
+  alpha = 0.05,
+  iterations = 10000,
+  seed = 314159265
+)
 }
 \arguments{
 \item{object}{An \code{MRInput} object.}

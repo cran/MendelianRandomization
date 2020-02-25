@@ -257,19 +257,21 @@ setMethod("show",
    cat("Upper bound of confidence interval range too low. Please increase CIMax and try again.") }
           if (object@CIMax>max(object@CIRange) & object@CIMin<min(object@CIRange)) {
             Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
-            Statistic <- c("Method", "Estimate", Interval_type, "")
+
             dps = max(ceiling(-log10(object@CIStep)), 1)
             Ranges <- ifelse(sum(diff(object@CIRange)>1.01*object@CIStep)==0, "Single range", "Multiple ranges");
 
 if (Ranges == "Single range") {
+            Statistic <- c("Method", "Estimate", Interval_type, "", "p-value")
             Value <- c("ConMix", decimals(object@Estimate, dps), 
-                       paste(decimals(min(object@CIRange), dps), ",", sep = ""), decimals(max(object@CIRange), dps))
+                       paste(decimals(min(object@CIRange), dps), ",", sep = ""), decimals(max(object@CIRange), dps), signif(object@Pvalue, 3))
             output.table <- data.frame(matrix(Value, nrow = 1))
             colnames(output.table) <- Statistic
             Ranges.text <- "Note: confidence interval is a single range of values.\n"
  }
 
 if (Ranges == "Multiple ranges") {
+            Statistic <- c("Method", "Estimate", Interval_type, "")
             Value <- c("ConMix", rep("", length(object@CILower)-1),
                        decimals(object@Estimate, dps), rep("", length(object@CILower)-1), 
                        paste(decimals(object@CILower, dps), ",", sep = ""), decimals(object@CIUpper, dps))

@@ -4,9 +4,19 @@
 \alias{mr_mvinput}
 \title{Inputting and formatting data for use in causal estimation}
 \usage{
-mr_mvinput(bx = matrix(), bxse = matrix(), by = 0, byse = 0,
-  correlation = matrix(), exposure = "exposure", outcome = "outcome",
-  snps = "snp", effect_allele = NA, other_allele = NA, eaf = NA)
+mr_mvinput(
+  bx = matrix(),
+  bxse = matrix(),
+  by = 0,
+  byse = 0,
+  correlation = matrix(),
+  exposure = "exposure",
+  outcome = "outcome",
+  snps = "snp",
+  effect_allele = NA,
+  other_allele = NA,
+  eaf = NA
+)
 }
 \arguments{
 \item{bx}{A matrix of beta-coefficient values for genetic associations with the risk factor variables. These should be arranged so that column 1 are the beta-coefficients for risk factor 1, and row 1 are the beta-coefficients for genetic variant 1.}

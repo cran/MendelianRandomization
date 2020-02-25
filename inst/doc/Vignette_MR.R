@@ -1,7 +1,7 @@
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(MendelianRandomization)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 MRInputObject <- mr_input(bx = ldlc, 
                           bxse = ldlcse, 
                           by = chdlodds, 
@@ -18,10 +18,10 @@ MRInputObject.cor <- mr_input(bx = calcium,
 MRInputObject.cor  # example with correlated variants
 
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  MRInputObject <- mr_input(ldlc, ldlcse, chdlodds, chdloddsse)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 IVWObject <- mr_ivw(MRInputObject,
                     model = "default",
                     robust = FALSE,
@@ -48,7 +48,7 @@ IVWObject.correl <- mr_ivw(mr_input(bx = calcium, bxse = calciumse,
 
 IVWObject.correl
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 WeightedMedianObject <- mr_median(MRInputObject, 
                                   weighting = "weighted", 
                                   distribution = "normal", 
@@ -66,7 +66,7 @@ SimpleMedianObject <- mr_median(mr_input(bx = ldlc, bxse = ldlcse,
 
 SimpleMedianObject
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 EggerObject <- mr_egger(MRInputObject, 
                         robust = FALSE,
                         penalized = FALSE,
@@ -89,7 +89,7 @@ EggerObject.corr <- mr_egger(mr_input(bx = calcium, bxse = calciumse,
 
 EggerObject.corr
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 MaxLikObject <- mr_maxlik(MRInputObject, 
                           model = "default",
                           correl = FALSE,
@@ -107,7 +107,7 @@ MaxLikObject.corr <- mr_maxlik(mr_input(bx = calcium, bxse = calciumse,
 
 MaxLikObject.corr
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 MRMVInputObject <- mr_mvinput(bx = cbind(ldlc, hdlc, trig),
                               bxse = cbind(ldlcse, hdlcse, trigse),
                               by = chdlodds, 
@@ -115,7 +115,7 @@ MRMVInputObject <- mr_mvinput(bx = cbind(ldlc, hdlc, trig),
 
 MRMVInputObject
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 MRMVObject <- mr_mvivw(MRMVInputObject, 
                           model = "default",
 						  correl = FALSE,
@@ -126,7 +126,7 @@ MRMVObject <- mr_mvivw(MRMVInputObject)
 
 MRMVObject
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 MBEObject <- mr_mbe(MRInputObject, 
                     weighting = "weighted",
 					stderror = "delta",
@@ -141,7 +141,7 @@ MBEObject <- mr_mbe(mr_input(bx = ldlc, bxse = ldlcse,
 
 MBEObject
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  HetPenObject <- mr_hetpen(MRInputObject,
 #                            prior = 0.5,
 #  					      CIMin = -1,
@@ -149,13 +149,13 @@ MBEObject
 #  						  CIStep = 0.001,
 #                            alpha = 0.05)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 HetPenObject <- mr_hetpen(mr_input(bx = ldlc[1:10], bxse = ldlcse[1:10],
   by = chdlodds[1:10], byse = chdloddsse[1:10]), CIMin = -1, CIMax = 5, CIStep = 0.01)
 
 HetPenObject
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 bcrp    =c(0.160, 0.236, 0.149, 0.09, 0.079, 0.072, 0.047, 0.069)
 bcrpse  =c(0.006, 0.009, 0.006, 0.005, 0.005, 0.005, 0.006, 0.011)
 bchd    =c(0.0237903, -0.1121942, -0.0711906, -0.030848, 0.0479207, 0.0238895,
@@ -168,7 +168,7 @@ HetPenObject.multimode <- mr_hetpen(mr_input(bx = bcrp, bxse = bcrpse,
 
 HetPenObject.multimode
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 MRInputObject <- mr_input(bx = ldlc, 
                           bxse = ldlcse, 
                           by = chdlodds, 
@@ -183,29 +183,29 @@ MRAllObject_egger
 MRAllObject_main <- mr_allmethods(MRInputObject, method = "main")
 MRAllObject_main
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
 #   error = TRUE, orientate = FALSE, line = "ivw")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
  error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
  error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE, labels = TRUE)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 mr_plot(MRAllObject_all)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 mr_plot(MRAllObject_egger)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 mr_plot(mr_allmethods(mr_input(bx = hdlc, bxse = hdlcse,
   by = chdlodds, byse = chdloddsse)))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 path.noproxy <- system.file("extdata", "vitD_snps_PhenoScanner.csv",
   package = "MendelianRandomization")
 path.proxies <- system.file("extdata", "vitD_snps_PhenoScanner_proxies.csv",

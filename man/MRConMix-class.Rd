@@ -30,6 +30,8 @@ An object containing the estimate produced using the contamination mixture metho
 
 \item{\code{CIStep}}{The step size used in the search to find the confidence interval.}
 
+\item{\code{Pvalue}}{The p-value associated with the estimate calculated using the likelihood function and a chi-squared distribution.}
+
 \item{\code{Valid}}{The numbers of genetic variants that were considered valid instruments at the causal estimate.}
 
 \item{\code{ValidSNPs}}{The names of genetic variants that were considered valid instruments at the causal estimate.}

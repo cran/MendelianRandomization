@@ -7,11 +7,23 @@
 \alias{mr_plot,MRAll-method}
 \title{Draw a scatter plot of the genetic associations and/or causal estimates}
 \usage{
-mr_plot(object, error = TRUE, line = "ivw", orientate = FALSE,
-  interactive = TRUE, labels = FALSE)
+mr_plot(
+  object,
+  error = TRUE,
+  line = "ivw",
+  orientate = FALSE,
+  interactive = TRUE,
+  labels = FALSE
+)
 
-\S4method{mr_plot}{MRInput}(object, error = TRUE, line = "ivw",
-  orientate = FALSE, interactive = TRUE, labels = FALSE)
+\S4method{mr_plot}{MRInput}(
+  object,
+  error = TRUE,
+  line = "ivw",
+  orientate = FALSE,
+  interactive = TRUE,
+  labels = FALSE
+)
 
 \S4method{mr_plot}{MRAll}(object)
 }
@@ -27,8 +39,6 @@ mr_plot(object, error = TRUE, line = "ivw", orientate = FALSE,
 \item{interactive}{When viewing an \code{MRInput} object, one can choose whether to produce an interactive graph using the \code{plotly} package, or a static graph using the regular \code{plot} command.}
 
 \item{labels}{When viewing an \code{MRInput} object with \code{interactive} set to \code{FALSE}, setting \code{labels} to \code{TRUE} means that the name of each genetic variants appears above the corresponding datapoint.}
-
-\item{...}{Additional arguments to be passed to other methods.}
 }
 \description{
 The function \code{mr_plot} has two functionalities. It can generate a visual representation of both \code{MRInput} and \code{MRAll} objects.

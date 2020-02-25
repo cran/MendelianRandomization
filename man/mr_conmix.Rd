@@ -6,11 +6,9 @@
 \alias{mr_conmix,MRInput-method}
 \title{Contamination mixture method}
 \usage{
-mr_conmix(object, psi = 0, CIMin = NA, CIMax = NA, CIStep = 0.01,
-  alpha = 0.05)
+mr_conmix(object, psi = 0, CIMin = NA, CIMax = NA, CIStep = 0.01, alpha = 0.05)
 
-\S4method{mr_conmix}{MRInput}(object, psi = 0, CIMin = NA,
-  CIMax = NA, CIStep = 0.01, alpha = 0.05)
+\S4method{mr_conmix}{MRInput}(object, psi = 0, CIMin = NA, CIMax = NA, CIStep = 0.01, alpha = 0.05)
 }
 \arguments{
 \item{object}{An \code{MRInput} object.}
@@ -38,6 +36,7 @@ The output from the function is an \code{MRConMix} object containing:
  \item{CIMin}{The smallest value used in the search to find the confidence interval.}
  \item{CIMax}{The largest value used in the search to find the confidence interval.}
  \item{CIStep}{The step size used in the search to find the confidence interval.}
+ \item{Pvalue}{The p-value associated with the estimate calculated using the likelihood function and a chi-squared distribution.}
  \item{Valid}{The numbers of genetic variants that were considered valid instruments at the causal estimate.}
  \item{ValidSNPs}{The names of genetic variants that were considered valid instruments at the causal estimate.}
  \item{Alpha}{The significance level used when calculating the confidence intervals.}

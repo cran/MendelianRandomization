@@ -4,9 +4,19 @@
 \alias{mr_input}
 \title{Inputting and formatting data for use in causal estimation}
 \usage{
-mr_input(bx = 0, bxse = 0, by = 0, byse = 0,
-  correlation = matrix(), exposure = "exposure", outcome = "outcome",
-  snps = "snp", effect_allele = NA, other_allele = NA, eaf = NA)
+mr_input(
+  bx = 0,
+  bxse = 0,
+  by = 0,
+  byse = 0,
+  correlation = matrix(),
+  exposure = "exposure",
+  outcome = "outcome",
+  snps = "snp",
+  effect_allele = NA,
+  other_allele = NA,
+  eaf = NA
+)
 }
 \arguments{
 \item{bx}{A numeric vector of beta-coefficient values for genetic associations with the first variable (often referred to as the exposure, risk factor, or modifiable phenotype).}

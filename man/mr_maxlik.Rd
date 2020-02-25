@@ -6,12 +6,25 @@
 \alias{mr_maxlik,MRInput-method}
 \title{Maximum-likelihood method}
 \usage{
-mr_maxlik(object, model = "default", correl = FALSE, psi = 0,
-  distribution = "normal", alpha = 0.05, ...)
+mr_maxlik(
+  object,
+  model = "default",
+  correl = FALSE,
+  psi = 0,
+  distribution = "normal",
+  alpha = 0.05,
+  ...
+)
 
-\S4method{mr_maxlik}{MRInput}(object, model = "default",
-  correl = FALSE, psi = 0, distribution = "normal", alpha = 0.05,
-  ...)
+\S4method{mr_maxlik}{MRInput}(
+  object,
+  model = "default",
+  correl = FALSE,
+  psi = 0,
+  distribution = "normal",
+  alpha = 0.05,
+  ...
+)
 }
 \arguments{
 \item{object}{An \code{MRInput} object.}
@@ -61,8 +74,10 @@ Two features why this method may be preferred over the inverse-variance weighted
 The original version of the maximum-likelihood method assumed that all genetic variants identify the same causal estimate; a fixed-effect model. The causal estimate may be overly precise if the fixed-effect model is incorrect and there is substantial heterogeneity in the causal estimates from the different variants. The random-effects analysis implemented here is an ad hoc solution to the problem of heterogeneity, but one that should result in reasonable confidence intervals that incorporate this heterogeneity.
 }
 \examples{
-mr_maxlik(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
-mr_maxlik(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse), psi=0.2)
+mr_maxlik(mr_input(bx = ldlc[1:10], bxse = ldlcse[1:10],
+  by = chdlodds[1:10], byse = chdloddsse[1:10]))
+mr_maxlik(mr_input(bx = ldlc[1:10], bxse = ldlcse[1:10],
+  by = chdlodds[1:10], byse = chdloddsse[1:10]), psi=0.2)
 mr_maxlik(mr_input(calcium, calciumse, fastgluc, fastglucse, corr=calc.rho))
   ## correlated variants
 

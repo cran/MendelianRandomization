@@ -4,9 +4,16 @@
 \alias{phenoscanner}
 \title{PhenoScanner}
 \usage{
-phenoscanner(snpquery = NULL, genequery = NULL, regionquery = NULL,
-  catalogue = "GWAS", pvalue = 1e-05, proxies = "None", r2 = 0.8,
-  build = 37)
+phenoscanner(
+  snpquery = NULL,
+  genequery = NULL,
+  regionquery = NULL,
+  catalogue = "GWAS",
+  pvalue = 1e-05,
+  proxies = "None",
+  r2 = 0.8,
+  build = 37
+)
 }
 \arguments{
 \item{snpquery}{a vector of SNPs.}

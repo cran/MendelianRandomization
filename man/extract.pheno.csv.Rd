@@ -4,8 +4,17 @@
 \alias{extract.pheno.csv}
 \title{Extract summarized data from a PhenoScanner .csv file (legacy)}
 \usage{
-extract.pheno.csv(exposure, pmidE, ancestryE, outcome, pmidO, ancestryO,
-  file, rsq.proxy = 1, snps = "all")
+extract.pheno.csv(
+  exposure,
+  pmidE,
+  ancestryE,
+  outcome,
+  pmidO,
+  ancestryO,
+  file,
+  rsq.proxy = 1,
+  snps = "all"
+)
 }
 \arguments{
 \item{exposure}{The name of the exposure variable.}

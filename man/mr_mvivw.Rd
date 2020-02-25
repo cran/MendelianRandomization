@@ -6,11 +6,23 @@
 \alias{mr_mvivw,MRMVInput-method}
 \title{Multivariable inverse-variance weighted method}
 \usage{
-mr_mvivw(object, model = "default", correl = FALSE,
-  distribution = "normal", alpha = 0.05, ...)
+mr_mvivw(
+  object,
+  model = "default",
+  correl = FALSE,
+  distribution = "normal",
+  alpha = 0.05,
+  ...
+)
 
-\S4method{mr_mvivw}{MRMVInput}(object, model = "default",
-  correl = FALSE, distribution = "normal", alpha = 0.05, ...)
+\S4method{mr_mvivw}{MRMVInput}(
+  object,
+  model = "default",
+  correl = FALSE,
+  distribution = "normal",
+  alpha = 0.05,
+  ...
+)
 }
 \arguments{
 \item{object}{An \code{MRMVInput} object.}
