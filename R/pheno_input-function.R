@@ -30,6 +30,12 @@
 #' @export
 
 phenoscanner <- function(snpquery=NULL, genequery=NULL, regionquery=NULL, catalogue="GWAS", pvalue=1E-5, proxies="None", r2=0.8, build=37){
+  cat("PhenoScanner V2\n")
+  cat("Cardiovascular Epidemiology Unit\n")
+  cat("University of Cambridge\n")
+  cat("Email: phenoscanner@gmail.com\n\n")
+  cat("Information: Each user can query a maximum of 10,000 SNPs (in batches of 100), 1,000 genes (in batches of 10) or 1,000 regions (in batches of 10) per hour. For large batch queries, please ask to download the data from www.phenoscanner.medschl.cam.ac.uk/data.\n")
+  cat("Terms of use: Please refer to the terms of use when using PhenoScanner V2 (www.phenoscanner.medschl.cam.ac.uk/about). If you use the results from PhenoScanner in a publication or presentation, please cite all of the relevant references of the data used and the PhenoScanner publications: www.phenoscanner.medschl.cam.ac.uk/about/#citation.\n\n")
   if(is.null(snpquery) & is.null(regionquery) & is.null(genequery)) stop("no query has been requested")
   if((length(snpquery[1])+length(regionquery[1])+length(genequery[1]))>1) stop("only one query type allowed")
   if(!(catalogue=="None" | catalogue=="GWAS" | catalogue=="eQTL" | catalogue=="pQTL" | catalogue=="mQTL" | catalogue=="methQTL")) stop("catalogue has to be one of None, GWAS, eQTL, pQTL, mQTL or methQTL")
@@ -66,15 +72,16 @@ phenoscanner <- function(snpquery=NULL, genequery=NULL, regionquery=NULL, catalo
           names(tables) <- fields
           results <- rbind(results,tables)
           if(length(snpquery)==1){print(paste0(snpquery," -- queried"))}else{print(paste0(i," -- chunk of 10 SNPs queried"))}
-        }else{if(length(snpquery)==1){print(paste0("Error: no results found for ",snpquery))}else{print(paste0("Error: no results found for chunk ",i))}}
+        }else{if(length(snpquery)==1){print(paste0("Warning: no results found for ",snpquery))}else{print(paste0("Warning: no results found for chunk ",i))}}
       }
       if(length(json_data$snps)>0){
         fields_snps <- json_data$snps[[1]]; json_data$snps[[1]] <- NULL
         if(length(json_data$snps)>0){
-          tables_snps <- as.data.frame(matrix(unlist(json_data$snps), ncol=length(fields_snps), byrow=T))
+          tables_snps <- as.data.frame(matrix(unlist(json_data$snps), ncol=length(fields_snps), byrow=T), stringsAsFactors=F)
           names(tables_snps) <- fields_snps
           snps <- rbind(snps,tables_snps)
-        }
+          if(length(json_data$results)==0){if(length(snpquery)==1){print(paste0(snpquery," -- queried"))}else{print(paste0(i," -- chunk of 10 SNPs queried"))}}
+        }else{if(length(json_data$results)==0){if(length(snpquery)==1){print(paste0("Warning: no results found for ",snpquery))}else{print(paste0("Warning: no results found for chunk ",i))}}}
       }
     }
     output <- list(snps=snps, results=results)
@@ -97,12 +104,12 @@ phenoscanner <- function(snpquery=NULL, genequery=NULL, regionquery=NULL, catalo
           names(tables) <- fields
           results <- rbind(results,tables)
           print(paste0(genequery," -- queried"))
-        }else{print(paste0("Error: no results found for ",genequery))}
+        }else{print(paste0("Warning: no results found for ",genequery))}
       }
       if(length(json_data$genes)>0){
         fields_genes <- json_data$genes[[1]]; json_data$genes[[1]] <- NULL
         if(length(json_data$genes)>0){
-          tables_genes <- as.data.frame(matrix(unlist(json_data$genes), ncol=length(fields_genes), byrow=T))
+          tables_genes <- as.data.frame(matrix(unlist(json_data$genes), ncol=length(fields_genes), byrow=T), stringsAsFactors=F)
           names(tables_genes) <- fields_genes
           genes <- rbind(genes,tables_genes)
         }
@@ -128,12 +135,12 @@ phenoscanner <- function(snpquery=NULL, genequery=NULL, regionquery=NULL, catalo
           names(tables) <- fields
           results <- rbind(results,tables)
           print(paste0(regionquery," -- queried"))
-        }else{print(paste0("Error: no results found for ",regionquery))}
+        }else{print(paste0("Warning: no results found for ",regionquery))}
       }
       if(length(json_data$locations)>0){
         fields_regions <- json_data$locations[[1]]; json_data$locations[[1]] <- NULL
         if(length(json_data$locations)>0){
-          tables_regions <- as.data.frame(matrix(unlist(json_data$locations), ncol=length(fields_regions), byrow=T))
+          tables_regions <- as.data.frame(matrix(unlist(json_data$locations), ncol=length(fields_regions), byrow=T), stringsAsFactors=F)
           names(tables_regions) <- fields_regions
           regions <- rbind(regions,tables_regions)
         }
@@ -142,10 +149,8 @@ phenoscanner <- function(snpquery=NULL, genequery=NULL, regionquery=NULL, catalo
     output <- list(regions=regions, results=results)
   }
   if(is.null(output)) stop("there is no output")
-  cat("Thank you for using the PhenoScanner tool. If you use these results, please ensure that you follow the terms and conditions of PhenoScanner (http://www.phenoscanner.medschl.cam.ac.uk/about/), including citing all of the relevant references of the data used and the PhenoScanner publication: Staley JR et al., Bioinformatics 2016; 32(20):3207-3209. \n")
   return(output)
 }
-
 #' Extract summarized data from PhenoScanner
 #'
 #' @description The function \code{pheno_input} extracts summarized data on associations with named exposure and outcome variables from PhenoScanner.

@@ -14,7 +14,29 @@
 \alias{lipid_other}
 \alias{lipid_eaf}
 \title{Data on lipid effects on coronary artery disease (uncorrelated variants)}
-\format{An object of class \code{numeric} of length 28.}
+\format{
+An object of class \code{numeric} of length 28.
+
+An object of class \code{numeric} of length 28.
+
+An object of class \code{numeric} of length 28.
+
+An object of class \code{numeric} of length 28.
+
+An object of class \code{numeric} of length 28.
+
+An object of class \code{numeric} of length 28.
+
+An object of class \code{numeric} of length 28.
+
+An object of class \code{numeric} of length 28.
+
+An object of class \code{character} of length 28.
+
+An object of class \code{character} of length 28.
+
+An object of class \code{numeric} of length 28.
+}
 \usage{
 ldlc
 

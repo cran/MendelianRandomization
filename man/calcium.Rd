@@ -8,7 +8,17 @@
 \alias{fastglucse}
 \alias{calc.rho}
 \title{Data on effect of calcium on fasting glucose (correlated variants)}
-\format{An object of class \code{numeric} of length 6.}
+\format{
+An object of class \code{numeric} of length 6.
+
+An object of class \code{numeric} of length 6.
+
+An object of class \code{numeric} of length 6.
+
+An object of class \code{numeric} of length 6.
+
+An object of class \code{matrix} (inherits from \code{array}) with 6 rows and 6 columns.
+}
 \usage{
 calcium
 

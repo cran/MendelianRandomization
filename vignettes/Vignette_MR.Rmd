@@ -1,5 +1,5 @@
 ---
-title: "Mendelian Randomization Vignette"
+title: "Mendelian randomization vignette"
 author:
 - Olena Yavorska
 - Stephen Burgess
