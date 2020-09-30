@@ -155,7 +155,7 @@ phenoscanner <- function(snpquery=NULL, genequery=NULL, regionquery=NULL, catalo
 #'
 #' @description The function \code{pheno_input} extracts summarized data on associations with named exposure and outcome variables from PhenoScanner.
 #'
-#' @details The PhenoScanner bioinformatic tool (\url{http://phenoscanner.medschl.cam.ac.uk}) is a curated database of publicly available results from large-scale genetic association studies. Queries can be made for individual genetic variants (SNPs and small indels), or for multiple variants in a single batch query. These association estimates and their standard errors can be used in Mendelian randomization analyses.
+#' @details The PhenoScanner bioinformatic tool (\url{http://phenoscanner.medschl.cam.ac.uk/}) is a curated database of publicly available results from large-scale genetic association studies. Queries can be made for individual genetic variants (SNPs and small indels), or for multiple variants in a single batch query. These association estimates and their standard errors can be used in Mendelian randomization analyses.
 #'
 #' The \code{phenoscanner} command is included in the \code{MendelianRandomization} package with permission of James Staley. The function is also available in a standalone package from github: \url{https://github.com/phenoscanner/phenoscanner}.
 #'

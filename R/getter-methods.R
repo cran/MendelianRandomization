@@ -68,3 +68,18 @@ setMethod("$",
 setMethod("$",
           "MRConMix",
           function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MVMedian",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MVLasso",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MRLasso",
+          function(x, name) slot(x, name))

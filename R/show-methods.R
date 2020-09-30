@@ -122,8 +122,8 @@ setMethod("show",
             if(is.na(object@Heter.Stat[1])) {
               cat("Heterogeneity is not calculated when weights are penalized, or when there is only one variant in the analysis.")
             } else {
-            cat("Heterogeneity test statistic = ", decimals(object@Heter.Stat[1],4), " on ", object@SNPs -1,
-                    " degrees of freedom, (p-value = ", decimals(object@Heter.Stat[2], 4),")\n", sep = "")
+            cat("Heterogeneity test statistic (Cochran's Q) = ", decimals(object@Heter.Stat[1],4), " on ", object@SNPs -1,
+                    " degrees of freedom, (p-value = ", decimals(object@Heter.Stat[2], 4),"). I^2 = ", decimals(max(0, (object@Heter.Stat[1]-object@SNPs+1)/object@Heter.Stat[1]*100),1),    "%. \n", sep = "")
             }
           }
 )
@@ -320,7 +320,7 @@ paste(decimals(object@CILower.Int, 3), ",", sep = ""),
 
             correlation <- ifelse(sum(is.na(object@Correlation)) == 0, "correlated", "uncorrelated")
             penalized <- ifelse(object@Penalized == TRUE, "Weights of genetic variants with heterogeneous causal estimates have been penalized. ", "")
-            robust <- ifelse(object@Robust == TRUE, "Robust model used.", "")
+            robust <- ifelse(object@Robust == TRUE, "Robust regression used.", "")
 
             cat("\nMR-Egger method\n")
             cat("(variants ", correlation, ", ", object@Model, "-effect model)\n\n" , sep = "")
@@ -388,11 +388,14 @@ setMethod("show",
             colnames(output.table) <- Statistic
             correlation <- ifelse(sum(is.na(object@Correlation)) == 0,
                                   "correlated", "uncorrelated")
+            robust <- ifelse(object@Robust == TRUE, "Robust regression used.", "")
+
 
             cat("\nMultivariable inverse-variance weighted method\n")
             cat("(variants ", correlation, ", ", object@Model, "-effect model)\n\n" , sep = "")
 
             cat("Number of Variants :", object@SNPs, "\n")
+            cat(robust, "\n", sep = "")
 
             cat("------------------------------------------------------------------\n")
             print(output.table, quote = F, row.names = FALSE, justify = "left")
@@ -445,3 +448,77 @@ setMethod("show",
 )
 
 
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
+          "MVMedian",
+          function(object){
+            Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+            Statistic <- c("Exposure", "Estimate", "Std Error", Interval_type, "", "p-value")
+            
+            Value <- cbind(object@Exposure, decimals(object@Estimate, 3), decimals(object@StdError,3),
+                           paste(decimals(object@CILower, 3), ",", sep = ""), decimals(object@CIUpper,3),
+                           decimals(object@Pvalue, 3))
+            output.table <- data.frame(matrix(Value, nrow = length(object@Exposure)))
+            colnames(output.table) <- Statistic
+            
+            cat("\nMultivariable median method \n\n")
+            cat("Number of variants :", object@SNPs, "\n")
+            
+            cat("------------------------------------------------------------------\n")
+            print(output.table, quote = F, row.names = FALSE, justify = "left")
+            cat("------------------------------------------------------------------\n")
+            
+          }
+         )
+
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
+          "MVLasso",
+          function(object){
+            Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+            Statistic <- c("Exposure", "Estimate", "Std Error", Interval_type, "", "p-value")
+            
+            Value <- cbind(object@Exposure, decimals(object@Estimate, 3), decimals(object@StdError,3),
+                           paste(decimals(object@CILower, 3), ",", sep = ""), decimals(object@CIUpper,3),
+                           decimals(object@Pvalue, 3))
+            output.table <- data.frame(matrix(Value, nrow = length(object@Exposure)))
+            colnames(output.table) <- Statistic
+            
+            cat("\nMultivariable MR-Lasso method \n\n")
+            cat("Orientated to exposure :", object@Orientate, "\n")
+            cat("Number of variants :", object@SNPs, "\n")
+            cat("Number of valid instruments :", object@Valid, "\n")
+            cat("Tuning parameter :", object@Lambda, "\n")            
+            cat("------------------------------------------------------------------\n")
+            print(output.table, quote = F, row.names = FALSE, justify = "left")
+            cat("------------------------------------------------------------------\n")
+            
+          }
+)
+
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
+          "MRLasso",
+          function(object){
+            Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+            Statistic <- c("Exposure", "Estimate", "Std Error", Interval_type, "", "p-value")
+            
+            Value <- cbind(object@Exposure, decimals(object@Estimate, 3), decimals(object@StdError,3),
+                           paste(decimals(object@CILower, 3), ",", sep = ""), decimals(object@CIUpper,3),
+                           decimals(object@Pvalue, 3))
+            output.table <- data.frame(matrix(Value, nrow = length(object@Exposure)))
+            colnames(output.table) <- Statistic
+            
+            cat("\nMR-Lasso method \n\n")
+            cat("Number of variants :", object@SNPs, "\n")
+            cat("Number of valid instruments :", object@Valid, "\n")
+            cat("Tuning parameter :", object@Lambda, "\n")            
+            cat("------------------------------------------------------------------\n")
+            print(output.table, quote = F, row.names = FALSE, justify = "left")
+            cat("------------------------------------------------------------------\n")
+            
+          }
+)

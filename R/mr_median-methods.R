@@ -59,6 +59,11 @@ weighted.median.boot.se <- function(Bx, By, Bxse, Byse, weights, iter, seed){
   med <- NULL
   snps <- length(By)
 
+if( exists(".Random.seed") ) {
+  old <- .Random.seed
+  on.exit( { .Random.seed <<- old } )
+ }
+
 if (!is.na(seed)) { set.seed(seed) }
 
   for(i in 1:iter){

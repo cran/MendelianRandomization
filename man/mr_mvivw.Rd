@@ -9,6 +9,7 @@
 mr_mvivw(
   object,
   model = "default",
+  robust = FALSE,
   correl = FALSE,
   distribution = "normal",
   alpha = 0.05,
@@ -18,6 +19,7 @@ mr_mvivw(
 \S4method{mr_mvivw}{MRMVInput}(
   object,
   model = "default",
+  robust = FALSE,
   correl = FALSE,
   distribution = "normal",
   alpha = 0.05,
@@ -28,6 +30,8 @@ mr_mvivw(
 \item{object}{An \code{MRMVInput} object.}
 
 \item{model}{What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The random-effects model (\code{"random"}) is a multiplicative random-effects model, allowing overdispersion in the weighted linear regression (the residual standard error is not fixed to be 1, but is not allowed to take values below 1). The fixed-effect model (\code{"fixed"}) sets the residual standard error to be 1. The \code{"default"} setting is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.}
+
+\item{robust}{Indicates whether robust regression using the \code{lmrob()} function from the package \code{robustbase} should be used in the method rather than standard linear regression (\code{lm}).}
 
 \item{correl}{If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRMVInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRMVInput} object, then \code{correl} is set to \code{TRUE}.}
 
@@ -43,6 +47,7 @@ The output from the function is an \code{MVIVW} object containing:
  \item{Model}{A character string giving the type of model used (\code{"fixed"}, \code{"random"}, or \code{"default"}).}
  \item{Exposure}{A character vector with the names given to the exposure.}
  \item{Outcome}{A character string with the names given to the outcome.}
+ \item{Robust}{\code{TRUE} if robust regression has been used to calculate the estimate, \code{FALSE} otherwise.}
  \item{Correlation}{The matrix of genetic correlations.}
  \item{Estimate}{A vector of causal estimates.}
  \item{StdError}{A vector of standard errors of the causal estimates.}

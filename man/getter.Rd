@@ -15,6 +15,9 @@
 \alias{$,MRMVInput-method}
 \alias{$,MRHetPen-method}
 \alias{$,MRConMix-method}
+\alias{$,MVMedian-method}
+\alias{$,MVLasso-method}
+\alias{$,MRLasso-method}
 \title{Applies method $ to different classes}
 \usage{
 \S4method{$}{WeightedMedian}(x, name)
@@ -40,6 +43,12 @@
 \S4method{$}{MRHetPen}(x, name)
 
 \S4method{$}{MRConMix}(x, name)
+
+\S4method{$}{MVMedian}(x, name)
+
+\S4method{$}{MVLasso}(x, name)
+
+\S4method{$}{MRLasso}(x, name)
 }
 \arguments{
 \item{x}{Object.}

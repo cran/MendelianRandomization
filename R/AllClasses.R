@@ -328,6 +328,7 @@ setValidity("MRMVInput",
 #' @slot Model The model used for estimation: random-effects (\code{"random"}) or fixed-effect (\code{"fixed"}). The default option (\code{"default"}) is to use a fixed-effect model when there are three or fewer genetic variants, and a random-effects model when there are four or more. The (multiplicative) random-effects model allows for heterogeneity between the causal estimates targeted by the genetic variants by allowing over-dispersion in the regression model. Under-dispersion is not permitted (in case of under-dispersion, the residual standard error is set to 1, as in a fixed-effect analysis).
 #' @slot Exposure The names of the exposure variables.
 #' @slot Outcome The name of the outcome variable.
+#' @slot Robust Whether robust regression was used in the regression model relating the genetic associations with the outcome and those with the exposure.
 #' @slot Correlation The matrix of correlations between genetic variants.
 #' @slot Estimate The causal estimates from the inverse-variance weighted method.
 #' @slot StdError The standard errors associated with \code{Estimate}.
@@ -344,6 +345,7 @@ setClass("MVIVW",
                         Exposure = "character",
                         Outcome = "character",
 
+                        Robust = "logical",
                         Correlation = "matrix",
 
                         Estimate = "numeric",
@@ -522,3 +524,113 @@ setClass("MRConMix",
                         SNPs = "numeric")
 )
 
+#' MRMVMedian class
+#'
+#' @description An object containing the estimates produced using the multivariable median method as well as various statistics.
+#'
+#' @slot Exposure The names of the exposure variables.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Estimate The causal estimates from the multivariable median method.
+#' @slot StdError The standard errors associated with \code{Estimate} (obtained from bootstrapping).
+#' @slot CILower The lower bounds of the confidence intervals for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper The upper bounds of the confidence intervals for \code{Estimate} based on \code{StdError}.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+#' @slot Pvalue P-values associated with the causal estimates from the Wald method.
+#' @slot SNPs The number of SNPs that used in the calculation.
+
+setClass("MVMedian",
+         representation(Exposure = "character",
+                        Outcome = "character",
+     
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        Alpha = "numeric",
+                        
+                        Pvalue = "numeric",
+                        SNPs = "numeric")
+)
+
+
+#' MRMVLasso class
+#'
+#' @description An object containing the estimates produced using the multivariable MR-Lasso method as well as various statistics.
+#'
+#' @slot Exposure The names of the exposure variables.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Orientate The number of the risk factor that genetic associations are orientated to. The default value is \code{1}, meaning that genetic associations with the first risk factor are set to be positive.
+#' @slot Estimate The causal estimates from the multivariable MR-Lasso method.
+#' @slot StdError The standard errors associated with \code{Estimate}.
+#' @slot CILower The lower bounds of the confidence intervals for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper The upper bounds of the confidence intervals for \code{Estimate} based on \code{StdError}.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+#' @slot Pvalue P-values associated with the causal estimates from the multivariable MR-Lasso method.
+#' @slot SNPs The number of SNPs used in the calculation.
+#' @slot RegEstimate The estimates from the regularized regression model used in the multivariable MR-Lasso method.
+#' @slot RegIntercept The intercept estimates from the regularized regression model used in the multivariable MR-Lasso method. An intercept estimate of zero identifies the corresponding genetic variant as a valid instrument. Genetic variants with non-zero intercept estimates will be excluded from the MR-Lasso method, which is obtained as a post-lasso estimator.
+#' @slot Valid The number of genetic variants that have been identified as valid instruments.
+#' @slot ValidSNPs The names of genetic variants that have been identified as valid instruments.
+#' @slot Lambda The value of the tuning parameter used to compute \code{RegEstimate} (default is to calulate \code{Lambda} using the heterogeneity stopping rule).
+#' 
+
+setClass("MVLasso",
+         representation(Orientate = "numeric",
+                        Exposure = "character",
+                        Outcome = "character",
+                        
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        
+                        Alpha = "numeric",
+                        Pvalue = "numeric",
+                        SNPs = "numeric",
+                        
+                        RegEstimate = "numeric",
+                        RegIntercept = "numeric",
+                        Valid = "numeric",
+                        ValidSNPs = "character",
+                        Lambda = "numeric")
+)
+
+#' MRLasso class
+#'
+#' @description An object containing the estimates produced using the MR-Lasso method as well as various statistics.
+#'
+#' @slot Exposure The names of the exposure variables.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Estimate The causal estimate from the MR-Lasso method.
+#' @slot StdError The standard error associated with \code{Estimate}.
+#' @slot CILower The lower bounds of the confidence intervals for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper The upper bounds of the confidence intervals for \code{Estimate} based on \code{StdError}.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+#' @slot Pvalue P-value associated with the causal estimate from the MR-Lasso method.
+#' @slot SNPs The number of SNPs used in the calculation.
+#' @slot RegEstimate The estimate from the regularized regression model used in the MR-Lasso method.
+#' @slot RegIntercept The intercept estimates from the regularized regression model used in the MR-Lasso method. An intercept estimate of zero identifies the corresponding genetic variant as a valid instrument. Genetic variants with non-zero intercept estimates will be excluded from the post-lasso estimator.
+#' @slot Valid The number of genetic variants that have been identified as valid instruments.
+#' @slot ValidSNPs The names of genetic variants that have been identified as valid instruments.
+#' @slot Lambda The value of the tuning parameter used to compute \code{RegEstimate} (default is to calulate \code{Lambda} using the heterogeneity stopping rule).
+#' 
+
+setClass("MRLasso",
+         representation(Exposure = "character",
+                        Outcome = "character",
+                        
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        
+                        Alpha = "numeric",
+                        Pvalue = "numeric",
+                        SNPs = "numeric",
+                        
+                        RegEstimate = "numeric",
+                        RegIntercept = "numeric",
+                        Valid = "numeric",
+                        ValidSNPs = "character",
+                        Lambda = "numeric")
+)

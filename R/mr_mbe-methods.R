@@ -79,6 +79,11 @@ setMethod("mr_mbe",
                    distribution = "normal",
                    alpha = 0.05){
 
+if( exists(".Random.seed") ) {
+  old <- .Random.seed
+  on.exit( { .Random.seed <<- old } )
+ }
+
 if (!is.na(seed)) { set.seed(seed) }
 
             Bx = object@betaX

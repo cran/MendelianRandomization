@@ -16,6 +16,8 @@ An object containing the estimates produced using the multivariable inverse-vari
 
 \item{\code{Outcome}}{The name of the outcome variable.}
 
+\item{\code{Robust}}{Whether robust regression was used in the regression model relating the genetic associations with the outcome and those with the exposure.}
+
 \item{\code{Correlation}}{The matrix of correlations between genetic variants.}
 
 \item{\code{Estimate}}{The causal estimates from the inverse-variance weighted method.}

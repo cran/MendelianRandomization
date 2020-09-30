@@ -1,4 +1,3 @@
-
 # Shortcut for creating an MRInput object
 
 #' Inputting and formatting data for use in causal estimation

@@ -5,6 +5,7 @@
 \alias{mr_plot}
 \alias{mr_plot,MRInput-method}
 \alias{mr_plot,MRAll-method}
+\alias{mr_plot,MRMVInput-method}
 \title{Draw a scatter plot of the genetic associations and/or causal estimates}
 \usage{
 mr_plot(
@@ -26,26 +27,36 @@ mr_plot(
 )
 
 \S4method{mr_plot}{MRAll}(object)
+
+\S4method{mr_plot}{MRMVInput}(
+  object,
+  error = TRUE,
+  line = TRUE,
+  orientate = FALSE,
+  interactive = TRUE,
+  labels = FALSE
+)
 }
 \arguments{
-\item{object}{An \code{MRInput} object or an \code{MRAll} object.}
+\item{object}{An \code{MRInput} object or an \code{MRMVInput} object or an \code{MRAll} object.}
 
-\item{error}{When viewing an \code{MRInput} object, one can choose whether to include error bars (default is to include).}
+\item{error}{When viewing an \code{MRInput} or \code{MRMVInput} object, one can choose whether to include error bars (default is to include). For an \code{MRMVInput} object, the horizontal error bars only take into account uncertainty in the causal estimates.}
 
-\item{line}{When viewing an \code{MRInput} object, one can choose whether to include the IVW estimate (\code{line = "ivw"}) or the MR-Egger estimate (\code{line = "egger"}).}
+\item{line}{When viewing an \code{MRInput} object, one can choose whether to include the IVW estimate (\code{line = "ivw"}) or the MR-Egger estimate (\code{line = "egger"}). When viewing an \code{MRMVInput}, one can choose whether to include a line through the origin with gradient 1 (\code{line = TRUE}) or not.}
 
-\item{orientate}{When viewing an \code{MRInput} object, one can choose whether to orientate all genetic variants so that the associations with the risk factor are all positive. This is recommended particularly when plotting the MR-Egger estimate, although the default setting is \code{FALSE}.}
+\item{orientate}{When viewing an \code{MRInput} or \code{MRMVInput} object, one can choose whether to orientate all genetic variants so that the associations with the risk factor are all positive. This is recommended particularly when plotting the MR-Egger estimate, although the default setting is \code{FALSE}.}
 
-\item{interactive}{When viewing an \code{MRInput} object, one can choose whether to produce an interactive graph using the \code{plotly} package, or a static graph using the regular \code{plot} command.}
+\item{interactive}{When viewing an \code{MRInput} or \code{MRMVInput} object, one can choose whether to produce an interactive graph using the \code{plotly} package, or a static graph using the regular \code{plot} command.}
 
-\item{labels}{When viewing an \code{MRInput} object with \code{interactive} set to \code{FALSE}, setting \code{labels} to \code{TRUE} means that the name of each genetic variants appears above the corresponding datapoint.}
+\item{labels}{When viewing an \code{MRInput} or \code{MRMVInput} object with \code{interactive} set to \code{FALSE}, setting \code{labels} to \code{TRUE} means that the name of each genetic variants appears above the corresponding datapoint.}
 }
 \description{
-The function \code{mr_plot} has two functionalities. It can generate a visual representation of both \code{MRInput} and \code{MRAll} objects.
+The function \code{mr_plot} has three functionalities. It can generate a visual representation of \code{MRInput}, \code{MRMVInput}  and \code{MRAll} objects.
 }
 \details{
 The result is dependent on the type of object passed to \code{mr_plot}.
 When the object is an \code{MRInput} object, the function uses either the \code{plot} command (if \code{interactive} is set to \code{FALSE}) or \code{plotly} syntax (if \code{interactive} is set to \code{TRUE}) to plot the association estimates against each other.
+When the object is an \code{MRMVInput} object, functionality is similar except that we plot the estimated associations with the outcome on the y-axis, and fitted values of the associations with the outcome from the inverse-variance weighted method on the x-axis.
 If \code{interactive} is set to \code{FALSE}, then a static graph is produced. By setting \code{labels} to \code{TRUE}, the names of the genetic variants appear above the points. This produces a less visually appealing graph, but one where it is easier to identify the individual genetic variants.
 If \code{interactive} is set to \code{TRUE}, then the plot is interactive and the user can hover over the various points to see the name of the associated genetic variant and its association estimates.
 When the object is an \code{MRAll} object, the function generates a \code{ggplot} to compare the causal estimates proposed by different methods.

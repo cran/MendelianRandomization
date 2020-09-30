@@ -262,17 +262,18 @@ setGeneric(name = "mr_allmethods",
 
 #' Draw a scatter plot of the genetic associations and/or causal estimates
 #'
-#' The function \code{mr_plot} has two functionalities. It can generate a visual representation of both \code{MRInput} and \code{MRAll} objects.
+#' The function \code{mr_plot} has three functionalities. It can generate a visual representation of \code{MRInput}, \code{MRMVInput}  and \code{MRAll} objects.
 #'
-#' @param object An \code{MRInput} object or an \code{MRAll} object.
-#' @param error When viewing an \code{MRInput} object, one can choose whether to include error bars (default is to include).
-#' @param line When viewing an \code{MRInput} object, one can choose whether to include the IVW estimate (\code{line = "ivw"}) or the MR-Egger estimate (\code{line = "egger"}).
-#' @param orientate When viewing an \code{MRInput} object, one can choose whether to orientate all genetic variants so that the associations with the risk factor are all positive. This is recommended particularly when plotting the MR-Egger estimate, although the default setting is \code{FALSE}.
-#' @param interactive When viewing an \code{MRInput} object, one can choose whether to produce an interactive graph using the \code{plotly} package, or a static graph using the regular \code{plot} command.
-#' @param labels When viewing an \code{MRInput} object with \code{interactive} set to \code{FALSE}, setting \code{labels} to \code{TRUE} means that the name of each genetic variants appears above the corresponding datapoint.
+#' @param object An \code{MRInput} object or an \code{MRMVInput} object or an \code{MRAll} object.
+#' @param error When viewing an \code{MRInput} or \code{MRMVInput} object, one can choose whether to include error bars (default is to include). For an \code{MRMVInput} object, the horizontal error bars only take into account uncertainty in the causal estimates.
+#' @param line When viewing an \code{MRInput} object, one can choose whether to include the IVW estimate (\code{line = "ivw"}) or the MR-Egger estimate (\code{line = "egger"}). When viewing an \code{MRMVInput}, one can choose whether to include a line through the origin with gradient 1 (\code{line = TRUE}) or not.
+#' @param orientate When viewing an \code{MRInput} or \code{MRMVInput} object, one can choose whether to orientate all genetic variants so that the associations with the risk factor are all positive. This is recommended particularly when plotting the MR-Egger estimate, although the default setting is \code{FALSE}.
+#' @param interactive When viewing an \code{MRInput} or \code{MRMVInput} object, one can choose whether to produce an interactive graph using the \code{plotly} package, or a static graph using the regular \code{plot} command.
+#' @param labels When viewing an \code{MRInput} or \code{MRMVInput} object with \code{interactive} set to \code{FALSE}, setting \code{labels} to \code{TRUE} means that the name of each genetic variants appears above the corresponding datapoint.
 #'
 #' @details The result is dependent on the type of object passed to \code{mr_plot}.
 #' When the object is an \code{MRInput} object, the function uses either the \code{plot} command (if \code{interactive} is set to \code{FALSE}) or \code{plotly} syntax (if \code{interactive} is set to \code{TRUE}) to plot the association estimates against each other.
+#' When the object is an \code{MRMVInput} object, functionality is similar except that we plot the estimated associations with the outcome on the y-axis, and fitted values of the associations with the outcome from the inverse-variance weighted method on the x-axis.
 #' If \code{interactive} is set to \code{FALSE}, then a static graph is produced. By setting \code{labels} to \code{TRUE}, the names of the genetic variants appear above the points. This produces a less visually appealing graph, but one where it is easier to identify the individual genetic variants.
 #' If \code{interactive} is set to \code{TRUE}, then the plot is interactive and the user can hover over the various points to see the name of the associated genetic variant and its association estimates.
 #' When the object is an \code{MRAll} object, the function generates a \code{ggplot} to compare the causal estimates proposed by different methods.
@@ -357,6 +358,7 @@ setGeneric(name = "mr_maxlik",
 #'
 #' @param object An \code{MRMVInput} object.
 #' @param model What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The random-effects model (\code{"random"}) is a multiplicative random-effects model, allowing overdispersion in the weighted linear regression (the residual standard error is not fixed to be 1, but is not allowed to take values below 1). The fixed-effect model (\code{"fixed"}) sets the residual standard error to be 1. The \code{"default"} setting is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.
+#' @param robust Indicates whether robust regression using the \code{lmrob()} function from the package \code{robustbase} should be used in the method rather than standard linear regression (\code{lm}).
 #' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRMVInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRMVInput} object, then \code{correl} is set to \code{TRUE}.
 #' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
 #' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
@@ -373,6 +375,7 @@ setGeneric(name = "mr_maxlik",
 #'  \item{Model}{A character string giving the type of model used (\code{"fixed"}, \code{"random"}, or \code{"default"}).}
 #'  \item{Exposure}{A character vector with the names given to the exposure.}
 #'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Robust}{\code{TRUE} if robust regression has been used to calculate the estimate, \code{FALSE} otherwise.}
 #'  \item{Correlation}{The matrix of genetic correlations.}
 #'  \item{Estimate}{A vector of causal estimates.}
 #'  \item{StdError}{A vector of standard errors of the causal estimates.}
@@ -396,7 +399,7 @@ setGeneric(name = "mr_maxlik",
 #' @export
 
 setGeneric(name = "mr_mvivw",
-           def = function(object, model = "default",
+           def = function(object, model = "default", robust=FALSE,
                           correl = FALSE, 
                           distribution = "normal", alpha = 0.05, ...)
            {standardGeneric("mr_mvivw")})
@@ -608,3 +611,223 @@ setGeneric(name = "mr_conmix",
              {standardGeneric("mr_conmix")})
 
 #--------------------------------------------------------------------------------------------
+
+#' Multivariable median-based method
+#'
+#' @description The \code{mr_mvmedian} function performs multivariable Mendelian randomization via the median method. This is implemented by multivariable weighted quantile regression, with the quantile set to 0.5 (the median).
+#'
+#' @param object An \code{MRMVInput} object.
+#' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
+#' @param alpha The significance level used to calculate the confidence intervals. The default value is 0.05.
+#' @param iterations The number of bootstrap samples to generate when calculating the estimated standard error. The default value is 10000.
+#' @param seed The random seed to use when generating the bootstrap samples (for reproducibility). The default value is 314159265. If set to \code{NA}, the random seed will not be set (for example, if the function is used as part of a larger simulation).
+#'
+#' @details The multivariable median method is similar to the univariable weighted median method, except that it is implemented using quantile regression. The regression model is multivariable and weighted by the inverse of the variances of the variant-specific estimates. Confidence intervals are calculated by parametric bootstrap to estimate the standard error of the estimates, and then using quantiles of a normal or t-distribution (depending on the value of \code{distribution}).
+#'
+#' @return The output from the function is an \code{MVMedian} object containing:
+#'
+#'  \item{Exposure}{A character vector with the names given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Estimate}{A vector of causal estimates.}
+#'  \item{StdError}{A vector of standard errors of the causal estimates.}
+#'  \item{CILower}{The lower bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{CIUpper}{The upper bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-values associated with the estimates (calculated as Estimate/StdError as per Wald test) using a normal or t-distribution (as specified in \code{distribution}).}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'
+#'
+#' @examples mr_mvmedian(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse), iterations = 100)
+#'   # iterations is set to 100 to reduce runtime for the mr_mvmedian method,
+#'   # 10000 iterations are recommended in practice
+#'
+#' @export
+
+setGeneric(name = "mr_mvmedian",
+            def = function(object, 
+                           distribution = "normal", alpha = 0.05, iterations = 10000, seed = 314159265)
+            {standardGeneric("mr_mvmedian")})
+
+#--------------------------------------------------------------------------------------------
+
+#' Draw a forest plot of causal estimates
+#'
+#' @description The \code{mr_forest} function draws a forest plot of causal estimates. The default option plots the variant-specific causal estimates (\code{by/bx}) and the estimate from the \code{mr_ivw} function using default settings (assuming variants are uncorrelated, random-effects for 4+ variants). Options allow users to plot estimates from a variety of different methods.
+#'
+#' @param object An \code{MRInput} object.
+#' @param alpha The significance level used to calculate the confidence intervals. The default value is 0.05, corresponding to 95\% confidence intervals.
+#' @param snp_estimates Whether to plot the variant-specific estimates. Defaults to \code{TRUE}.
+#' @param methods Takes a string of computation methods used to calculate estimates. Defaults to \code{"ivw"}. Options are: \code{"median"} (simple median estimate), \code{"wmedian"} (weighted median estimate), \code{"egger"} (MR-Egger estimate), \code{"mbe"} (mode-based estimate), \code{"conmix"} (contamination mixture estimate), and \code{"maxlik"} (maximum likelihood estimate).
+#' @param ordered Determines by whether to arrange the variant-specific estimates in ascending order. Defaults to \code{FALSE}.
+#'
+#' @details As the function produces a \code{ggplot} object, graphical parameters can be changed by adding commands from the \code{ggplot2} package.
+#'
+#' @examples mr_forest(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+#'   alpha = 0.01, ordered = TRUE)
+#' mr_forest(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+#'   methods = c("ivw", "wmedian", "egger"), snp_estimates = FALSE)
+#' forest = mr_forest(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
+#' # how to change x-axis limits
+#' # library(ggplot2)
+#' # forest2 = forest + coord_cartesian(xlim=c(-5,5))
+#' # forest2
+#'
+#' @export
+
+
+
+setGeneric(name = "mr_forest",
+           def = function(object, alpha = 0.05, snp_estimates = TRUE, methods = "ivw", ordered = FALSE){standardGeneric("mr_forest")})
+
+#--------------------------------------------------------------------------------------------
+
+#' Leave-one-out estimates
+#'
+#' @description The \code{mr_loo} function draws a forest plot of causal estimates from the \code{mr_ivw} function using default settings (assuming variants are uncorrelated, random-effects for 4+ variants) omitting each variant in turn. So the estimate labelled \code{snp_1} includes all variants except the labelled variant, and so on. The \code{mr_ivw} estimate including all variants ("IVW estimate") is also provided for reference.
+#'
+#' @param object An \code{MRInput} object.
+#' @param alpha The significance level used to calculate the confidence intervals. The default value is 0.05, corresponding to 95\% confidence intervals.
+#'
+#' @details As the function produces a \code{ggplot} object, graphical parameters can be changed by adding commands from the \code{ggplot2} package.
+#'
+#' @examples mr_loo(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
+#'   alpha = 0.01)
+#'
+#' @export
+
+setGeneric(name = "mr_loo",
+           def = function(object, alpha = 0.05){standardGeneric("mr_loo")})
+
+#--------------------------------------------------------------------------------------------
+
+#' Draw a funnel plot of variant-specific estimates
+#'
+#' @description The \code{mr_funnel} function draws a funnel plot of variant-specific causal estimates. Estimates (\code{by/bx}) are plotted against the precision of the estimates (\code{abs(bx)/byse}). Precision is the reciprocal of standard error. A vertical dashed line is plotted at the estimate from the \code{mr_ivw} function.
+#'
+#' @param object An \code{MRInput} object.
+#' @param CI A \code{logical} variable dicating as to whether to plot the confidence interval associated with each point. Default value is TRUE.
+#'
+#' @details As the function produces a \code{ggplot} object, graphical parameters can be changed by adding commands from the \code{ggplot2} package.
+#'
+#' @examples mr_funnel(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
+#'
+#' @export
+
+setGeneric(name = "mr_funnel",
+           def = function(object, CI = TRUE){standardGeneric("mr_funnel")})
+
+#--------------------------------------------------------------------------------------------
+
+#' Multivariable MR-Lasso method
+#'
+#' @description The \code{mr_mvlasso} function performs the multivariable MR-Lasso method, which applies lasso-type penalization to the direct effects of genetic variants on the outcome.
+#' The causal estimates are described as post-lasso estimates, and are obtained by performing the multivariable IVW method using only those genetic variants that are identified as valid by the lasso procedure.
+#'
+#' @param object An \code{MRMVInput} object.
+#' @param orientate The risk factor that genetic associations are orientated to. The default option is \code{1}, meaning that genetic associations with the first risk factor are set to be positive.
+#' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
+#' @param alpha The significance level used to calculate the confidence intervals. The default value is 0.05.
+#' @param lambda The value of the tuning parameter used by the lasso procedure which controls the level of sparsity. If not specified, the tuning parameter will be calculated by the heterogeneity stopping rule.
+#'
+#' @details Multivariable MR-Lasso extends the multivariable IVW model to include an intercept term for each genetic variant. These intercept terms represent associations between the
+#' genetic variants and the outcome which bypass the risk factors. The regularized regression model is estimated by multivariable weighted linear regression where the intercept terms are subject
+#' to lasso-type penalization. The lasso penalization will tend to shrink the intercept terms corresponding to the valid instruments to zero.
+#' 
+#' The lasso penalty relies on a tuning parameter which controls the level of sparsity. The default is to use a heterogeneity stopping rule, but a fixed value may be specified.
+#'
+#' As part of the analysis, the genetic variants are orientated so that all of the associations with one of the risk factors are positive (the first risk factor is used by default). Re-orientation
+#' of the genetic variants is performed automatically as part of the function.
+#' 
+#' The MR-Lasso method is performed in two steps. First, a regularized regression model is fitted, and some genetic variants are identified as valid instruments. Second, causal effects are estimated using standard multivariable IVW with only the valid genetic variants.
+#' The post-lasso method will be performed as long as the number of genetic variants identified as valid instruments is greater than the number of risk factors.
+#' The default heterogeneity stopping rule will always return more genetic variants as valid instruments than risk factors for identification.
+#' The main estimates given by the method are the post-lasso estimates. However, parameter estimates from the regularized regression model used to identify invalid variants are also provided for completeness.
+#'
+#' If a substantial proportion of genetic variants are removed from the analysis, the multivariable MR-Lasso method may give a false impression of confidence in the causal estimate due to homogeneity of the variant-specific causal estimates amongst the remaining variants. However, it is not reasonable to claim that there is strong evidence for a causal effect after a large number of variants with heterogeneous estimates have been removed from the analysis.
+#'
+#' @return The output from the function is an \code{MVLasso} object containing:
+#'
+#'  \item{Exposure}{A character vector with the names given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Estimate}{A vector of causal estimates from the multivariable MR-Lasso method. These are the post-lasso estimates.}
+#'  \item{StdError}{A vector of standard errors of the causal estimates from the multivariable MR-Lasso method.}
+#'  \item{CILower}{The lower bounds of the confidence intervals for the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{CIUpper}{The upper bounds of the confidence intervals for the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-values associated with the (post-lasso) causal estimates using a normal or t-distribution (as specified in \code{distribution}).}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'  \item{RegEstimate}{The estimates from the regularized regression model used in the multivariable MR-Lasso method.}
+#'  \item{RegIntercept}{The intercept estimates estimates from the regularized regression model used in the multivariable MR-Lasso method.}
+#'  \item{Valid}{The number of genetic variants that have been identified as valid instruments.}
+#'  \item{ValidSNPs}{The names of genetic variants that have been identified as valid instruments.}
+#'  \item{Lambda}{The value of the tuning parameter used to compute \code{RegEstimate}.}
+#'  
+#'
+#' @examples mr_mvlasso(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse))
+#'    
+#' @references Andrew J Grant, Stephen Burgess. Pleiotropy robust methods for multivariable Mendelian randomization. arXiv 2020; 2008.11997
+#'
+#' @export
+
+setGeneric(name = "mr_mvlasso",
+           def = function(object, 
+                          orientate = 1, distribution = "normal", alpha = 0.05, lambda = numeric(0))
+           {standardGeneric("mr_mvlasso")})
+
+#--------------------------------------------------------------------------------------------
+
+#' MR-Lasso method
+#'
+#' @description The \code{mr_lasso} function performs the MR-Lasso method, which applies lasso-type penalization to the direct effects of genetic variants on the outcome.
+#' The causal estimate is described as a post-lasso estimate, and is obtained by performing the IVW method using only those genetic variants that are identified as valid by the lasso procedure.
+#'
+#' @param object An \code{MRInput} object.
+#' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
+#' @param alpha The significance level used to calculate the confidence intervals. The default value is 0.05.
+#' @param lambda The value of the tuning parameter used by the lasso procedure which controls the level of sparsity. If not specified, the tuning parameter will be calculated by the heterogeneity stopping rule.
+#'
+#' @details MR-Lasso extends the IVW model to include an intercept term for each genetic variant. These intercept terms represent associations between the
+#' genetic variants and the outcome which bypass the risk factor. The causal effect estimates are estimated by weighted linear regression where the intercept terms are subject
+#' to lasso-type penalization. The lasso penalization will tend to shrink the intercept terms corresponding to the valid instruments to zero.
+#' 
+#' The lasso penalty relies on a tuning parameter which controls the level of sparsity. The default is to use a heterogeneity stopping rule, but a fixed value may be specified.
+#' 
+#' As part of the analysis, the genetic variants are orientated so that all of the associations with the risk factor are positive (and signs of associations with the outcome are
+#' changed to keep the orientation consistent if required). Re-orientation of the genetic variants is performed automatically as part of the function.
+#' 
+#' The MR-Lasso method is performed in two steps. First, a regularized regression model is fitted, and some genetic variants are identified as valid instruments. Second, the causal effect is estimated using standard IVW with only the valid genetic variants.
+#' The post-lasso method will be performed as long as at least two genetic variants are identified as valid instruments. The default heterogeneity stopping rule will always return at least two
+#' genetic variants as valid instruments.
+#' The main estimate given by the method is the post-lasso estimate. However, parameter estimates from the regularized regression model used to identify invalid variants are also provided for completeness.
+#'
+#' If a substantial proportion of genetic variants are removed from the analysis, the MR-Lasso method may give a false impression of confidence in the causal estimate due to homogeneity of the variant-specific causal estimates amongst the remaining variants. However, it is not reasonable to claim that there is strong evidence for a causal effect after a large number of variants with heterogeneous estimates have been removed from the analysis.
+#'
+#' @return The output from the function is an \code{MRLasso} object containing:
+#'
+#'  \item{Exposure}{A character vector with the names given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Estimate}{The causal estimate from the MR-Lasso method. This is the post-lasso estimate.}
+#'  \item{StdError}{The standard error of the causal estimate from the MR-Lasso method.}
+#'  \item{CILower}{The lower bound of the confidence interval for the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{CIUpper}{The upper bound of the confidence interval for the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-value associated with the causal estimate using a normal or t-distribution (as specified in \code{distribution}).}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'  \item{RegEstimate}{The estimate from the regularized regression model used in the MR-Lasso method.}
+#'  \item{RegIntercept}{The intercept estimates from the regularized regression model used in the MR-Lasso method.}
+#'  \item{Valid}{The number of genetic variants that have been identified as valid instruments.}
+#'  \item{ValidSNPs}{The names of genetic variants that have been identified as valid instruments.}
+#'  \item{Lambda}{The value of the tuning parameter used to compute \code{RegEstimate}}
+#'  
+#'
+#' @examples mr_lasso(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
+#' 
+#' @references Jessica MB Rees, Angela M Wood, Frank Dudbridge, Stephen Burgess. Robust methods in Mendelian randomization via penalization of heterogeneous causal estimates. PLoS ONE 2019; 14(9):e0222362
+#'
+#' @export
+
+setGeneric(name = "mr_lasso",
+           def = function(object, distribution = "normal", alpha = 0.05, lambda = numeric(0))
+           {standardGeneric("mr_lasso")})

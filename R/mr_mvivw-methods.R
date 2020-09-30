@@ -5,6 +5,7 @@ setMethod("mr_mvivw",
           "MRMVInput",
           function(object,
                    model = "default",
+                   robust = FALSE,
                    correl = FALSE,
                    distribution = "normal",
                    alpha = 0.05, ...){
@@ -38,6 +39,7 @@ setMethod("mr_mvivw",
 
               } else {
 
+                  robust <- FALSE
                   omega <- Byse%o%Byse*rho
 
                   thetaIVW <- solve(t(Bx)%*%solve(omega)%*%Bx)%*%t(Bx)%*%solve(omega)%*%By
@@ -70,6 +72,7 @@ setMethod("mr_mvivw",
                              Exposure = object@exposure,
                              Outcome = object@outcome,
 
+                             Robust = robust,
                              Correlation = object@correlation,
 
                              Estimate = as.numeric(thetaIVW),
@@ -87,7 +90,14 @@ setMethod("mr_mvivw",
                              pvalue.heter.stat)))
             } } else {
                   # not correlated
+
+if (robust == TRUE) {
+   summary <- summary(lmrob(By ~ Bx - 1, weights = Byse^(-2), k.max = 500, maxit.scale = 500, ...)) }
+
+else {
+
    summary <- summary(lm(By ~ Bx - 1, weights = Byse^(-2), ...))
+     }
 
                   thetaIVW <- summary$coef[,1]
 
@@ -114,6 +124,7 @@ setMethod("mr_mvivw",
                            Exposure = object@exposure,
                            Outcome = object@outcome,
 
+                           Robust = robust,
                            Correlation = object@correlation,
 
                            Estimate = thetaIVW,

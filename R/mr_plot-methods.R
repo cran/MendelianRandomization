@@ -24,7 +24,8 @@ setMethod(f = "mr_plot",
             betaDF <- data.frame(Bx, By, Bxse, Byse)
             
               # Create the initial plot
-              
+
+if (interactive == TRUE) {              
               generic_plot <- ggplot(data = NULL, aes(x = Bx, y = By, text = object@snps)) +
                 geom_point(colour = "black", alpha = 0.5, size = 2) +
                 
@@ -41,12 +42,38 @@ setMethod(f = "mr_plot",
                 ylab(paste("Genetic association with", object@outcome))  + 
                 geom_hline(yintercept=0) + 
                 geom_vline(xintercept=0)
-              
-              if(error == T){
+ }
+if (interactive == FALSE) {              
+              generic_plot <- ggplot(data = NULL, aes(x = Bx, y = By, text = object@snps)) +
+                geom_point(colour = "black", size = 2) +
                 
+                theme(panel.background = element_rect(fill = "white"),
+                      panel.grid.major = element_line(colour = "gray80", linetype = "dotted"),
+                      panel.grid.minor = element_line(colour = "gray90", linetype = "dotted"),
+                      
+                      axis.text = element_text(size = 10),
+                      axis.title = element_text(size = 14),
+                      axis.text.x  = element_text(margin = margin(b = 7)),
+                      axis.text.y  = element_text(margin = margin(l = 5))) +
+                
+                xlab(paste("Genetic association with", object@exposure)) +
+                ylab(paste("Genetic association with", object@outcome))  + 
+                geom_hline(yintercept=0) + 
+                geom_vline(xintercept=0)
+ }
+
+              
+              if(error == TRUE){
+
+if (interactive == TRUE) {                
                 generic_plot <- generic_plot +
                   geom_errorbar(aes(ymin = By - qnorm(0.975)*Byse, ymax = By + qnorm(0.975)*Byse), alpha = 0.3, colour = "blue") +
-                  geom_errorbarh(aes(xmin = Bx - qnorm(0.975)*Bxse, xmax = Bx + qnorm(0.975)*Bxse), alpha = 0.3, colour = "blue")
+                  geom_errorbarh(aes(xmin = Bx - qnorm(0.975)*Bxse, xmax = Bx + qnorm(0.975)*Bxse), alpha = 0.3, colour = "blue") }
+
+if (interactive == FALSE) {                
+                generic_plot <- generic_plot +
+                  geom_errorbar(aes(ymin = By - qnorm(0.975)*Byse, ymax = By + qnorm(0.975)*Byse), colour = "blue") +
+                  geom_errorbarh(aes(xmin = Bx - qnorm(0.975)*Bxse, xmax = Bx + qnorm(0.975)*Bxse), colour = "blue") }
                 
               } else {
                 generic_plot <- generic_plot
@@ -187,4 +214,117 @@ setMethod(f = "mr_plot",
             
           })
 
+#' @docType methods
+#' @rdname mr_plot
+
+setMethod(f = "mr_plot",
+          signature = "MRMVInput",
+          function(object, error = TRUE, line = TRUE,
+                   orientate = FALSE, interactive = TRUE, labels = FALSE) {
+            
+            Bx = object@betaX
+            Bx.new = as.data.frame(object@betaX)
+            By = object@betaY
+            Bxse = object@betaXse
+            Byse = object@betaYse
+            Bx.plot = lm(By~Bx-1, weights=Byse^-2)$fitted
+            Bx.error.lower = predict(lm(By~Bx-1, weights=Byse^-2), newdata=Bx.new, interval = "confidence")[,2]
+            Bx.error.upper = predict(lm(By~Bx-1, weights=Byse^-2), newdata=Bx.new, interval = "confidence")[,3]
+
+
+
+            if (orientate == TRUE) {
+              By = object@betaY*sign(Bx.plot)
+              Bx.plot = abs(Bx.plot)
+            }
+            
+          
+              # Create the initial plot
+
+if (interactive == TRUE) {             
+              generic_plot <- ggplot(data = NULL, aes(x = Bx.plot, y = By, text = object@snps)) +
+                geom_point(colour = "black", alpha = 0.5, size = 2) +
+                
+                theme(panel.background = element_rect(fill = "white"),
+                      panel.grid.major = element_line(colour = "gray80", linetype = "dotted"),
+                      panel.grid.minor = element_line(colour = "gray90", linetype = "dotted"),
+                      
+                      axis.text = element_text(size = 10),
+                      axis.title = element_text(size = 14),
+                      axis.text.x  = element_text(margin = margin(b = 7)),
+                      axis.text.y  = element_text(margin = margin(l = 5))) +
+                
+                xlab(paste("Fitted value of genetic association with", object@outcome)) +
+                ylab(paste("Estimated genetic association with", object@outcome))  + 
+                geom_hline(yintercept=0) + 
+                geom_vline(xintercept=0)
+ }
+if (interactive == FALSE) {             
+              generic_plot <- ggplot(data = NULL, aes(x = Bx.plot, y = By, text = object@snps)) +
+                geom_point(colour = "black", size = 2) +
+                
+                theme(panel.background = element_rect(fill = "white"),
+                      panel.grid.major = element_line(colour = "gray80", linetype = "dotted"),
+                      panel.grid.minor = element_line(colour = "gray90", linetype = "dotted"),
+                      
+                      axis.text = element_text(size = 10),
+                      axis.title = element_text(size = 14),
+                      axis.text.x  = element_text(margin = margin(b = 7)),
+                      axis.text.y  = element_text(margin = margin(l = 5))) +
+                
+                xlab(paste("Fitted value of genetic association with", object@outcome)) +
+                ylab(paste("Estimated genetic association with", object@outcome))  + 
+                geom_hline(yintercept=0) + 
+                geom_vline(xintercept=0)
+ }
+
+              
+              if(error == TRUE){
+
+ if (interactive == TRUE) {
+                generic_plot <- generic_plot +
+                  geom_errorbar(aes(ymin = By - qnorm(0.975)*Byse, ymax = By + qnorm(0.975)*Byse), alpha = 0.3, colour = "blue") +
+                  geom_errorbarh(aes(xmin = Bx.error.lower, xmax = Bx.error.upper), alpha = 0.3, colour = "blue")
+  }
+ if (interactive == FALSE) {               
+                generic_plot <- generic_plot +
+                  geom_errorbar(aes(ymin = By - qnorm(0.975)*Byse, ymax = By + qnorm(0.975)*Byse), colour = "blue") +
+                  geom_errorbarh(aes(xmin = Bx.error.lower, xmax = Bx.error.upper), colour = "blue")
+  }
+                
+              } else {
+                generic_plot <- generic_plot
+              }
+              
+              if (line == TRUE){
+                generic_plot <- generic_plot + geom_abline(intercept = 0, 
+                                           slope = 1, color = "blue")
+                
+              } else {
+                generic_plot <- generic_plot
+              }
+              
+              if (interactive == FALSE) {
+                if(labels == TRUE){
+                  generic_plot + geom_text(data = NULL, aes(x = Bx.plot, y = By, label = object@snps))
+                } else {
+                  generic_plot
+                }
+                
+              } else {
+                p <- plotly_build(generic_plot)
+                
+                p$x$data[[1]]$text <- object@snps
+                
+                if(error == TRUE) p$x$data[[2]]$text <- NULL
+               
+                p$x$layout$xaxis$tickfont$size <- 13
+                p$x$layout$xaxis$titlefont$size <- 15
+                p$x$layout$yaxis$tickfont$size <- 13
+                p$x$layout$yaxis$titlefont$size <- 15
+                
+                p
+              }
+
+})
 
