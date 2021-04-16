@@ -40,19 +40,19 @@ The \code{phenoscanner} function queries the PhenoScanner database of genotype-p
 }
 \examples{
 # SNP
-res <- phenoscanner(snpquery="rs10840293")
-head(res$results)
-res$snps
+# res <- phenoscanner(snpquery="rs10840293")
+# head(res$results)
+# res$snps
 
 # Gene
-res <- phenoscanner(genequery="SWAP70")
-head(res$results)
-res$snps
+# res <- phenoscanner(genequery="SWAP70")
+# head(res$results)
+# res$snps
 
 # Region
-res <- phenoscanner(regionquery="chr11:9685624-9774538")
-head(res$results)
-res$regions
+# res <- phenoscanner(regionquery="chr11:9685624-9774538")
+# head(res$results)
+# res$regions
 }
 \author{
 PhenoScanner <phenoscanner@gmail.com>

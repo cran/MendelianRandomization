@@ -1,4 +1,4 @@
-177af9073ee2594d6520a3c625e1dff3 *DESCRIPTION
+011a70e78106f4256a3adb25af09a143 *DESCRIPTION
 d0137b95a4402b116cc1667785211a72 *NAMESPACE
 4f4b0ecb2f0ffca736355c2aa74f6eb1 *NEWS
 9ddbf4f1d00590ba01277b326a497386 *R/1Data.R
@@ -26,10 +26,10 @@ f39542f09606f7cfe169af20392e422a *R/mr_mvlasso-methods.R
 bee810327598f9c7b2980cb64afb9cd0 *R/mr_mvmedian-methods.R
 bf23c8da91ebc93b901c3c995ce42b85 *R/mr_plot-methods.R
 f82e573717fc3a9b66a3ace03b3ded71 *R/new-methods.R
-f7e0b8e84cd0b9c661e0e90933b1a4a0 *R/pheno_input-function.R
+1ed9b8bb16f1bb0f56c7482366d6cf06 *R/pheno_input-function.R
 f9012f1db99ec706172a7ee2712a0b89 *R/show-methods.R
 6aea3f443e9c6bd93a62123dfe7c0e20 *R/values-methods.R
-bac0f5f1797d2134a23527c3de3c0c94 *build/vignette.rds
+310513fb92f1ffb2f5e0594ba6480dc7 *build/vignette.rds
 a81d49ae299f44c81506755f8b6298d4 *inst/doc/Vignette_MR.R
 df4c337af5a6610c9176c3f95a33aaa5 *inst/doc/Vignette_MR.Rmd
 156eeaf8e36153f0155fcc79133c6c14 *inst/doc/Vignette_MR.pdf
@@ -88,7 +88,7 @@ f983179def130caac1d48569bd135d99 *man/mr_mvinput.Rd
 bf913b094a341f3566d3b2c2d5a22d9c *man/penalised.weights.Rd
 40a500274df88f3e8733201392416ff5 *man/penalised.weights.delta.Rd
 e88d277a71597300fde06a09c2448a50 *man/pheno_input.Rd
-4804fd96e9c28d04f314d41aa532f42f *man/phenoscanner.Rd
+3b1e987897df40371fe7dd3105807c28 *man/phenoscanner.Rd
 8cd8cdef5b5a3ff45d3a70857842b6ca *man/r.weights.Rd
 2a626fb8c87a5ebaf4f8450e1771ba5e *man/r.weights.delta.Rd
 d63db0ade2bb638255bc0a795114518d *man/simpleCap.Rd
@@ -96,4 +96,4 @@ e1a5dd26354f1aa9835f9fbb36080a77 *man/values.Rd
 b8ea3f0370eaaca76733851f50f158b6 *man/weighted.median.Rd
 49ed090c2ad9da78dec6585796093306 *man/weighted.median.boot.se.Rd
 df4c337af5a6610c9176c3f95a33aaa5 *vignettes/Vignette_MR.Rmd
-c8c2c248a26094872fa2c9db352901a6 *vignettes/Vignette_MR.html
+4424ad0da44cee7119bc8816f18d1d3f *vignettes/Vignette_MR.html

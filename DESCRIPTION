@@ -1,8 +1,8 @@
 Package: MendelianRandomization
 Type: Package
 Title: Mendelian Randomization Package
-Version: 0.5.0
-Date: 2020-09-30
+Version: 0.5.1
+Date: 2021-04-16
 Author: Olena Yavorska <olena.yavorska@ludwig.ox.ac.uk>
         James Staley <james.staley@bristol.ac.uk>
 Maintainer: Stephen Burgess <sb452@medschl.cam.ac.uk>
@@ -16,9 +16,8 @@ Imports: knitr, rmarkdown, plotly (>= 3.6.0), ggplot2 (>= 1.0.1),
         robustbase (>= 0.92-6), Matrix (>= 1.2), iterpc (>= 0.3),
         quantreg (>= 5.01), rjson, glmnet
 VignetteBuilder: knitr
-LazyData: TRUE
 RoxygenNote: 7.1.1
 NeedsCompilation: no
-Packaged: 2020-09-30 14:27:51 UTC; stephen burgess
+Packaged: 2021-04-16 10:27:20 UTC; stephen burgess
 Repository: CRAN
-Date/Publication: 2020-09-30 17:50:02 UTC
+Date/Publication: 2021-04-16 11:10:02 UTC
