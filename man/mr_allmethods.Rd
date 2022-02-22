@@ -32,7 +32,7 @@ errors and confidence interval limits) for all the methods included in the packa
 See \code{mr_median}, \code{mr_egger}, and \code{mr_ivw} for details of how each of the methods is implemented.
 }
 \examples{
-mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse, 
+mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
   by = chdlodds, byse = chdloddsse), method="main", iterations = 100)
   # iterations is set to 100 to reduce runtime for the mr_median method,
   # at least 10000 iterations are recommended in practice

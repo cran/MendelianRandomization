@@ -1,7 +1,7 @@
 exportPattern("^[[:alpha:]]+")
   importFrom("graphics", "layout", "abline", "lines", "par", "plot", "text")
   importFrom("methods", "new", "slot")
-  importFrom("stats", "dnorm", "lm", "mad", "median", "density", "optim", "pchisq", "pnorm", "predict", "pt", "qchisq", "qnorm", "qt",
+  importFrom("stats", "dnorm", "lm", "mad", "median", "density", "optim", "pchisq", "pnorm", "predict", "pt", "qchisq", "qnorm", "qt", "qqline", "qqnorm", 
              "rnorm", "sd", "weighted.mean")
   importFrom("utils", "read.csv")
   importFrom("robustbase", "lmrob")
@@ -36,4 +36,5 @@ exportPattern("^[[:alpha:]]+")
   export(mr_mvmedian)
   export(mr_mvlasso)
   export(mr_lasso)
+  export(mr_divw)
 

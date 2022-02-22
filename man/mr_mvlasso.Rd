@@ -75,7 +75,7 @@ If a substantial proportion of genetic variants are removed from the analysis, t
 \examples{
 mr_mvlasso(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
    by = chdlodds, byse = chdloddsse))
-   
+
 }
 \references{
 Andrew J Grant, Stephen Burgess. Pleiotropy robust methods for multivariable Mendelian randomization. arXiv 2020; 2008.11997

@@ -86,6 +86,36 @@ setMethod("show",
           }
 )
 
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
+          "DIVW",
+          function(object){
+            
+            Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+            Statistic <- c("Method", "Estimate", "Std Error", Interval_type, "", "p-value","Condition")
+            
+            Value <- c("dIVW",
+                       decimals(object@Estimate,3),
+                       decimals(object@StdError,3),
+                       paste(decimals(object@CILower, 3), ",", sep = ""),
+                       decimals(object@CIUpper,3),
+                       decimals(object@Pvalue, 3),
+                       decimals(object@Condition, 3))
+            
+            output.table <- data.frame(matrix(Value, nrow = 1))
+            colnames(output.table) <- Statistic
+            
+            cat("\nDebiased inverse-variance weighted method\n")
+            cat("(Over.dispersion:", object@Over.dispersion, ")\n\n",sep="")
+            
+            cat("Number of Variants :", object@SNPs, "\n")
+            
+            cat("------------------------------------------------------------------\n")
+            print(output.table, quote = F, row.names = FALSE, justify= "left")
+            cat("------------------------------------------------------------------\n")
+          }
+)
 
 #--------------------------------------------------------------------------------------------
 

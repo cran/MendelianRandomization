@@ -31,7 +31,7 @@ setClass("MRInput",
                         snps = "character",
                         effect_allele = "character",
                         other_allele  = "character",
-                        eaf           = "numeric",                        
+                        eaf           = "numeric",
 correlation = "matrix"),
 
          prototype = prototype(betaX = ldlc,
@@ -89,6 +89,42 @@ setClass("WeightedMedian",
                         Pvalue = "numeric",
                         SNPs = "numeric")
 )
+
+
+#--------------------------------------------------------------------------------------------
+
+#' DIVW Class
+#'
+#' @description An object containing the estimate produced using the debiased inverse-variance weighted (dIVW) method as well as various statistics.
+#'
+#' @slot Over.dispersion Should the method consider overdispersion (balanced horizontal pleiotropy)? Default is TRUE.
+#' @slot Exposure The name of the exposure variable.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Estimate The causal point estimate from the median-based method.
+#' @slot StdError The standard error associated with \code{Estimate} (obtained from bootstrapping).
+#' @slot CILower The lower bound of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper The upper bound of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+#' @slot Pvalue P-value associated with the causal estimate from the Wald method.
+#' @slot SNPs The number of SNPs that used in the calculation.
+#' @slot Condition A measure defined as (average F-statistic -1)*sqrt(# snps) that needs to be large for reliable asymptotic approximation based on the dIVW estimator. It is recommended to be greater than 20.
+
+setClass("DIVW",
+         representation(Over.dispersion = "logical",
+                        Exposure = "character",
+                        Outcome = "character",
+
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        Alpha = "numeric",
+
+                        Pvalue = "numeric",
+                        SNPs = "numeric",
+                        Condition = "numeric")
+)
+
 
 #--------------------------------------------------------------------------------------------
 
@@ -287,7 +323,7 @@ setClass("MRMVInput",
                         snps = "character",
                         effect_allele = "character",
                         other_allele  = "character",
-                        eaf           = "numeric",                        
+                        eaf           = "numeric",
 correlation = "matrix"),
 
          prototype = prototype(betaX = cbind(ldlc, hdlc, trig),
@@ -315,7 +351,7 @@ setValidity("MRMVInput",
              if(dim(object@betaX)[1] < dim(object@betaX)[2])
             { cat("Multivariable MR requires more genetic variants than risk factors.")#
             } else {}
-              
+
             }
 )
 
@@ -478,8 +514,8 @@ setClass("MRHetPen",
                         CILower  = "numeric",
                         CIUpper  = "numeric",
                         CIMin    = "numeric",
-                        CIMax    = "numeric", 
-                        CIStep   = "numeric",                    
+                        CIMax    = "numeric",
+                        CIStep   = "numeric",
                         Alpha    = "numeric",
                         SNPs = "numeric")
 )
@@ -515,10 +551,10 @@ setClass("MRConMix",
                         CILower  = "numeric",
                         CIUpper  = "numeric",
                         CIMin    = "numeric",
-                        CIMax    = "numeric", 
-                        CIStep   = "numeric",       
+                        CIMax    = "numeric",
+                        CIStep   = "numeric",
                         Valid    = "numeric",
-                        ValidSNPs= "character",             
+                        ValidSNPs= "character",
                         Pvalue   = "numeric",
                         Alpha    = "numeric",
                         SNPs = "numeric")
@@ -541,13 +577,13 @@ setClass("MRConMix",
 setClass("MVMedian",
          representation(Exposure = "character",
                         Outcome = "character",
-     
+
                         Estimate = "numeric",
                         StdError = "numeric",
                         CILower = "numeric",
                         CIUpper = "numeric",
                         Alpha = "numeric",
-                        
+
                         Pvalue = "numeric",
                         SNPs = "numeric")
 )
@@ -572,22 +608,22 @@ setClass("MVMedian",
 #' @slot Valid The number of genetic variants that have been identified as valid instruments.
 #' @slot ValidSNPs The names of genetic variants that have been identified as valid instruments.
 #' @slot Lambda The value of the tuning parameter used to compute \code{RegEstimate} (default is to calulate \code{Lambda} using the heterogeneity stopping rule).
-#' 
+#'
 
 setClass("MVLasso",
          representation(Orientate = "numeric",
                         Exposure = "character",
                         Outcome = "character",
-                        
+
                         Estimate = "numeric",
                         StdError = "numeric",
                         CILower = "numeric",
                         CIUpper = "numeric",
-                        
+
                         Alpha = "numeric",
                         Pvalue = "numeric",
                         SNPs = "numeric",
-                        
+
                         RegEstimate = "numeric",
                         RegIntercept = "numeric",
                         Valid = "numeric",
@@ -613,21 +649,21 @@ setClass("MVLasso",
 #' @slot Valid The number of genetic variants that have been identified as valid instruments.
 #' @slot ValidSNPs The names of genetic variants that have been identified as valid instruments.
 #' @slot Lambda The value of the tuning parameter used to compute \code{RegEstimate} (default is to calulate \code{Lambda} using the heterogeneity stopping rule).
-#' 
+#'
 
 setClass("MRLasso",
          representation(Exposure = "character",
                         Outcome = "character",
-                        
+
                         Estimate = "numeric",
                         StdError = "numeric",
                         CILower = "numeric",
                         CIUpper = "numeric",
-                        
+
                         Alpha = "numeric",
                         Pvalue = "numeric",
                         SNPs = "numeric",
-                        
+
                         RegEstimate = "numeric",
                         RegIntercept = "numeric",
                         Valid = "numeric",

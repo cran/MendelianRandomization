@@ -79,6 +79,46 @@ setGeneric(name = "mr_median",
 
 #--------------------------------------------------------------------------------------------
 
+#' Debiased inverse-variance weighted method
+#'
+#' @description The \code{mr_divw} function implements the debiased inverse-variance weighted method.
+#'
+#' @param object An \code{MRInput} object.
+#' @param over.dispersion Should the method consider overdispersion (balanced horizontal pleiotropy)? Default is TRUE.
+#' @param alpha The significance level used to calculate the confidence intervals. The default value is 0.05.
+#' @param diagnostics Should the function returns the q-q plot for assumption diagnosis. Default is FALSE.
+#'
+#' @details The debiased inverse-variance weighted method (dIVW) removes the weak instrument bias of the IVW method and is more robust under many weak instruments.
+#'
+#' @return The output from the function is a \code{DIVW} object containing:
+#'
+#'  \item{Over.dispersion}{\code{TRUE} if the method has considered balanced horizontal pleiotropy, \code{FALSE} otherwise.}
+#'  \item{Exposure}{A character string giving the name given to the exposure.}
+#'  \item{Outcome}{A character string giving the name given to the outcome.}
+#'  \item{Estimate}{The value of the causal estimate.}
+#'  \item{StdError}{Standard error of the causal estimate calculated using bootstrapping.}
+#'  \item{CILower}{The lower bound for the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{CIUpper}{The upper bound for the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-value associated with the estimate (calculated using \code{Estimate/StdError} as per a Wald test) using a normal distribution.}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'  \item{Condition}{A measure (average F-statistic -1)*sqrt(# snps) that needs to be large for reliable asymptotic approximation based on the dIVW estimator. It is recommended to be greater than 20.}
+#'
+#' @examples mr_divw(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
+#'
+#' @references Ting Ye, Jun Shao, Hyunseung Kang (2021). Debiased Inverse-Variance Weighted Estimator in
+#' Two-Sample Summary-Data Mendelian Randomization. The Annals of Statistics, 49(4), 2079-2100. Also available at \url{https://arxiv.org/abs/1911.09802}.
+#'
+#' @export
+
+setGeneric(name = "mr_divw",
+           def = function(object, over.dispersion = TRUE, alpha = 0.05, diagnostics=FALSE)
+           {standardGeneric("mr_divw")})
+
+
+
+#--------------------------------------------------------------------------------------------
+
 #' Inverse-variance weighted method
 #'
 #' @description The \code{mr_ivw} function implements the inverse-variance method, informally known as the "Toby Johnson" method. With a single
@@ -148,7 +188,7 @@ setGeneric(name = "mr_median",
 
 setGeneric(name = "mr_ivw",
            def = function(object, model = "default",
-                          robust = FALSE, penalized = FALSE, weights = "simple", psi = 0, correl = FALSE, 
+                          robust = FALSE, penalized = FALSE, weights = "simple", psi = 0, correl = FALSE,
                           distribution = "normal", alpha = 0.05, ...)
            {standardGeneric("mr_ivw")})
 
@@ -157,7 +197,7 @@ setGeneric(name = "mr_ivw",
 #' MR-Egger method
 #'
 #' @description The \code{mr_egger} function implements the MR-Egger method introduced by Bowden et al (2015).
-#' 
+#'
 #' This method provides: 1) a test of the for directional pleiotropy (the MR-Egger intercept test), 2) a test for a
 #' causal effect, and 3) an estimate of the causal effect.
 #' If the intercept term differs from zero, then the genetic variants are not all valid instrumental variables and
@@ -221,7 +261,7 @@ setGeneric(name = "mr_ivw",
 #' @export
 
 setGeneric(name = "mr_egger",
-           def = function(object, 
+           def = function(object,
                           robust = FALSE, penalized = FALSE, correl = FALSE,
                           distribution = "normal", alpha = 0.05, ...)
              {standardGeneric("mr_egger")})
@@ -245,7 +285,7 @@ setGeneric(name = "mr_egger",
 #'  \item{Values}{A data.frame containing the various estimates.}
 #'  \item{Method}{The choice of methods estimated (default is \code{"all"}).}
 #'
-#' @examples mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse, 
+#' @examples mr_allmethods(mr_input(bx = ldlc, bxse = ldlcse,
 #'   by = chdlodds, byse = chdloddsse), method="main", iterations = 100)
 #'   # iterations is set to 100 to reduce runtime for the mr_median method,
 #'   # at least 10000 iterations are recommended in practice
@@ -297,7 +337,7 @@ setGeneric(name = "mr_plot",
 #' Maximum-likelihood method
 #'
 #' @description The \code{mr_maxlik} function implements the maximum-likelihood method introduced by Burgess et al (2013).
-#' 
+#'
 #' @param object An \code{MRInput} object.
 #' @param model What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The method naturally estimates a fixed-effect model, assuming that the same causal effect is estimated by each of the genetic variants. However, if there is heterogeneity in the causal estimates of the different variants, then confidence intervals under a fixed-effect model will be overly narrow. The random-effects model adds additional uncertainty by multiplying the standard error by the square-root of the likelihood ratio heterogeneity statistic divided by the number of genetic variants less one (unless this quantity is less than 1, in which case no modification to the standard error is made). This parallels the residual standard error in a regression model (the Cochran Q heterogeneity test statistic is equal to the square of the RSE multiplied by the number of genetic variants less one). The default setting (\code{"default"}) is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.
 #' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1).
@@ -345,7 +385,7 @@ setGeneric(name = "mr_plot",
 #' @export
 
 setGeneric(name = "mr_maxlik",
-           def = function(object, model = "default", 
+           def = function(object, model = "default",
                           correl = FALSE, psi = 0,
                           distribution = "normal", alpha = 0.05, ...)
              {standardGeneric("mr_maxlik")})
@@ -400,7 +440,7 @@ setGeneric(name = "mr_maxlik",
 
 setGeneric(name = "mr_mvivw",
            def = function(object, model = "default", robust=FALSE,
-                          correl = FALSE, 
+                          correl = FALSE,
                           distribution = "normal", alpha = 0.05, ...)
            {standardGeneric("mr_mvivw")})
 
@@ -456,7 +496,7 @@ setGeneric(name = "mr_mvivw",
 
 setGeneric(name = "mr_mvegger",
            def = function(object, orientate = 1,
-                          correl = FALSE, 
+                          correl = FALSE,
                           distribution = "normal", alpha = 0.05)
            {standardGeneric("mr_mvegger")})
 
@@ -466,7 +506,7 @@ setGeneric(name = "mr_mvegger",
 #' Mode-based method of Hartwig
 #'
 #' @description The \code{mr_mbe} function implements the mode-based method introduced by Hartwig, Bowden and Davey Smith (2017).
-#' 
+#'
 #' @param object An \code{MRInput} object.
 #' @param weighting Whether the analysis should be \code{"weighted"} (the default option) or \code{"unweighted"}.
 #' @param stderror Whether standard error estimates should be i) \code{"simple"} - calculated as the first-order term from the delta expansion - standard error of the association with the outcome divided by the association with the exposure), or ii) \code{"delta"} - calculated as the second-order term from the delta expansion (the default option). The second-order term incorporates uncertainty in the genetic association with the exposure -- this uncertainty is ignored using the simple weighting. The \code{"simple"} option is referred to by Hartwig et al as "assuming NOME", and the \code{"delta"} option as "not assuming NOME".
@@ -517,7 +557,7 @@ setGeneric(name = "mr_mbe",
 #' Heterogeneity-penalized method
 #'
 #' @description Heterogeneity-penalized model-averaging method for efficient modal-based estimation.
-#' 
+#'
 #' @param object An \code{MRInput} object.
 #' @param prior The prior probability of a genetic variant being a valid instrument (default is 0.5).
 #' @param CIMin The smallest value to use in the search to find the confidence interval (default is -1).
@@ -566,7 +606,7 @@ setGeneric(name = "mr_hetpen",
 #' Contamination mixture method
 #'
 #' @description Contamination mixture method for robust and efficient estimation under the 'plurality valid' assumption.
-#' 
+#'
 #' @param object An \code{MRInput} object.
 #' @param psi The value of the standard deviation of the distribution of invalid estimands (default value is 0, corresponding to 1.5 times the standard deviation of the ratio estimates).
 #' @param CIMin The smallest value to use in the search to find the confidence interval. The default value is NA, which means that the method uses the smallest value of the lower bound of the 95\% confidence interval for the variant-specific ratio estimates as the smallest value.
@@ -645,7 +685,7 @@ setGeneric(name = "mr_conmix",
 #' @export
 
 setGeneric(name = "mr_mvmedian",
-            def = function(object, 
+            def = function(object,
                            distribution = "normal", alpha = 0.05, iterations = 10000, seed = 314159265)
             {standardGeneric("mr_mvmedian")})
 
@@ -733,12 +773,12 @@ setGeneric(name = "mr_funnel",
 #' @details Multivariable MR-Lasso extends the multivariable IVW model to include an intercept term for each genetic variant. These intercept terms represent associations between the
 #' genetic variants and the outcome which bypass the risk factors. The regularized regression model is estimated by multivariable weighted linear regression where the intercept terms are subject
 #' to lasso-type penalization. The lasso penalization will tend to shrink the intercept terms corresponding to the valid instruments to zero.
-#' 
+#'
 #' The lasso penalty relies on a tuning parameter which controls the level of sparsity. The default is to use a heterogeneity stopping rule, but a fixed value may be specified.
 #'
 #' As part of the analysis, the genetic variants are orientated so that all of the associations with one of the risk factors are positive (the first risk factor is used by default). Re-orientation
 #' of the genetic variants is performed automatically as part of the function.
-#' 
+#'
 #' The MR-Lasso method is performed in two steps. First, a regularized regression model is fitted, and some genetic variants are identified as valid instruments. Second, causal effects are estimated using standard multivariable IVW with only the valid genetic variants.
 #' The post-lasso method will be performed as long as the number of genetic variants identified as valid instruments is greater than the number of risk factors.
 #' The default heterogeneity stopping rule will always return more genetic variants as valid instruments than risk factors for identification.
@@ -762,17 +802,17 @@ setGeneric(name = "mr_funnel",
 #'  \item{Valid}{The number of genetic variants that have been identified as valid instruments.}
 #'  \item{ValidSNPs}{The names of genetic variants that have been identified as valid instruments.}
 #'  \item{Lambda}{The value of the tuning parameter used to compute \code{RegEstimate}.}
-#'  
+#'
 #'
 #' @examples mr_mvlasso(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
 #'    by = chdlodds, byse = chdloddsse))
-#'    
+#'
 #' @references Andrew J Grant, Stephen Burgess. Pleiotropy robust methods for multivariable Mendelian randomization. arXiv 2020; 2008.11997
 #'
 #' @export
 
 setGeneric(name = "mr_mvlasso",
-           def = function(object, 
+           def = function(object,
                           orientate = 1, distribution = "normal", alpha = 0.05, lambda = numeric(0))
            {standardGeneric("mr_mvlasso")})
 
@@ -791,12 +831,12 @@ setGeneric(name = "mr_mvlasso",
 #' @details MR-Lasso extends the IVW model to include an intercept term for each genetic variant. These intercept terms represent associations between the
 #' genetic variants and the outcome which bypass the risk factor. The causal effect estimates are estimated by weighted linear regression where the intercept terms are subject
 #' to lasso-type penalization. The lasso penalization will tend to shrink the intercept terms corresponding to the valid instruments to zero.
-#' 
+#'
 #' The lasso penalty relies on a tuning parameter which controls the level of sparsity. The default is to use a heterogeneity stopping rule, but a fixed value may be specified.
-#' 
+#'
 #' As part of the analysis, the genetic variants are orientated so that all of the associations with the risk factor are positive (and signs of associations with the outcome are
 #' changed to keep the orientation consistent if required). Re-orientation of the genetic variants is performed automatically as part of the function.
-#' 
+#'
 #' The MR-Lasso method is performed in two steps. First, a regularized regression model is fitted, and some genetic variants are identified as valid instruments. Second, the causal effect is estimated using standard IVW with only the valid genetic variants.
 #' The post-lasso method will be performed as long as at least two genetic variants are identified as valid instruments. The default heterogeneity stopping rule will always return at least two
 #' genetic variants as valid instruments.
@@ -820,10 +860,10 @@ setGeneric(name = "mr_mvlasso",
 #'  \item{Valid}{The number of genetic variants that have been identified as valid instruments.}
 #'  \item{ValidSNPs}{The names of genetic variants that have been identified as valid instruments.}
 #'  \item{Lambda}{The value of the tuning parameter used to compute \code{RegEstimate}}
-#'  
+#'
 #'
 #' @examples mr_lasso(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
-#' 
+#'
 #' @references Jessica MB Rees, Angela M Wood, Frank Dudbridge, Stephen Burgess. Robust methods in Mendelian randomization via penalization of heterogeneous causal estimates. PLoS ONE 2019; 14(9):e0222362
 #'
 #' @export
