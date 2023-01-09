@@ -670,3 +670,42 @@ setClass("MRLasso",
                         ValidSNPs = "character",
                         Lambda = "numeric")
 )
+
+#--------------------------------------------------------------------------------------------
+
+#' MRcML Class
+#'
+#' @description An object containing the results of MRcML.
+#'
+#' @slot Exposure The names of the exposure variables.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Estimate Estimate of theta.
+#' @slot StdError Standard error of estimate.
+#' @slot Pvalue p-value of estimate.
+#' @slot BIC_invalid Set of selected invalid IVs if cML-BIC is performed, i.e. without MA or DP.
+#' @slot GOF1_p p-value of the first goodness-of-fit test.
+#' @slot GOF2_p p-value of the second goodness-of-fit test.
+#' @slot SNPs The number of SNPs that were used in the calculation.
+#' @slot Alpha Significance level for the confidence interval for estimate, default is 0.05.
+#' @slot CILower Lower bound of the confidence interval for estimate.
+#' @slot CIUpper Upper bound of the confidence interval for estimate.
+#' @slot MA Indicator of whether model average is applied.
+#' @slot DP Indicator of whether data perturbation is applied.
+
+
+setClass("MRcML",
+         representation(Exposure = "character",
+                        Outcome  = "character",
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        Pvalue = "numeric",
+                        BIC_invalid = "numeric",
+                        GOF1_p = "numeric",
+                        GOF2_p = "numeric",
+                        SNPs = "numeric",
+                        Alpha = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        MA = "logical",
+                        DP = "logical")
+)

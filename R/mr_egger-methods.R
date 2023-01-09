@@ -94,9 +94,9 @@ setMethod("mr_egger",
                 rse <- By - thetaInter - thetaE*Bx
                   rse.corr = as.numeric(sqrt(t(rse)%*%solve(omega)%*%rse/(nsnps-2)))
 
-                  sigma <- solve(t(cbind(rep(1, nsnps), Bx))%*%solve(omega)%*%cbind(rep(1, nsnps), Bx))*max(sqrt(t(rse)%*%solve(omega)%*%rse/(nsnps-2)),1)
-                  thetaEse <- sqrt(sigma[2,2])/min(1, rse.corr)
-                  thetaInterse <- sqrt(sigma[1,1])/min(1, rse.corr)
+                  sigma <- solve(t(cbind(rep(1, nsnps), Bx))%*%solve(omega)%*%cbind(rep(1, nsnps), Bx))
+                  thetaEse <- sqrt(sigma[2,2])*max(1, rse.corr)
+                  thetaInterse <- sqrt(sigma[1,1])*max(1, rse.corr)
 
 
 

@@ -552,3 +552,47 @@ setMethod("show",
             
           }
 )
+
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
+          "MRcML",
+          function(object){
+            
+            if(object@MA)
+            {
+              if(object@DP)
+              {
+                Method = "cML-MA-BIC-DP"
+              } else{Method = "cML-MA-BIC"}
+            } else{
+              if(object@DP)
+              {
+                Method = "cML-BIC-DP"
+              } else{Method = "cML-BIC"}
+            }
+            
+            Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+            
+            output.table = 
+              data.frame(Method = Method,
+                         Estimate = decimals(object@Estimate,3),
+                         SE = decimals(object@StdError,3),
+                         Pvalue = decimals(object@Pvalue,3),
+                         CI = paste("[",decimals(object@CILower,3),
+                                    ",",decimals(object@CIUpper,3),"]",sep="")
+                         )
+            colnames(output.table)[5] = Interval_type
+
+            
+            cat("\nConstrained maximum likelihood method (MRcML) \n")
+            cat("Number of Variants: ", object@SNPs, "\n")
+            cat("Results for: ",output.table$Method, "\n")
+            
+            cat("------------------------------------------------------------------\n")
+            print(output.table, quote = F, row.names = FALSE, justify = "left")
+            cat("------------------------------------------------------------------\n")
+          }
+)
+
+

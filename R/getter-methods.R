@@ -88,3 +88,8 @@ setMethod("$",
 setMethod("$",
           "DIVW",
           function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MRcML",
+          function(x, name) slot(x, name))

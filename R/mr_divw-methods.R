@@ -17,7 +17,7 @@ setMethod("mr_divw",
             mu<-Bx/Bxse
             condition<-(mean(mu^2)-1)*sqrt(length(Bx))
             tau.square<-ifelse(over.dispersion==FALSE,0,
-                               sum(((By-beta_dIVW*Bx)^2-Byse^2-beta_dIVW^2*Bxse^2)/Byse^2)/sum(Byse^(-2)))
+                               max(0,sum(((By-beta_dIVW*Bx)^2-Byse^2-beta_dIVW^2*Bxse^2)/Byse^2)/sum(Byse^(-2))))
             V1<-sum((SE.ratio^2*mu^2+beta_dIVW^2*SE.ratio^4*(mu^2+1)+tau.square*SE.ratio^2/Byse^2*mu^2))
             V2<-sum((SE.ratio^2*(mu^2-1)))
             se_dIVW<-sqrt(V1/V2^2)

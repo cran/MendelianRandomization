@@ -871,3 +871,100 @@ setGeneric(name = "mr_mvlasso",
 setGeneric(name = "mr_lasso",
            def = function(object, distribution = "normal", alpha = 0.05, lambda = numeric(0))
            {standardGeneric("mr_lasso")})
+
+#--------------------------------------------------------------------------------------------
+
+#' Constrained maximum likelihood (cML) method
+#'
+#' @description Constrained maximum likelihood (cML) based Mendelian
+#' Randomization method robust to both 
+#' correlated and uncorrelated pleiotropy.
+#'
+#' @param object An \code{MRInput} object.
+#' @param MA Whether model average is applied or not. Default is TRUE.
+#' @param DP Whether data perturbation is applied or not. Default is TRUE. 
+#' @param K_vec Set of candidate K's, the constraint parameter 
+#' representing number of invalid IVs. Default is from 0 to (#IV - 2).
+#' @param random_start Number of random starting points for cML, default is 0.
+#' @param num_pert Number of perturbation when DP is TRUE, default is 200. 
+#' @param random_start_pert Number of random start points for 
+#' cML with data perturbation, default is 0.
+#' @param maxit Maximum number of iterations for each optimization. 
+#' Default is 100.
+#' @param random_seed Random seed, default is 314. When \code{random_seed=NULL}, no random seed 
+#' will be used and the results may not be reproducible.
+#' @param n Sample size. When sample sizes of GWAS for exposure and outcome are different,
+#' and/or when sample sizes of different SNPs are different, 
+#' the smallest sample size is recommended to get conservative result and avoid type-I error.
+#' See reference for more discussions.
+#' @param Alpha Significance level for the confidence interval for estimate, default is 0.05.
+#'
+#' @details The MRcML method selects invalid IVs with correlated
+#' and/or uncorrelated peliotropic effects using constrained maximum
+#' likelihood. \code{cML-BIC} gives results of the selected model with 
+#' original data, while \code{cML-MA-BIC} averages over all candidate models.
+#' \code{cML-BIC-DP} and \code{cML-MA-BIC-DP} are the versions with 
+#' data-perturbation to account for selection uncertainty when 
+#' many invalid IVs have weak pleiotropic effects. 
+#' 
+#' When DP is performed,
+#' two goodness-of-fit (GOF) tests are developed to check whether the 
+#' model-based and DP- based variance estimates converge to the same estimate.
+#' Small p-values of GOF tests indicate selection uncertainty is not ignorable, and 
+#' results from DP is more reliable. See reference for more details.
+#'
+#' As the constrained maximum likelihood function is non-convex, multiple
+#' random starting points could be used to find a global minimum. For some 
+#' starting points the algorithm may not converge and a warning message will 
+#' be prompted, typically this will not affect the results.
+#' 
+#'
+#' @return The output from the function is an \code{MRcML} object containing:
+#'
+#'  \item{Exposure}{A character string giving the name given to the exposure.}
+#'  \item{Outcome}{A character string giving the name given to the outcome.}
+#'  \item{Estimate}{Estimate of theta.}
+#'  \item{StdError}{Standard error of estimate.}
+#'  \item{Pvalue}{p-value of estimate.}
+#'  \item{BIC_invalid}{Set of selected invalid IVs if cML-BIC is performed, i.e. without MA or DP.}
+#'  \item{GOF1_p}{p-value of the first goodness-of-fit test.}
+#'  \item{GOF2_p}{p-value of the second goodness-of-fit test.}
+#'  \item{SNPs}{The number of SNPs that were used in the calculation.}
+#'  \item{Alpha}{Significance level for the confidence interval for estimate, default is 0.05.}
+#'  \item{CILower}{Lower bound of the confidence interval for estimate.}
+#'  \item{CIUpper}{Upper bound of the confidence interval for estimate.}
+#'  \item{MA}{Indicator of whether model average is applied.}
+#'  \item{DP}{Indicator of whether data perturbation is applied.}
+#'  
+#'  
+#' @examples # Perform cML-MA-BIC-DP:
+#' mr_cML(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds,
+#' byse = chdloddsse), num_pert=5, MA = TRUE, DP = TRUE, n = 17723)
+#' # num_pert is set to 5 to reduce computational time
+#' # the default value of 200 is recommended in practice
+#' 
+#' # Perform cML-BIC-DP:
+#' mr_cML(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds,
+#' byse = chdloddsse), MA = TRUE, DP = FALSE,, n = 17723)
+#'    
+#'
+#' @references Xue, H., Shen, X., & Pan, W. (2021). 
+#' Constrained maximum likelihood-based Mendelian randomization 
+#' robust to both correlated and uncorrelated pleiotropic effects. 
+#' The American Journal of Human Genetics, 108(7), 1251-1269.
+#'
+#' @export
+
+setGeneric(name = "mr_cML",
+           def = function(object, 
+                          MA=TRUE, DP=TRUE,
+                          K_vec = 0:(length(object@betaX) - 2),
+                          random_start = 0,
+                          num_pert = 200,
+                          random_start_pert = 0,
+                          maxit = 100,
+                          random_seed = 314,
+                          n,
+                          Alpha = 0.05)
+           {standardGeneric("mr_cML")})
+

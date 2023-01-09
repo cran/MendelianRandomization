@@ -1,3 +1,7 @@
+MendelianRandomization v0.7.0
+=============================
+Added constrained maximum likelihood method (mr_cMR) - thanks to Haoran Xue for coding!
+
 MendelianRandomization v0.6.0
 =============================
 Added debiased IVW method (mr_divw) - thanks to Ting Ye for coding!
