@@ -93,3 +93,14 @@ setMethod("$",
 setMethod("$",
           "MRcML",
           function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "PIVW",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "MVMRcML",
+          function(x, name) slot(x, name))
+

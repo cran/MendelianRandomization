@@ -20,6 +20,8 @@
 \alias{$,MRLasso-method}
 \alias{$,DIVW-method}
 \alias{$,MRcML-method}
+\alias{$,PIVW-method}
+\alias{$,MVMRcML-method}
 \title{Applies method $ to different classes}
 \usage{
 \S4method{$}{WeightedMedian}(x, name)
@@ -55,6 +57,10 @@
 \S4method{$}{DIVW}(x, name)
 
 \S4method{$}{MRcML}(x, name)
+
+\S4method{$}{PIVW}(x, name)
+
+\S4method{$}{MVMRcML}(x, name)
 }
 \arguments{
 \item{x}{Object.}

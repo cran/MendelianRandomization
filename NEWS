@@ -1,21 +1,15 @@
+MendelianRandomization v0.8.0
+=============================
+Added multivariable constrained maximum likelihood method (mr_mvcML) - thanks to Zhaotong Lin for coding!
+Added penalized IVW method (mr_pivw) - thanks to Siqi Xu for coding!
+
 MendelianRandomization v0.7.0
 =============================
-Added constrained maximum likelihood method (mr_cMR) - thanks to Haoran Xue for coding!
+Added constrained maximum likelihood method (mr_cML) - thanks to Haoran Xue for coding!
 
 MendelianRandomization v0.6.0
 =============================
 Added debiased IVW method (mr_divw) - thanks to Ting Ye for coding!
-
-MendelianRandomization v0.5.0
-=============================
-Added multivariable median-based method (mr_mvmedian)
-Added MR-Lasso method (mr_lasso)
-Added multivariable MR-Lasso method (mr_mvlasso)
-Added robust option to multivariable IVW method (mr_mvivw)
-Added forest plot function (mr_forest)
-Added leave-one-out function (mr_loo)
-Added funnel plot function (mr_funnel)
-Added functionality for the mr_plot function to be applied to a MRMVInput object
 
 MendelianRandomization v0.5.0
 =============================

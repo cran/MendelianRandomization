@@ -642,7 +642,7 @@ setGeneric(name = "mr_hetpen",
 #' @examples mr_conmix(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds,
 #'    byse = chdloddsse), psi = 3, CIMin = -1, CIMax = 5, CIStep = 0.01)
 #'
-#' @references Stephen Burgess, Christopher N Foley, Elias Allara, Joanna Howson. A robust and efficient method for Mendelian randomization with hundreds of genetic variants: unravelling mechanisms linking HDL-cholesterol and coronary heart disease. bioRxiv 2019. doi: [to add].
+#' @references Stephen Burgess, Christopher N Foley, Elias Allara, Joanna Howson. A robust and efficient method for Mendelian randomization with hundreds of genetic variants: unravelling mechanisms linking HDL-cholesterol and coronary heart disease. Nat Comms 2020. doi: 10.1038/s41467-019-14156-4.
 #'
 #' @export
 
@@ -967,4 +967,148 @@ setGeneric(name = "mr_cML",
                           n,
                           Alpha = 0.05)
            {standardGeneric("mr_cML")})
+
+
+#--------------------------------------------------------------------------------------------
+
+#' Penalized inverse-variance weighted method
+#'
+#' @description The \code{mr_pivw} function implements the penalized inverse-variance weighted (pIVW) method.
+#'
+#' @param object An \code{MRInput} object.
+#' @param lambda The penalty parameter in the pIVW estimator. It plays a role in the bias-variance trade-off of the estimator. It is recommended to choose \code{lambda=1} to achieve the smallest bias and valid inference. By default, \code{lambda=1}.
+#' @param over.dispersion Should the method consider overdispersion (balanced horizontal pleiotropy)? Default is TRUE.
+#' @param delta The z-score threshold for IV selection. \code{delta} should be greater than or equal to zero. By default, \code{delta=0} (i.e., no IV selection will be conducted).  See 'Details'.
+#' @param sel.pval A numeric vector containing the P-values of the SNP effects on the exposure, which will be used for the IV selection. \code{sel.pval} should be provided when \code{delta} is not zero. See 'Details'.
+#' @param Boot.Fieller If \code{Boot.Fieller=TRUE}, then the P-value and the confidence interval of the causal effect will be calculated based on the bootstrapping Fieller method. Otherwise, the P-value and the confidence interval of the causal effect will be calculated from the normal distribution. It is recommended to use the bootstrapping Fieller method when \code{Condition} is smaller than 10 (see 'Details'). By default, \code{Boot.Fieller=TRUE}.
+#' @param alpha The significance level used to calculate the confidence intervals. The default value is 0.05.
+#'
+#' @details The penalized inverse-variance weighted (pIVW) estimator accounts for weak instruments and balanced horizontal pleiotropy simultaneously
+#' in two-sample MR with summary statistics, i.e., an exposure sample (with IV-exposure effect \code{Bx} and standard error \code{Bxse}) and
+#' an outcome sample (with IV-outcome effect \code{By} and standard error \code{Byse}).
+#'
+#' The pIVW estimator also allows for IV selection in three-sample MR, where weak IVs are screened out using
+#' an extra sample (with IV-exposure effect \code{Bx*} and standard error \code{Bxse*}) independent of the exposure sample and outcome sample.
+#' Generally, the P-value for \code{Bx*} can be computed by \code{sel.pval=2*pnorm(abs(Bx*/Bxse*), lower.tail = FALSE)},
+#' Given \code{sel.pval} and a z-score threshold \code{delta}, the variants kept in the analysis will be those
+#' with \code{sel.pval<2*pnorm(delta,lower.tail = FALSE)}.
+#'
+#' The \code{mr_pivw} function outputs a measure \code{Condition} that needs to be large for reliable asymptotic properties of the pIVW estimator.
+#' We also refer to \code{Condition} as effective sample size, which is a function of a measure of IV strength and the number of IVs.
+#' When \code{delta} is zero (i.e., no IV selection), \code{Condition = (average F-statistic -1)*sqrt(# snps)}. When \code{delta} is not zero
+#' (i.e., IV selection is conducted), \code{Condition = [(average F-statistic -1)*sqrt(# snps)]/c},
+#' where the numerator is computed using the selected variants, and the denominator \code{c} involves the selection probabilities
+#' of all variants (see more details in the paper \url{https://onlinelibrary.wiley.com/doi/10.1111/biom.13732}). We suggest that \code{Condition} should be greater than 5 for the pIVW estimator to achieve reliable asymptotic properties.
+#'
+#'
+#' @return The output from the function is a \code{PIVW} object containing:
+#'
+#'  \item{Over.dispersion}{\code{TRUE} if the method has considered balanced horizontal pleiotropy, \code{FALSE} otherwise.}
+#'  \item{Boot.Fieller}{\code{TRUE} if the bootstrapping Fieller method is used to calculate the P-value and the confidence interval of the causal effect, \code{FALSE} otherwise.}
+#'  \item{Lambda}{The penalty parameter in the pIVW estimator.}
+#'  \item{Delta}{The z-score threshold for IV selection.}
+#'  \item{Exposure}{A character string giving the name given to the exposure.}
+#'  \item{Outcome}{A character string giving the name given to the outcome.}
+#'  \item{Estimate}{The causal point estimate from the pIVW estimator.}
+#'  \item{StdError}{The standard error associated with \code{Estimate}.}
+#'  \item{CILower}{The lower bound of the confidence interval for \code{Estimate}, which is derived from the bootstrapping Fieller method or normal distribution. For the bootstrapping Fieller's interval, if it contains multiple ranges, then lower limits of all ranges will be reported.}
+#'  \item{CIUpper}{The upper bound of the confidence interval for \code{Estimate}, which is derived from the bootstrapping Fieller method or normal distribution. For the bootstrapping Fieller's interval, if it contains multiple ranges, then upper limits of all ranges will be reported.}
+#'  \item{Alpha}{The significance level used in constructing the confidence interval.}
+#'  \item{Pvalue}{P-value associated with the causal estimate from the pIVW estimator, which is derived from the bootstrapping Fieller method or normal distribution.}
+#'  \item{Tau2}{The variance of the balanced horizontal pleiotropy. \code{Tau2} is calculated by using all IVs in the data before conducting the IV selection.}
+#'  \item{SNPs}{The number of SNPs after IV selection.}
+#'  \item{Condition}{The estimated effective sample size. It is recommended to be greater than 5 for the pIVW estimator to achieve reliable asymptotic properties. See 'Details'.}
+#'
+#' @examples mr_pivw(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
+#'
+#' @references Xu S., Wang P., Fung W.K. and Liu Z. (2022). A Novel Penalized Inverse-Variance Weighted Estimator for Mendelian Randomization with Applications to COVID-19 Outcomes. Biometrics. doi: 10.1111/biom.13732.
+#'
+#' @export
+
+setGeneric(name = "mr_pivw",
+           def = function(object, lambda=1, over.dispersion=TRUE, delta=0, sel.pval=NULL, Boot.Fieller=TRUE, alpha=0.05)
+           {standardGeneric("mr_pivw")})
+
+
+#--------------------------------------------------------------------------------------------
+
+#' Multivariable constrained maximum likelihood method
+#'
+#' @description The \code{mr_mvcML} function performs multivariable Mendelian randomization via the constrained maximum likelihood method, which is robust to both correlated and uncorrelated pleiotropy.
+#'
+#' @param object An \code{MRMVInput} object.
+#' @param n Sample size. The smallest sample size among all (both exposures and outcome) GWAS used in the analysis is recommended.
+#' @param DP Whether data perturbation is applied or not. Default is TRUE. 
+#' @param rho_mat  The correlation matrix among the exposures and outcome GWAS estimates, which can be estimated by the intercept term from bivariate LDSC. See reference for more discussions. Default is the identify matrix, for example, in the absence of overlapping samples among GWAS datasets.
+#' @param K_vec Set of candidate K's, the constraint parameter 
+#' representing number of invalid IVs. It can range from 0 up to #IV - (#exposure + 1). Default is from 0 to (#IV/2).
+#' @param random_start Number of random starting points for MVMRcML, default is 0.
+#' @param num_pert Number of perturbation when DP is TRUE, default is 200. 
+#' @param min_theta_range The lower bound of the uniform distribution for each initial value for theta generated from, default is -0.5. 
+#' @param max_theta_range The uppder bound of the uniform distribution for each initial value for theta generated from, default is 0.5. 
+#' @param maxit Maximum number of iterations for each optimization. Default is 100.
+#' @param alpha Significance level for the confidence interval for estimate, default is 0.05.
+#' @param seed The random seed to use when generating the perturbed samples (for reproducibility). The default value is 314159265. If set to \code{NA}, the random seed will not be set (for example, if the function is used as part of a larger simulation).
+#'
+#' @details Multivariable MRcML (MVMRcML) is an extension of MRcML to deal with multiple exposures of interest. It is robust to both correlated and uncorrelated pleiotropy as its univariable version.
+#'
+#' In practice, the data perturbation (DP) version is preferred in practice for a more robust inference as it can account for the uncertainty in model selection.
+#' However, it may take a longer time especially when the number of IVs is large (so the range of \code{K_vec} can be large too).
+#' One strategy is to try a small range of K (the number of invalid IVs) first (with a small \code{num_pert}), 
+#' then adjust it if the number of selected invalid IVs fall close to the boundary.
+#' You can also use other methods, e.g. \code{mr_mvlasso}, to get a rough sense of the number of invalid IVs.
+#'
+#' Similar to \code{mr_cML}, multiple random starting points could be used to find a global minimum.
+#'
+#' @return The output from the function is an \code{MVMRcML} object containing:
+#'
+#'  \item{Exposure}{A character vector with the names given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Estimate}{A vector of causal estimates.}
+#'  \item{StdError}{A vector of standard errors of the causal estimates.}
+#'  \item{CILower}{The lower bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{CIUpper}{The upper bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-values associated with the estimates (calculated as Estimate/StdError as per Wald test) using a normal distribution.}
+#'  \item{BIC_invalid}{Set of selected invalid IVs by MVMRcML-BIC.}
+#'  \item{K_hat}{The number of selected invalid IVs by MVMRcML-BIC, or a vector for each data perturbation in MVMRcML-DP.}
+#'  \item{eff_DP_B}{The number of data perturbations with successful convergence in MVMRcML-DP.}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'
+#'
+#' @examples 
+#' # Perform MVMRcML-DP:
+#' mr_mvcML(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse), n = 17723, num_pert = 5, random_start = 5)
+#'   # num_pert is set to 5 to reduce runtime for the mr_mvcML method,
+#'   # At least 100 perturbations should be used and more is preferred for a stable result.
+#' 
+#' rho_mat = matrix(c(1,-0.1,0.2,0,-0.1,1,-0.3,0,
+#'  				  0.2,-0.3,1,0,0,0,0,1),ncol=4) ## Toy example of rho_mat
+#' mr_mvcML(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse), n = 17723, num_pert = 100, rho_mat = rho_mat)
+#'
+#' # Perform MVMRcML-BIC:
+#' mr_mvcML(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse), n = 17723, DP = FALSE)
+#'
+#' @references Lin, Z., Xue, H., & Pan, W. (2023). Robust multivariable Mendelian randomization based on constrained maximum likelihood. The American Journal of Human Genetics, 110(4), 592-605.
+#'
+#' @export
+
+setGeneric(name = "mr_mvcML",
+           def = function(object,
+                   n,
+                   DP = TRUE,
+                   rho_mat = diag(ncol(object@betaX)+1),
+                   K_vec = 0:(ceiling(nrow(object@betaX)/2)),
+                   random_start = 0,
+                   num_pert = 100,
+                   min_theta_range = -0.5,
+                   max_theta_range = 0.5,
+                   maxit = 100,
+                   alpha = 0.05, 
+                   seed = 314159265)
+           {standardGeneric("mr_mvcML")})
+
 

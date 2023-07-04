@@ -58,5 +58,5 @@ mr_conmix(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds,
 
 }
 \references{
-Stephen Burgess, Christopher N Foley, Elias Allara, Joanna Howson. A robust and efficient method for Mendelian randomization with hundreds of genetic variants: unravelling mechanisms linking HDL-cholesterol and coronary heart disease. bioRxiv 2019. doi: [to add].
+Stephen Burgess, Christopher N Foley, Elias Allara, Joanna Howson. A robust and efficient method for Mendelian randomization with hundreds of genetic variants: unravelling mechanisms linking HDL-cholesterol and coronary heart disease. Nat Comms 2020. doi: 10.1038/s41467-019-14156-4.
 }
