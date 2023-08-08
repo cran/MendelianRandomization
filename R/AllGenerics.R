@@ -165,6 +165,7 @@ setGeneric(name = "mr_divw",
 #'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
 #'  \item{RSE}{The estimated residual standard error from the regression model.}
 #'  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+#' \item{Fstat}{An approximation of the first-stage F statistic for all variants based on the summarized data.}
 #'
 #' @examples mr_ivw(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))
 #' mr_ivw(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
@@ -400,6 +401,8 @@ setGeneric(name = "mr_maxlik",
 #' @param model What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The random-effects model (\code{"random"}) is a multiplicative random-effects model, allowing overdispersion in the weighted linear regression (the residual standard error is not fixed to be 1, but is not allowed to take values below 1). The fixed-effect model (\code{"fixed"}) sets the residual standard error to be 1. The \code{"default"} setting is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.
 #' @param robust Indicates whether robust regression using the \code{lmrob()} function from the package \code{robustbase} should be used in the method rather than standard linear regression (\code{lm}).
 #' @param correl If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRMVInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRMVInput} object, then \code{correl} is set to \code{TRUE}.
+#' @param correl.x Correlation matrix for exposures (Optional). Default is to assume the exposures are uncorrelated. This is only used in the computation of conditional F-statistics.
+#' @param nx Either a single value, or a vector of sample sizes for the genetic associations with the exposures (one for each exposure, and assumed equal for all variants). If a single value is provided, it is assumed this is the sample size for all exposures. This is optional, and it is only used in the calculation of conditional F statistics. If not supplied, then conditional F statistics are not reported. 
 #' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
 #' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
 #' @param ... Additional arguments to be passed to the regression method.
@@ -426,6 +429,7 @@ setGeneric(name = "mr_maxlik",
 #'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
 #'  \item{RSE}{The estimated residual standard error from the regression model.}
 #'  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+#'  \item{CondFstat}{Conditional F statistics: An approximation of the first-stage conditional F statistics for all variants based on the summarized data. This represents the instrument strength for each exposure conditional on other exposures in the model. This is only reported if the sample sizes for the genetic associations with the exposures are provided.}
 #'
 #' @examples mr_mvivw(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
 #'    by = chdlodds, byse = chdloddsse))
@@ -436,11 +440,14 @@ setGeneric(name = "mr_maxlik",
 #'
 #' Use for mediation analysis: Stephen Burgess, Deborah J Thompson, Jessica MB Rees, Felix R Day, John R Perry, Ken K Ong. Dissecting causal pathways using Mendelian randomization with summarized genetic data: Application to age at menarche and risk of breast cancer. Genetics 2017; 207(2):481-487. doi: 10.1534/genetics.117.300191.
 #'
+#' Calculation of conditional F statistics: Ashish Patel, Dipender Gill, Dmitry Shungin, Christos Mantzoros, Lotte Bjerre Knudsen, Jack Bowden, Stephen Burgess. Robust use of phenotypic heterogeneity at drug target genes for mechanistic insights: application of multivariable Mendelian randomization to \emph{GLP1R} gene region. Pre-print. 
+#'
 #' @export
 
 setGeneric(name = "mr_mvivw",
-           def = function(object, model = "default", robust=FALSE,
-                          correl = FALSE,
+           def = function(object, model = "default",
+                          robust = FALSE, correl = FALSE,
+                          correl.x = NULL, nx = NA,
                           distribution = "normal", alpha = 0.05, ...)
            {standardGeneric("mr_mvivw")})
 
@@ -490,7 +497,7 @@ setGeneric(name = "mr_mvivw",
 #' @examples mr_mvegger(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
 #'    by = chdlodds, byse = chdloddsse), orientate = 1)
 #'
-#' @references Jessica Rees, Angela Wood, Stephen Burgess. Extending the MR?Egger method for multivariable Mendelian randomization to correct for both measured and unmeasured pleiotropy. Statistics in Medicine 2017; 36(29): 4705-4718. doi: 10.1002/sim.7492.
+#' @references Jessica Rees, Angela Wood, Stephen Burgess. Extending the MR-Egger method for multivariable Mendelian randomization to correct for both measured and unmeasured pleiotropy. Statistics in Medicine 2017; 36(29): 4705-4718. doi: 10.1002/sim.7492.
 #'
 #' @export
 
@@ -998,7 +1005,7 @@ setGeneric(name = "mr_cML",
 #' When \code{delta} is zero (i.e., no IV selection), \code{Condition = (average F-statistic -1)*sqrt(# snps)}. When \code{delta} is not zero
 #' (i.e., IV selection is conducted), \code{Condition = [(average F-statistic -1)*sqrt(# snps)]/c},
 #' where the numerator is computed using the selected variants, and the denominator \code{c} involves the selection probabilities
-#' of all variants (see more details in the paper \url{https://onlinelibrary.wiley.com/doi/10.1111/biom.13732}). We suggest that \code{Condition} should be greater than 5 for the pIVW estimator to achieve reliable asymptotic properties.
+#' of all variants (see more details in the paper). We suggest that \code{Condition} should be greater than 5 for the pIVW estimator to achieve reliable asymptotic properties.
 #'
 #'
 #' @return The output from the function is a \code{PIVW} object containing:
@@ -1111,4 +1118,151 @@ setGeneric(name = "mr_mvcML",
                    seed = 314159265)
            {standardGeneric("mr_mvcML")})
 
+#--------------------------------------------------------------------------------------------
 
+#' Univariable principal components generalized method of moments (PC-GMM) method
+#'
+#' @description The \code{mr_pcgmm} function performs multivariable Mendelian randomization via the principal components generalized method of moments method.
+#'
+#' @param object An \code{MRInput} object.
+#' @param nx The sample size used to compute genetic associations with the exposure. 
+#' @param ny The sample size used to compute genetic associations with the outcome. 
+#' @param r The number of genetic principal components to be used to instrument the exposure. Default chooses \code{r} to explain 99.9\% of variation in a sample weighted genetic correlation matrix (this can be varied by setting the \code{thres} parameter).
+#' @param thres The threshold value of variation in the sample weighted genetic correlation matrix explained by the genetic principal components. The default value is 0.999, indicating that 99.9\% of variation is explained by the principal components. Note that if \code{r} and \code{thres} are both specified, then \code{r} will take precedence and \code{thres} will be ignored.
+#' @param robust Indicates whether overdispersion heterogeneity is accounted for in the model. Default is TRUE.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#' @param ... Additional arguments to be passed to the optimization routines to calculate the GMM estimate and overdispersion parameter.
+#'
+#' @details When a Mendelian randomization analysis is performed using correlated genetic variants from a single gene region, there is a tradeoff between using too few variants (and compromising on power) and using too many variants (in which case, estimates can be highly sensitive to small variation in the correlation matrix). This method performs dimension reduction on a weighted version of the genetic correlation matrix to form principal components based on the genetic variants, which are then used as instruments. It is recommended not to include very highly correlated variants in this method (say, \code{r^2 > 0.95}), but the method should cope well with variants correlated below this level.
+#'
+#' This function runs a univariable version of the PC-GMM method, which can be used when there are a single exposure associated with variants at a given gene region.
+#'
+#' This method provides two-sample univariable Mendelian randomization estimates and associated confidence intervals that account for overdispersion heterogeneity in dimension-reduced genetic associations (when \code{robust = TRUE}).
+#'
+#' @return The output from the function is an \code{PCGMM} object containing:
+#'
+#'  \item{Robust}{\code{TRUE} if overdispersion heterogeneity was included in the model, \code{FALSE} otherwise.}
+#'  \item{Exposure}{A character string with the name given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Correlation}{The matrix of genetic correlations.}
+#'  \item{Estimate}{The causal estimate.}
+#'  \item{StdError}{The standard error of the causal estimate.}
+#'  \item{CILower}{The lower bound of the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{CIUpper}{The upper bound of the causal estimate based on the estimated standard error and the significance level provided.}
+#'  \item{Fstat}{The first-stage F statistic for all genetic principal components used as instruments.}
+#'  \item{Overdispersion}{The estimate of the overdispersion parameter.}
+#'  \item{PCs}{The number of genetic principal components used to instrument the exposure.}
+#'  \item{Pvalue}{The p-values associated with the estimates (calculated as Estimate/StdError as per Wald test) using a normal distribution.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value (for non-robust model only): the null hypothesis is that all genetic principal components estimate the same causal parameter; rejection of the null is an indication that one or more principal components may be pleiotropic.}
+#'
+#' @examples mr_pcgmm(mr_input(bx = calcium, bxse = calciumse,
+#'    by = fastgluc, byse = fastglucse, correlation = calc.rho), nx=6351, ny=133010)
+#'
+#' @references Description of the PC-GMM method: "Robust use of phenotypic heterogeneity at drug target genes for mechanistic insights: application of cis-multivariable Mendelian randomization to GLP1R gene region" (Preprint).
+#'
+#' @export
+
+setGeneric(name = "mr_pcgmm",
+           def = function(object, nx, ny, r = NULL, thres = 0.999, robust=TRUE, alpha=0.05, ...)
+           {standardGeneric("mr_pcgmm")})
+
+
+#--------------------------------------------------------------------------------------------
+
+#' Multivariable principal components generalized method of moments (PC-GMM) method
+#'
+#' @description The \code{mr_mvpcgmm} function performs multivariable Mendelian randomization via the principal components generalized method of moments method.
+#'
+#' @param object An \code{MRMVInput} object.
+#' @param nx Vector of sample sizes used to compute genetic associations with the exposure (one for each exposure). 
+#' @param ny The sample size used to compute genetic associations with the outcome. 
+#' @param cor.x Correlation matrix for exposures. Default is to assume the exposures are uncorrelated.
+#' @param r The number of genetic principal components to be used to instrument the exposures. Default chooses \code{r} to explain 99.9\% of variation in a sample weighted genetic correlation matrix (this can be varied by setting the \code{thres} parameter).
+#' @param thres The threshold value of variation in the sample weighted genetic correlation matrix explained by the genetic principal components. The default value is 0.999, indicating that 99.9\% of variation is explained by the principal components. Note that if \code{r} and \code{thres} are both specified, then \code{r} will take precedence and \code{thres} will be ignored.
+#' @param robust Indicates whether overdispersion heterogeneity is accounted for in the model. Default is TRUE.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#' @param ... Additional arguments to be passed to the optimization routines to calculate GMM estimates and overdispersion parameter.
+#'
+#' @details When a Mendelian randomization analysis is performed using correlated genetic variants from a single gene region, there is a tradeoff between using too few variants (and compromising on power) and using too many variants (in which case, estimates can be highly sensitive to small variation in the correlation matrix). This method performs dimension reduction on a weighted version of the genetic correlation matrix to form principal components based on the genetic variants, which are then used as instruments. It is recommended not to include very highly correlated variants in this method (say, \code{r^2 > 0.95}), but the method should cope well with variants correlated below this level.
+#'
+#' This function runs a multivariable version of the PC-GMM method, which can be used when there are distinct exposures associated with variants at a single gene region. Phenotypic heterogeneity (that is, the genetic associations with the exposures are not collinear) at genomic loci encoding drug targets can be exploited by multivariable Mendelian randomization to provide insight on the pathways by which pharmacological interventions may affect disease risk.
+#'
+#' This method provides two-sample multivariable Mendelian randomization estimates and associated confidence intervals that account for overdispersion heterogeneity in dimension-reduced genetic associations (when \code{robust = TRUE}).
+#'
+#' @return The output from the function is an \code{MVPCGMM} object containing:
+#'
+#'  \item{Robust}{\code{TRUE} if overdispersion heterogeneity was included in the model, \code{FALSE} otherwise.}
+#'  \item{Exposure}{A character vector with the names given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Correlation}{The matrix of genetic correlations.}
+#'  \item{ExpCorrelation}{\code{TRUE} if an exposure correlation matrix was specified, \code{FALSE} otherwise.}
+#'  \item{CondFstat}{A vector of conditional F-statistics (one for each exposure).}
+#'  \item{Estimate}{A vector of causal estimates.}
+#'  \item{StdError}{A vector of standard errors of the causal estimates.}
+#'  \item{CILower}{The lower bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{CIUpper}{The upper bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{Overdispersion}{The estimate of the overdispersion parameter.}
+#'  \item{PCs}{The number of genetic principal components used to instrument the exposures.}
+#'  \item{Pvalue}{The p-values associated with the estimates (calculated as Estimate/StdError as per Wald test) using a normal distribution.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value (for non-robust model only): the null hypothesis is that all genetic principal components estimate the same causal parameter; rejection of the null is an indication that one or more principal components may be pleiotropic.}
+#'
+#' @examples mr_mvpcgmm(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse, correlation = diag(length(ldlc))), nx=rep(17723,3), ny=17723)
+#' # Note this example does not use variants from a single gene region, and is provided
+#' #  to demonstrate that the code works, rather than to illustrate a recommended use case.
+#'
+#' @references Description of multivariable Mendelian randomization: Stephen Burgess, Simon G Thompson. Multivariable Mendelian Randomization: the use of pleiotropic genetic variants to estimate causal effects. American Journal of Epidemiology 2015; 181(4):251-260. doi: 10.1093/aje/kwu283.
+#'
+#' Description of the PC-GMM method: "Robust use of phenotypic heterogeneity at drug target genes for mechanistic insights: application of cis-multivariable Mendelian randomization to GLP1R gene region" (Preprint).
+#'
+#' @export
+
+setGeneric(name = "mr_mvpcgmm",
+           def = function(object, nx, ny, cor.x=NULL, r = NULL, thres = 0.999, robust=TRUE, alpha=0.05, ...)
+           {standardGeneric("mr_mvpcgmm")})
+
+#--------------------------------------------------------------------------------------------
+
+#' Multivariable generalized method of moments (GMM) method
+#'
+#' @description The \code{mr_mvgmm} function performs multivariable Mendelian randomization via the generalized method of moments method.
+#'
+#' @param object An \code{MRMVInput} object.
+#' @param nx Vector of sample sizes used to compute genetic associations with the exposure (one for each exposure). 
+#' @param ny The sample size used to compute genetic associations with the outcome. 
+#' @param cor.x Correlation matrix for exposures. Default is to assume the exposures are uncorrelated.
+#' @param robust Indicates whether overdispersion heterogeneity is accounted for in the model. Default is TRUE.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#' @param ... Additional arguments to be passed to the optimization routines to calculate GMM estimates and overdispersion parameter.
+#'
+#' @details Robust inference in two-sample multivariable Mendelian randomization using the generalized method of moments. The method accounts for overdispersion heterogeneity in genetic variant-outcome associations.
+#'
+#' @return The output from the function is an \code{MVGMM} object containing:
+#'
+#'  \item{Robust}{\code{TRUE} if overdispersion heterogeneity was included in the model, \code{FALSE} otherwise.}
+#'  \item{Exposure}{A character vector with the names given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Correlation}{The matrix of genetic correlations if supplied. If not supplied, then an identity matrix will be returned.}
+#'  \item{ExpCorrelation}{\code{TRUE} if an exposure correlation matrix was specified, \code{FALSE} otherwise.}
+#'  \item{CondFstat}{A vector of conditional F-statistics (one for each exposure).}
+#'  \item{Estimate}{A vector of causal estimates.}
+#'  \item{StdError}{A vector of standard errors of the causal estimates.}
+#'  \item{CILower}{The lower bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{CIUpper}{The upper bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{Overdispersion}{The estimate of the overdispersion parameter. If this is negative, then a value of zero is used in the method.}
+#'  \item{Pvalue}{The p-values associated with the estimates (calculated as Estimate/StdError as per Wald test) using a normal distribution.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value (for non-robust model only): the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more genetic variants may be pleiotropic. If the robust option is set to \code{TRUE}, then this represents excess heterogeneity beyond the overdispersion model.}
+#'
+#' @examples mr_mvgmm(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse), nx=rep(17723,3), ny=17723)
+#'
+#' @references Description of the generalized method of moments: Hansen, L. P. (1982). Large sample properties of generalized method of moments estimators. Econometrica, pp.1029-1054.
+#'
+#' @export
+
+setGeneric(name = "mr_mvgmm",
+           def = function(object, nx, ny, cor.x=NULL, robust=TRUE, alpha=0.05, ...)
+           {standardGeneric("mr_mvgmm")})

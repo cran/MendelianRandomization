@@ -71,6 +71,7 @@ The output from the function is an \code{IVW} object containing:
  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
  \item{RSE}{The estimated residual standard error from the regression model.}
  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+\item{Fstat}{An approximation of the first-stage F statistic for all variants based on the summarized data.}
 }
 \description{
 The \code{mr_ivw} function implements the inverse-variance method, informally known as the "Toby Johnson" method. With a single

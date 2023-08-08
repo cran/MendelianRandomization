@@ -73,5 +73,5 @@ mr_mvegger(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse,
 
 }
 \references{
-Jessica Rees, Angela Wood, Stephen Burgess. Extending the MR?Egger method for multivariable Mendelian randomization to correct for both measured and unmeasured pleiotropy. Statistics in Medicine 2017; 36(29): 4705-4718. doi: 10.1002/sim.7492.
+Jessica Rees, Angela Wood, Stephen Burgess. Extending the MR-Egger method for multivariable Mendelian randomization to correct for both measured and unmeasured pleiotropy. Statistics in Medicine 2017; 36(29): 4705-4718. doi: 10.1002/sim.7492.
 }

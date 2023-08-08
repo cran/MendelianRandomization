@@ -79,7 +79,7 @@ We also refer to \code{Condition} as effective sample size, which is a function 
 When \code{delta} is zero (i.e., no IV selection), \code{Condition = (average F-statistic -1)*sqrt(# snps)}. When \code{delta} is not zero
 (i.e., IV selection is conducted), \code{Condition = [(average F-statistic -1)*sqrt(# snps)]/c},
 where the numerator is computed using the selected variants, and the denominator \code{c} involves the selection probabilities
-of all variants (see more details in the paper \url{https://onlinelibrary.wiley.com/doi/10.1111/biom.13732}). We suggest that \code{Condition} should be greater than 5 for the pIVW estimator to achieve reliable asymptotic properties.
+of all variants (see more details in the paper). We suggest that \code{Condition} should be greater than 5 for the pIVW estimator to achieve reliable asymptotic properties.
 }
 \examples{
 mr_pivw(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse))

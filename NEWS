@@ -1,3 +1,9 @@
+MendelianRandomization v0.9.0
+=============================
+Added multivariable generalized method of moments (GMM) method (mr_mvgmm) - thanks to Ashish Patel for coding!
+Added principal component genalized method of moments (PC-GMM) methods: mr_pcgmm for univariable and mr_mvpcgmm for multivariable - thanks to Ashish Patel for coding!
+Also added estimation of F statistics and conditional F statistics to the mr_ivw and mr_mvivw functions - thanks again to Ashish Patel for coding!
+
 MendelianRandomization v0.8.0
 =============================
 Added multivariable constrained maximum likelihood method (mr_mvcML) - thanks to Zhaotong Lin for coding!

@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // MVmr_cML
 Rcpp::List MVmr_cML(const arma::mat& b_exp, const arma::mat& b_out, const arma::mat& se_bx, const Rcpp::List& Sig_inv_l, const unsigned int n, Rcpp::NumericVector K_vec, const unsigned int random_start, const double min_theta_range, const double max_theta_range, const unsigned int maxit, const double thres);
 RcppExport SEXP _MendelianRandomization_MVmr_cML(SEXP b_expSEXP, SEXP b_outSEXP, SEXP se_bxSEXP, SEXP Sig_inv_lSEXP, SEXP nSEXP, SEXP K_vecSEXP, SEXP random_startSEXP, SEXP min_theta_rangeSEXP, SEXP max_theta_rangeSEXP, SEXP maxitSEXP, SEXP thresSEXP) {

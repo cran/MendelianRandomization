@@ -1,8 +1,8 @@
 Package: MendelianRandomization
 Type: Package
 Title: Mendelian Randomization Package
-Version: 0.8.0
-Date: 2023-07-01
+Version: 0.9.0
+Date: 2023-08-07
 Author: Olena Yavorska <olena.yavorska@ludwig.ox.ac.uk>
         James Staley <james.staley@bristol.ac.uk>
 Maintainer: Stephen Burgess <sb452@medschl.cam.ac.uk>
@@ -17,8 +17,8 @@ Imports: knitr, rmarkdown, plotly (>= 3.6.0), ggplot2 (>= 1.0.1),
         quantreg (>= 5.01), rjson, glmnet, numDeriv, Rcpp
 LinkingTo: Rcpp, RcppArmadillo
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 NeedsCompilation: yes
-Packaged: 2023-07-04 09:03:26 UTC; stephenb
+Packaged: 2023-08-08 17:27:33 UTC; stephenb
 Repository: CRAN
-Date/Publication: 2023-07-04 11:33:13 UTC
+Date/Publication: 2023-08-08 18:10:02 UTC

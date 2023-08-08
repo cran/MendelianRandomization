@@ -150,11 +150,13 @@ setMethod("show",
             if(object@Model == "fixed") { cat("Residual standard error is set to 1 in calculation of confidence interval by fixed-effect assumption.\n") }
             if(object@RSE<1) { cat("Residual standard error is set to 1 in calculation of confidence interval when its estimate is less than 1.\n") }
             if(is.na(object@Heter.Stat[1])) {
-              cat("Heterogeneity is not calculated when weights are penalized, or when there is only one variant in the analysis.")
+              cat("Heterogeneity is not calculated when weights are penalized, or when there is only one variant in the analysis.\n")
             } else {
             cat("Heterogeneity test statistic (Cochran's Q) = ", decimals(object@Heter.Stat[1],4), " on ", object@SNPs -1,
                     " degrees of freedom, (p-value = ", decimals(object@Heter.Stat[2], 4),"). I^2 = ", decimals(max(0, (object@Heter.Stat[1]-object@SNPs+1)/object@Heter.Stat[1]*100),1),    "%. \n", sep = "")
             }
+            cat("F statistic = ", decimals(object@Fstat, 1), ". \n", sep="")
+ if (sum(is.na(object@Correlation))==0) { cat("\n(Estimates with correlated variants are sensitive to the signs in the correlation matrix\n - please ensure that your correlations are expressed with respect to the same effect alleles as your summarized association estimates.) \n") }
           }
 )
 
@@ -408,14 +410,26 @@ setMethod("show",
           function(object){
 
             Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+            
+            if(sum(is.na(object@CondFstat)) == 0){
+            Statistic <- c("Exposure", "Estimate", "Std Error", Interval_type, "", "p-value", "Cond F-stat")
+            
+            Value <- cbind(object@Exposure, decimals(object@Estimate, 3), decimals(object@StdError,3),
+                            paste(decimals(object@CILower, 3), ",", sep = ""), decimals(object@CIUpper,3),
+                            decimals(object@Pvalue, 3), decimals(object@CondFstat, 1))
+            }
+            
+            if(sum(is.na(object@CondFstat)) > 0){
             Statistic <- c("Exposure", "Estimate", "Std Error", Interval_type, "", "p-value")
 
             Value <- cbind(object@Exposure, decimals(object@Estimate, 3), decimals(object@StdError,3),
                        paste(decimals(object@CILower, 3), ",", sep = ""), decimals(object@CIUpper,3),
                              decimals(object@Pvalue, 3))
-
+            }
+            
             output.table <- data.frame(matrix(Value, nrow = length(object@Exposure)))
             colnames(output.table) <- Statistic
+            
             correlation <- ifelse(sum(is.na(object@Correlation)) == 0,
                                   "correlated", "uncorrelated")
             robust <- ifelse(object@Robust == TRUE, "Robust regression used.", "")
@@ -662,3 +676,111 @@ setMethod("show",
             
           }
          )
+
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
+          "PCGMM",
+          function(object){
+             
+             Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+             Statistic <- c("Method", "Estimate", "Std Error", Interval_type, "", "p-value", "F-stat")
+             
+             Value <- c("PC-GMM", decimals(object@Estimate, 3), decimals(object@StdError,3),
+                            paste(decimals(object@CILower, 3), ",", sep = ""), decimals(object@CIUpper,3),
+                            decimals(object@Pvalue, 3), decimals(object@Fstat, 1))
+             
+             output.table <- data.frame(matrix(Value, nrow = 1))
+             colnames(output.table) <- Statistic
+             robust1 <- ifelse(object@robust == TRUE, "\nRobust model with overdispersion heterogeneity.", "\nNon-robust model with no overdispersion heterogeneity.")
+             
+             
+             cat("\nUnivariable principal components generalized method of moments (PC-GMM) method\n")
+             
+             cat("\nNumber of principal components used :", object@PCs, "\n")
+             cat(robust1, "\n", sep = "")
+             
+             cat("\n------------------------------------------------------------------\n")
+             print(output.table, quote = F, row.names = FALSE, justify = "left")
+             cat("------------------------------------------------------------------\n")
+             
+             if(object@robust == TRUE) { cat("\nOverdispersion heterogeneity parameter estimate =", object@Overdispersion, "\n") }
+             if(object@robust == FALSE) { cat("\nHeterogeneity test statistic = ", decimals(object@Heter.Stat[1],4), " on ", object@PCs-length(object@Exposure),
+                                              " degrees of freedom, (p-value = ", decimals(object@Heter.Stat[2], 4),")\n", sep = "")}
+             if(object@robust == TRUE) { cat("\nHeterogeneity test statistic = ", decimals(object@Heter.Stat[1],4),"\n", sep = "")}
+          }
+)
+
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
+          "MVPCGMM",
+          function(object){
+             
+             Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+             Statistic <- c("Exposure", "Estimate", "Std Error", Interval_type, "", "p-value", "Cond F-stat")
+             
+             Value <- cbind(object@Exposure, decimals(object@Estimate, 3), decimals(object@StdError,3),
+                            paste(decimals(object@CILower, 3), ",", sep = ""), decimals(object@CIUpper,3),
+                            decimals(object@Pvalue, 3), decimals(object@CondFstat, 1))
+             
+             output.table <- data.frame(matrix(Value, nrow = length(object@Exposure)))
+             colnames(output.table) <- Statistic
+             correlation <- ifelse(sum(is.na(object@ExpCorrelation)) == 0,
+                                   "correlated exposures", "uncorrelated exposures")
+             robust1 <- ifelse(object@robust == TRUE, "\nRobust model with overdispersion heterogeneity.", "\nNon-robust model with no overdispersion heterogeneity.")
+             
+             
+             cat("\nMultivariable principal components generalized method of moments (PC-GMM) method\n")
+             
+             if(object@ExpCorrelation == FALSE){cat("\nExposure correlation matrix not specified. Exposures are assumed to be uncorrelated.\n")}
+             
+             cat("\nNumber of principal components used :", object@PCs, "\n")
+             cat(robust1, "\n", sep = "")
+             
+             cat("\n------------------------------------------------------------------\n")
+             print(output.table, quote = F, row.names = FALSE, justify = "left")
+             cat("------------------------------------------------------------------\n")
+             
+             if(object@robust == TRUE) { cat("\nOverdispersion heterogeneity parameter estimate =", decimals(object@Overdispersion,4), "\n") }
+             if(object@robust == FALSE) { cat("\nHeterogeneity test statistic = ", decimals(object@Heter.Stat[1],4), " on ", object@PCs-length(object@Exposure),
+                                                            " degrees of freedom, (p-value = ", decimals(object@Heter.Stat[2], 4),")\n", sep = "")}
+             if(object@robust == TRUE) { cat("\nHeterogeneity test statistic = ", decimals(object@Heter.Stat[1],4),"\n", sep = "")}
+          }
+)
+
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
+          "MVGMM",
+          function(object){
+             
+             Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+             Statistic <- c("Exposure", "Estimate", "Std Error", Interval_type, "", "p-value", "Cond F-stat")
+             
+             Value <- cbind(object@Exposure, decimals(object@Estimate, 3), decimals(object@StdError,3),
+                            paste(decimals(object@CILower, 3), ",", sep = ""), decimals(object@CIUpper,3),
+                            decimals(object@Pvalue, 3), decimals(object@CondFstat, 1))
+             
+             output.table <- data.frame(matrix(Value, nrow = length(object@Exposure)))
+             colnames(output.table) <- Statistic
+             correlation <- ifelse(sum(is.na(object@ExpCorrelation)) == 0,
+                                   "correlated exposures", "uncorrelated exposures")
+             robust1 <- ifelse(object@robust == TRUE, "\nRobust model with overdispersion heterogeneity.", "\nNon-robust model with no overdispersion heterogeneity.")
+             
+             
+             cat("\nMultivariable generalized method of moments (GMM) method\n")
+             
+             if(object@ExpCorrelation == FALSE){cat("\nExposure correlation matrix not specified. Exposures are assumed to be uncorrelated.\n")}
+             
+             cat(robust1, "\n", sep = "")
+             
+             cat("\n------------------------------------------------------------------\n")
+             print(output.table, quote = F, row.names = FALSE, justify = "left")
+             cat("------------------------------------------------------------------\n")
+             
+             if(object@robust == TRUE) { cat("\nOverdispersion heterogeneity parameter estimate =", object@Overdispersion, "\n") }
+             if(object@robust == FALSE) { cat("\nHeterogeneity test statistic = ", decimals(object@Heter.Stat[1],4), " (p-value = ", decimals(object@Heter.Stat[2], 4),")\n", sep = "")}
+             if(object@robust == TRUE) { cat("\nHeterogeneity test statistic = ", decimals(object@Heter.Stat[1],4),"\n", sep = "")}
+          }
+)

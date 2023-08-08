@@ -1,8 +1,8 @@
 exportPattern("^[[:alpha:]]+")
   importFrom("graphics", "layout", "abline", "lines", "par", "plot", "text")
   importFrom("methods", "new", "slot")
-  importFrom("stats", "dnorm", "lm", "mad", "median", "density", "optim", "pchisq", "pnorm", "predict", "pt", "qchisq", "qnorm", "qt", "qqline", "qqnorm", 
-             "rnorm", "runif", "sd", "var", "weighted.mean")
+  importFrom("stats", "density", "dnorm", "lm", "mad", "median", "nlminb", "optim", "pchisq", "pnorm", "prcomp", "predict", "pt", "qchisq", "qnorm", "qt", "qqline", "qqnorm", 
+             "rnorm", "runif", "sd", "var", "weighted.mean", "uniroot")
   importFrom("utils", "read.csv")
   importFrom("robustbase", "lmrob")
   importFrom("ggplot2", "ggplot", "aes", "geom_point", "geom_hline", "geom_vline", "geom_abline", "scale_colour_discrete", "xlab", "ylab", "theme", "element_text", "rel", "element_rect", "element_line", "scale_colour_manual", "scale_linetype_manual", "geom_errorbar", "geom_errorbarh", "geom_text", "margin", "geom_linerange", "theme_classic")
@@ -43,4 +43,7 @@ exportPattern("^[[:alpha:]]+")
   export(mr_cML)
   export(mr_pivw)
   export(mr_mvcML)
+  export(mr_pcgmm)
+  export(mr_mvpcgmm)
+  export(mr_mvgmm)
 

@@ -11,6 +11,8 @@ mr_mvivw(
   model = "default",
   robust = FALSE,
   correl = FALSE,
+  correl.x = NULL,
+  nx = NA,
   distribution = "normal",
   alpha = 0.05,
   ...
@@ -21,6 +23,8 @@ mr_mvivw(
   model = "default",
   robust = FALSE,
   correl = FALSE,
+  correl.x = NULL,
+  nx = NA,
   distribution = "normal",
   alpha = 0.05,
   ...
@@ -34,6 +38,10 @@ mr_mvivw(
 \item{robust}{Indicates whether robust regression using the \code{lmrob()} function from the package \code{robustbase} should be used in the method rather than standard linear regression (\code{lm}).}
 
 \item{correl}{If the genetic variants are correlated, then this correlation can be accounted for. The matrix of correlations between must be provided in the \code{MRMVInput} object: the elements of this matrix are the correlations between the individual variants (diagonal elements are 1). If a correlation matrix is specified in the \code{MRMVInput} object, then \code{correl} is set to \code{TRUE}.}
+
+\item{correl.x}{Correlation matrix for exposures (Optional). Default is to assume the exposures are uncorrelated. This is only used in the computation of conditional F-statistics.}
+
+\item{nx}{Either a single value, or a vector of sample sizes for the genetic associations with the exposures (one for each exposure, and assumed equal for all variants). If a single value is provided, it is assumed this is the sample size for all exposures. This is optional, and it is only used in the calculation of conditional F statistics. If not supplied, then conditional F statistics are not reported.}
 
 \item{distribution}{The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.}
 
@@ -58,6 +66,7 @@ The output from the function is an \code{MVIVW} object containing:
  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
  \item{RSE}{The estimated residual standard error from the regression model.}
  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+ \item{CondFstat}{Conditional F statistics: An approximation of the first-stage conditional F statistics for all variants based on the summarized data. This represents the instrument strength for each exposure conditional on other exposures in the model. This is only reported if the sample sizes for the genetic associations with the exposures are provided.}
 }
 \description{
 The \code{mr_mvivw} function performs multivariable Mendelian randomization via the inverse-variance method. This is implemented by multivariable weighted linear regression.
@@ -80,4 +89,6 @@ Description of approach: Stephen Burgess, Simon G Thompson. Multivariable Mendel
 Description of inverse-variance weighted method: Stephen Burgess, Frank Dudbridge, Simon G Thompson. Re: "Multivariable Mendelian randomization: the use of pleiotropic genetic variants to estimate causal effects." American Journal of Epidemiology 2015; 181(4):290-291. doi: 10.1093/aje/kwv017.
 
 Use for mediation analysis: Stephen Burgess, Deborah J Thompson, Jessica MB Rees, Felix R Day, John R Perry, Ken K Ong. Dissecting causal pathways using Mendelian randomization with summarized genetic data: Application to age at menarche and risk of breast cancer. Genetics 2017; 207(2):481-487. doi: 10.1534/genetics.117.300191.
+
+Calculation of conditional F statistics: Ashish Patel, Dipender Gill, Dmitry Shungin, Christos Mantzoros, Lotte Bjerre Knudsen, Jack Bowden, Stephen Burgess. Robust use of phenotypic heterogeneity at drug target genes for mechanistic insights: application of multivariable Mendelian randomization to \emph{GLP1R} gene region. Pre-print.
 }

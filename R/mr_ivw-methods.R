@@ -188,6 +188,8 @@ setMethod("mr_ivw",
   if (distribution == "normal") { pvalue <- 2*pnorm(-abs(thetaIVW/thetaIVWse)) }
   if (distribution == "t-dist") { pvalue <- 2*pt(-abs(thetaIVW/thetaIVWse), df=length(Bx)-1) }
 
+ fstat = sum(((Bx/Bxse)%*%solve(chol(rho)))^2)/nsnps
+
                   return(new("IVW",
                              Model = model,
                              Exposure = object@exposure,
@@ -209,7 +211,8 @@ setMethod("mr_ivw",
 
                              RSE = as.numeric(rse.corr),
                              Heter.Stat = c(heter.stat,
-                             pvalue.heter.stat)))
+                             pvalue.heter.stat),
+                             Fstat = fstat))
             } else {
 
             if(nsnps == 1){
@@ -231,6 +234,7 @@ if (weights == "delta")  {    thetaIVWse <- sqrt(Byse^2/Bx^2+By^2*Bxse^2/Bx^4-2*
                 ciLower <- ci_t("l", thetaIVW, thetaIVWse, length(Bx) - 1, alpha)
                 ciUpper <- ci_t("u", thetaIVW, thetaIVWse, length(Bx) - 1, alpha)
               }
+    fstat = (Bx/Bxse)^2
 
               return(new("IVW",
                          Model = model,
@@ -252,7 +256,8 @@ if (weights == "delta")  {    thetaIVWse <- sqrt(Byse^2/Bx^2+By^2*Bxse^2/Bx^4-2*
                          Alpha = alpha,
 
                          RSE = rse,
-                         Heter.Stat = c(NaN, NaN)))
+                         Heter.Stat = c(NaN, NaN),
+                         Fstat = fstat))
 
             } else if (nsnps > 1) {
                 if(robust == TRUE){
@@ -343,6 +348,8 @@ if (weights == "delta") { summary <- summary(lm(By ~ Bx - 1, weights =(Byse^2 + 
                   ciUpper <- ci_t("u", thetaIVW, thetaIVWse, length(Bx) - 1, alpha)
                 }
 
+  fstat = sum((Bx/Bxse)^2)/nsnps
+
                 return(new("IVW",
                            Model = model,
                            Exposure = object@exposure,
@@ -364,7 +371,8 @@ if (weights == "delta") { summary <- summary(lm(By ~ Bx - 1, weights =(Byse^2 + 
 
                            RSE = rse,
                            Heter.Stat = c(heter.stat,
-                           pvalue.heter.stat)))
+                           pvalue.heter.stat),
+                           Fstat = fstat))
 
             } else {
 

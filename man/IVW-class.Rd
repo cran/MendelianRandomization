@@ -39,5 +39,7 @@ An object containing the estimate produced using the inverse-variance weighted (
 \item{\code{RSE}}{The estimated residual standard error from the regression model.}
 
 \item{\code{Heter.Stat}}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+
+\item{\code{Fstat}}{An approximation of the first-stage F statistic for all variants based on the summarized data.}
 }}
 

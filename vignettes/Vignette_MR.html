@@ -243,7 +243,8 @@ IVWObject</code></pre></div>
 ##     IVW    2.834     0.530 1.796, 3.873   0.000
 ## ------------------------------------------------------------------
 ## Residual standard error =  1.920 
-## Heterogeneity test statistic (Cochran's Q) = 99.5304 on 27 degrees of freedom, (p-value = 0.0000). I^2 = 72.9%.</code></pre>
+## Heterogeneity test statistic (Cochran's Q) = 99.5304 on 27 degrees of freedom, (p-value = 0.0000). I^2 = 72.9%. 
+## F statistic = 28.0.</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">IVWObject.correl &lt;-<span class="st"> </span><span class="kw">mr_ivw</span>(MRInputObject.cor,
                     <span class="dt">model =</span> <span class="st">&quot;default&quot;</span>,
                     <span class="dt">correl =</span> <span class="ot">TRUE</span>,
@@ -266,7 +267,11 @@ IVWObject.correl</code></pre></div>
 ## ------------------------------------------------------------------
 ## Residual standard error =  0.641 
 ## Residual standard error is set to 1 in calculation of confidence interval when its estimate is less than 1.
-## Heterogeneity test statistic (Cochran's Q) = 2.0530 on 5 degrees of freedom, (p-value = 0.8418). I^2 = 0.0%.</code></pre>
+## Heterogeneity test statistic (Cochran's Q) = 2.0530 on 5 degrees of freedom, (p-value = 0.8418). I^2 = 0.0%. 
+## F statistic = 11.5. 
+## 
+## (Estimates with correlated variants are sensitive to the signs in the correlation matrix
+##  - please ensure that your correlations are expressed with respect to the same effect alleles as your summarized association estimates.)</code></pre>
 </div>
 <div id="median-based-method" class="section level2">
 <h2>Median-based method</h2>

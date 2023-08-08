@@ -37,5 +37,7 @@ An object containing the estimates produced using the multivariable inverse-vari
 \item{\code{RSE}}{The estimated residual standard error from the regression model.}
 
 \item{\code{Heter.Stat}}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+
+\item{\code{CondFstat}}{Conditional F statistics: An approximation of the first-stage conditional F statistics for all variants based on the summarized data. This represents the instrument strength for each exposure conditional on other exposures in the model. This is only reported if the sample sizes for the genetic associations with the exposures are provided.}
 }}
 

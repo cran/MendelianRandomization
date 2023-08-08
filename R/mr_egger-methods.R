@@ -6,8 +6,8 @@
 #'
 #' @param type "l" for lower, "u" for upper.
 #' @param dist "normal" for normal distribution, "t-dist" for t-distribution.
-#' @param mean Causal estimate.
-#' @param se Standard error of estimate.
+#' @param .theta Causal estimate.
+#' @param .thetase Standard error of estimate.
 #' @param df Degrees of freedom (for t-distribution).
 #' @param .rse Residual standard error.
 #' @param .alpha Significance level.

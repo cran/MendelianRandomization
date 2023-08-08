@@ -68,6 +68,6 @@ The variables \code{ldlc}, \code{hdlc}, \code{trig}, and \code{chdlodds} are the
 These data can be used to test out the various functions in the package.
 }
 \references{
-Dawn Waterworth, Sally Ricketts, ..., Manj Sandhu: Genetic variants influencing circulating lipid levels and risk of coronary artery disease. Arterioscler Thromb Vasc Biol 2010; 30:2264-227. doi: 10.1161/atbvaha.109.201020.
+Dawn Waterworth, Sally Ricketts, ..., Manj Sandhu: Genetic variants influencing circulating lipid levels and risk of coronary artery disease. Arterioscler Thromb Vasc Biol 2010; 30:2264-227. doi: 10.1161/atvbaha.109.201020.
 }
 \keyword{datasets}

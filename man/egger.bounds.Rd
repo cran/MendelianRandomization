@@ -11,15 +11,15 @@ egger.bounds(type, dist, .theta, .thetase, df = 0, .rse, .alpha)
 
 \item{dist}{"normal" for normal distribution, "t-dist" for t-distribution.}
 
+\item{.theta}{Causal estimate.}
+
+\item{.thetase}{Standard error of estimate.}
+
 \item{df}{Degrees of freedom (for t-distribution).}
 
 \item{.rse}{Residual standard error.}
 
 \item{.alpha}{Significance level.}
-
-\item{mean}{Causal estimate.}
-
-\item{se}{Standard error of estimate.}
 }
 \value{
 Numeric value of confidence interval limit.

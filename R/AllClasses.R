@@ -147,6 +147,7 @@ setClass("DIVW",
 #' @slot SNPs The number of SNPs that were used in the calculation.
 #' @slot RSE The estimated residual standard error from the regression model.
 #' @slot Heter.Stat Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.
+#' @slot Fstat An approximation of the first-stage F statistic for all variants based on the summarized data.
 
 setClass("IVW",
          representation(Model = "character",
@@ -167,7 +168,8 @@ setClass("IVW",
                         SNPs = "numeric",
 
                         RSE = "numeric",
-                        Heter.Stat = "numeric")
+                        Heter.Stat = "numeric",
+                        Fstat = "numeric")
 )
 
 #--------------------------------------------------------------------------------------------
@@ -375,6 +377,7 @@ setValidity("MRMVInput",
 #' @slot SNPs The number of SNPs that were used in the calculation.
 #' @slot RSE The estimated residual standard error from the regression model.
 #' @slot Heter.Stat Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.
+#' @slot CondFstat Conditional F statistics: An approximation of the first-stage conditional F statistics for all variants based on the summarized data. This represents the instrument strength for each exposure conditional on other exposures in the model. This is only reported if the sample sizes for the genetic associations with the exposures are provided.
 
 setClass("MVIVW",
          representation(Model = "character",
@@ -394,7 +397,8 @@ setClass("MVIVW",
                         SNPs = "numeric",
 
                         RSE = "numeric",
-                        Heter.Stat = "numeric")
+                        Heter.Stat = "numeric",
+                        CondFstat = "numeric")
 )
 
 #--------------------------------------------------------------------------------------------
@@ -787,4 +791,129 @@ setClass("MVMRcML",
                         eff_DP_B = "numeric",
                         SNPs = "numeric",
                         DP = "logical")
+)
+
+#--------------------------------------------------------------------------------------------
+
+#' PCGMM Class
+#'
+#' @description An object containing the estimates produced using the univariable principal components generalized method of methods (PC-GMM) method as well as various statistics.
+#'
+#' @slot robust Whether the robust model with overdispersion heterogeneity is estimated.
+#' @slot Exposure The name of the exposure variable.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Correlation The matrix of correlations between genetic variants.
+#' @slot Estimate The causal estimate from the PC-GMM method.
+#' @slot StdError The standard error associated with \code{Estimate}.
+#' @slot CILower The lower bound of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper The upper bound of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot Fstat The first-stage F statistic for all genetic principal components used as instruments.
+#' @slot Overdispersion The estimate of the overdispersion parameter for the robust model.
+#' @slot PCs The number of genetic principal components used to instrument the exposure.
+#' @slot Pvalue P-value associated with the causal estimate.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+#' @slot Heter.Stat Heterogeneity statistic (Cochran's Q statistic) and associated p-value (for non-robust model): the null hypothesis is that all principal components estimate the same causal parameter; rejection of the null is an indication that one or more principal components may be pleiotropic.
+
+setClass("PCGMM",
+         representation(robust = "logical",
+                        Exposure = "character",
+                        Outcome = "character",
+                        Correlation = "matrix",
+                        
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        Fstat = "numeric",
+                        Overdispersion = "numeric",
+                        
+                        PCs = "numeric",
+                        Pvalue = "numeric",
+                        
+                        Alpha = "numeric",
+                        Heter.Stat = "numeric")
+)
+
+#--------------------------------------------------------------------------------------------
+
+#' MVPCGMM Class
+#'
+#' @description An object containing the estimates produced using the multivariable principal components generalized method of methods (PC-GMM) method as well as various statistics.
+#'
+#' @slot robust Whether the robust model with overdispersion heterogeneity is estimated.
+#' @slot Exposure The names of the exposure variables.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Correlation The matrix of correlations between genetic variants.
+#' @slot ExpCorrelation Whether an exposure correlation matrix was specified.
+#' @slot CondFstat The conditional F-statistic for each exposure. 
+#' @slot Estimate The causal estimates from the PC-GMM method.
+#' @slot StdError The standard errors associated with \code{Estimate}.
+#' @slot CILower The lower bounds of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper The upper bounds of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot Overdispersion The estimate of the overdispersion parameter for the robust model.
+#' @slot PCs The number of genetic principal components used to instrument the exposures.
+#' @slot Pvalue P-value associated with the causal estimates.
+#' @slot Alpha The significance level used in constructing confidence intervals (default is 0.05).
+#' @slot Heter.Stat Heterogeneity statistic (Cochran's Q statistic) and associated p-value (for non-robust model): the null hypothesis is that all principal components estimate the same causal parameter; rejection of the null is an indication that one or more principal components may be pleiotropic.
+
+setClass("MVPCGMM",
+         representation(robust = "logical",
+                        Exposure = "character",
+                        Outcome = "character",
+                        Correlation = "matrix",
+                        ExpCorrelation = "logical",
+                        
+                        CondFstat = "numeric",
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        Overdispersion = "numeric",
+                        
+                        PCs = "numeric",
+                        Pvalue = "numeric",
+                        
+                        Alpha = "numeric",
+                        Heter.Stat = "numeric")
+)
+
+#--------------------------------------------------------------------------------------------
+
+#' MVGMM Class
+#'
+#' @description An object containing the estimates produced using the multivariable generalized method of methods (GMM) method.
+#'
+#' @slot robust Whether the robust model with overdispersion heterogeneity is estimated.
+#' @slot Exposure The names of the exposure variables.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Correlation The matrix of correlations between genetic variants if specified. If not specified, an identity matrix will be returned.
+#' @slot ExpCorrelation Whether an exposure correlation matrix was specified.
+#' @slot CondFstat The conditional F-statistic for each exposure. 
+#' @slot Estimate The causal estimates from the GMM method.
+#' @slot StdError The standard errors associated with \code{Estimate}.
+#' @slot CILower The lower bounds of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper The upper bounds of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot Overdispersion The estimate of the overdispersion parameter for the robust model. If this is negative, then a value of zero is used in the method.
+#' @slot Pvalue P-value associated with the causal estimates.
+#' @slot Alpha The significance level used in constructing confidence intervals (default is 0.05).
+#' @slot Heter.Stat Heterogeneity statistic (Cochran's Q statistic) and associated p-value (for non-robust model): the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more genetic variants may be pleiotropic.
+
+setClass("MVGMM",
+         representation(robust = "logical",
+                        Exposure = "character",
+                        Outcome = "character",
+                        Correlation = "matrix",
+                        ExpCorrelation = "logical",
+                        
+                        CondFstat = "numeric",
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        Overdispersion = "numeric",
+                        
+                        Pvalue = "numeric",
+                        
+                        Alpha = "numeric",
+                        Heter.Stat = "numeric")
 )
