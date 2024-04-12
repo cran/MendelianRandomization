@@ -19,7 +19,6 @@
 #' @details The beta-coefficients are assumed to be estimated for uncorrelated (independent) genetic variants, although a correlation matrix can be specified if the variants are correlated in their distributions. We also assume that the beta-coefficients for associations with the exposure and with the outcome are uncorrelated (corresponding to a two-sample Mendelian randomization analysis), although correlation between associations with the exposure and with the outcome generally have little impact on causal estimates or standard errors.
 #' Estimates can either be specified by the user, or extracted from the PhenoScanner tool.
 #'
-#' @seealso \code{extract.pheno.csv()} for a description of how the above values can be extracted from PhenoScanner \url{http://www.phenoscanner.medschl.cam.ac.uk/}.
 
 setClass("MRInput",
          representation(betaX = "numeric",
@@ -400,6 +399,48 @@ setClass("MVIVW",
                         Heter.Stat = "numeric",
                         CondFstat = "numeric")
 )
+
+#--------------------------------------------------------------------------------------------
+
+#' MVIVWME Class
+#'
+#' @description An object containing the estimates produced using the multivariable inverse-variance weighted (IVW) method with measurement error, as well as various statistics.
+#'
+#' @slot Model The model used for estimation: random-effects (\code{"random"}) or fixed-effect (\code{"fixed"}). The default option (\code{"default"}) is to use a fixed-effect model when there are three or fewer genetic variants, and a random-effects model when there are four or more. The (multiplicative) random-effects model allows for heterogeneity between the causal estimates targeted by the genetic variants by allowing over-dispersion in the regression model. Under-dispersion is not permitted (in case of under-dispersion, the residual standard error is set to 1, as in a fixed-effect analysis).
+#' @slot Exposure The names of the exposure variables.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Correlation The matrix of correlations between genetic variants.
+#' @slot Estimate The causal estimates from the inverse-variance weighted method.
+#' @slot StdError The standard errors associated with \code{Estimate}.
+#' @slot CILower The lower bounds of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot CIUpper The upper bounds of the confidence interval for \code{Estimate} based on \code{StdError}.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+#' @slot Pvalue P-value associated with the causal estimate.
+#' @slot SNPs The number of SNPs that were used in the calculation.
+#' @slot RSE The estimated residual standard error from the regression model.
+#' @slot Heter.Stat Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.
+
+setClass("MVIVWME",
+         representation(Model = "character",
+                        Exposure = "character",
+                        Outcome = "character",
+
+                        Estimate = "numeric",
+                        StdError = "numeric",
+                        CILower = "numeric",
+                        CIUpper = "numeric",
+                        Alpha = "numeric",
+						
+						Correlation = "matrix",
+
+                        Pvalue = "numeric",
+                        SNPs = "numeric",
+
+                        RSE = "numeric",
+                        Heter.Stat = "numeric"
+						)
+)
+
 
 #--------------------------------------------------------------------------------------------
 
@@ -916,4 +957,40 @@ setClass("MVGMM",
                         
                         Alpha = "numeric",
                         Heter.Stat = "numeric")
+)
+
+#--------------------------------------------------------------------------------------------
+
+#' CLR Class
+#'
+#' @description An object containing the confidence intervals produced using the conditional likelihood ratio method (CLR) and other identification-robust methods.
+#'
+#' @slot Exposure The name of the exposure variable.
+#' @slot Outcome The name of the outcome variable.
+#' @slot Correlation The matrix of correlations between genetic variants.
+#' @slot ARlower The lower bounds of the causal estimate based on inverting Anderson and Rubin's test.
+#' @slot ARupper The upper bounds of the causal estimate based on inverting Anderson and Rubin's test.
+#' @slot Klower The lower bounds of the causal estimate based on inverting Kleibergen's test.
+#' @slot Kupper The upper bounds of the causal estimate based on inverting Kleibergen's test.
+#' @slot CLRlower The lower bounds of the causal estimate based on inverting Moreira's conditional likelihood ratio test.
+#' @slot CLRupper The upper bounds of the causal estimate based on inverting Moreira's conditional likelihood ratio test.
+#' @slot CIMin The smallest value used in the search to find the confidence interval.
+#' @slot CIMax The largest value used in the search to find the confidence interval.
+#' @slot CIStep The step size used in the search to find the confidence interval.
+#' @slot Alpha The significance level used in constructing the confidence interval (default is 0.05).
+
+setClass("CLR",
+         representation(Exposure = "character",
+                        Outcome = "character",
+                        Correlation = "matrix",
+                        ARlower = "numeric",
+                        ARupper = "numeric",
+                        Klower = "numeric",
+                        Kupper = "numeric",
+                        CLRlower = "numeric",
+                        CLRupper = "numeric",
+                        CIMin = "numeric",
+                        CIMax = "numeric",
+                        CIStep = "numeric",
+                        Alpha = "numeric")
 )

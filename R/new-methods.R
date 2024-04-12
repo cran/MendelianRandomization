@@ -34,7 +34,6 @@
 #' \item{other_allele}{A vector of character strings with the names of the non-effect alleles.}
 #' \item{eaf}{A numeric vector with the effect allele frequencies.}
 #'
-#' @seealso \code{extract.pheno.csv()} for a description of how an \code{MRInput} object can be extracted from PhenoScanner (\url{http://www.phenoscanner.medschl.cam.ac.uk/}).
 #' 
 #'
 

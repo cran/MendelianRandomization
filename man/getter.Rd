@@ -11,6 +11,7 @@
 \alias{$,MRInput-method}
 \alias{$,MaxLik-method}
 \alias{$,MVIVW-method}
+\alias{$,MVIVWME-method}
 \alias{$,MVEgger-method}
 \alias{$,MRMVInput-method}
 \alias{$,MRHetPen-method}
@@ -25,6 +26,7 @@
 \alias{$,PCGMM-method}
 \alias{$,MVPCGMM-method}
 \alias{$,MVGMM-method}
+\alias{$,CLR-method}
 \title{Applies method $ to different classes}
 \usage{
 \S4method{$}{WeightedMedian}(x, name)
@@ -42,6 +44,8 @@
 \S4method{$}{MaxLik}(x, name)
 
 \S4method{$}{MVIVW}(x, name)
+
+\S4method{$}{MVIVWME}(x, name)
 
 \S4method{$}{MVEgger}(x, name)
 
@@ -70,6 +74,8 @@
 \S4method{$}{MVPCGMM}(x, name)
 
 \S4method{$}{MVGMM}(x, name)
+
+\S4method{$}{CLR}(x, name)
 }
 \arguments{
 \item{x}{Object.}

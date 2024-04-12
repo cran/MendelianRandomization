@@ -3,7 +3,7 @@
 
 setMethod("mr_mvpcgmm",
           "MRMVInput",
-          function(object, nx, ny, cor.x=NULL, r = NULL, thres=0.999, robust=TRUE, alpha=0.05, ...){
+          function(object, nx, ny, cor.x=NULL, r = NULL, thres=0.99, robust=TRUE, alpha=0.05, ...){
             
             bx = object@betaX
             by = object@betaY
@@ -19,7 +19,7 @@ setMethod("mr_mvpcgmm",
             
             # estimate principal components
             Phi <- ((rowSums(abs(bx))/sy)%*%t(rowSums(abs(bx))/sy))*ld
-            if(is.na(thres)) { thres <- 0.999 }
+            if(is.na(thres)) { thres <- 0.99 }
             if(missing(r)){r <- which(cumsum(prcomp(Phi,scale=FALSE)$sdev^2/sum((prcomp(Phi,scale=FALSE)$sdev^2)))>thres)[1]
             } else {r <- r}
             

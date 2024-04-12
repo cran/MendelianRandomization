@@ -64,6 +64,3 @@ The beta-coefficients are assumed to be estimated for uncorrelated (independent)
 
 If the four variables are not all the same length, then an error message will be reported. The analyses will still try to run, but the output may be misleading. However, in some analyses (for example, the standard IVW and MR-Egger methods), the values of \code{bxse} are not used in the analysis, and can therefore safely be omitted (provided that the other variables are correctly labelled).
 }
-\seealso{
-\code{extract.pheno.csv()} for a description of how an \code{MRInput} object can be extracted from PhenoScanner (\url{http://www.phenoscanner.medschl.cam.ac.uk/}).
-}

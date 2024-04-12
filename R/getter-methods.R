@@ -51,6 +51,11 @@ setMethod("$",
 
 #' @rdname getter
 setMethod("$",
+          "MVIVWME",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
           "MVEgger",
           function(x, name) slot(x, name))
 
@@ -117,4 +122,9 @@ setMethod("$",
 #' @rdname getter
 setMethod("$",
           "MVGMM",
+          function(x, name) slot(x, name))
+
+#' @rdname getter
+setMethod("$",
+          "CLR",
           function(x, name) slot(x, name))

@@ -1,3 +1,10 @@
+MendelianRandomization v0.10.0
+==============================
+Removed extract.pheno.csv command and PhenoScanner example data.
+Added conditional likelihood ratio method and other weak instrument robust identification tests (mr_clr) - thanks to Sheng Wang for coding!
+Changed default threshold for PCs in mr_pcgmm and mr_mvpcgmm from 0.999 to 0.99.
+Added multivariable IVW with measurement error method (mr_mvivwme) - thanks to Andrew Grant and Ville Karhunen for coding!
+
 MendelianRandomization v0.9.0
 =============================
 Added multivariable generalized method of moments (GMM) method (mr_mvgmm) - thanks to Ashish Patel for coding!

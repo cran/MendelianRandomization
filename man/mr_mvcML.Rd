@@ -102,7 +102,7 @@ mr_mvcML(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, t
 rho_mat = matrix(c(1,-0.1,0.2,0,-0.1,1,-0.3,0,
  				  0.2,-0.3,1,0,0,0,0,1),ncol=4) ## Toy example of rho_mat
 mr_mvcML(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
-   by = chdlodds, byse = chdloddsse), n = 17723, num_pert = 100, rho_mat = rho_mat)
+   by = chdlodds, byse = chdloddsse), n = 17723, num_pert = 5, rho_mat = rho_mat)
 
 # Perform MVMRcML-BIC:
 mr_mvcML(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),

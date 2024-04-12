@@ -1,7 +1,6 @@
 ---
 title: "Mendelian randomization vignette"
 author:
-- Olena Yavorska
 - Stephen Burgess
 date: "r Sys.Date()"
 output: rmarkdown::html_vignette
@@ -11,30 +10,38 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-# MendelianRandomization
+# MendelianRandomization package
 
-MendelianRandomization is a package developed to carry out various Mendelian randomization analyses on summarized genetic data in R. The package uses various methods to assess whether a risk factor (also called an exposure) has a causal effect on an outcome.
+MendelianRandomization is a package developed to carry out Mendelian randomization analyses using summarized genetic data in R. The package implements various methods to help assess whether a risk factor (also called an exposure) has a causal effect on an outcome.
+
+Several additional references are available which describe the operation of this package, including:
+
+- Yavorska and Burgess (2017) "MendelianRandomization: an R package for performing Mendelian randomization analyses using summarized data", doi: 10.1093/ije/dyx034. This describes the basic operation of the package and core functions.
+
+- Broadbent et al (2020) "MendelianRandomization v0.5.0: updates to an R package for performing Mendelian randomization analyses using summarized data", doi: 10.12688/wellcomeopenres.16374.2. This describes updates to the package up to version 0.5.0.
+
+- Patel et al (2023) "MendelianRandomization v0.9.0: updates to an R package for performing Mendelian randomization analyses using summarized data". This describes updates to the package up to version 0.9.0.
 
 ```{r}
-library(MendelianRandomization)
+library(MendelianRandomization) # loading the package
 ```
 
 ## The Input
 
-The package uses a special class called *MRInput* within the analyses in order to pass in all necessary information through one simple structure rather than inserting the object in parts. In order to make an *MRInput* object, one can do one of the following :
+The package uses a special class called *MRInput* within the analyses in order to pass in all necessary information through one simple structure rather than inserting the data in parts. In order to make an *MRInput* object, one can do the following:
 
-- assign values to each slot separately 
-- extract it from a PhenoScanner .csv output file
+- specify values for each slot separately, or
+- extract values from the PhenoScanner web-based database
 
-We focus on the first method.
+We focus initially on the first option.
 
 The *MRInput* object has the following "slots" :
 
 - *betaX* and *betaXse* are both numeric vectors describing the associations of the genetic variants with the exposure. *betaX* are the beta-coefficients from univariable regression analyses of the exposure on each genetic variant in turn, and *betaXse* are the standard errors.
 - *betaY* and *betaYse* are both numeric vectors describing the associations of the genetic variants with the outcome. *betaY* are the beta-coefficients from regression analyses of the outcome on each genetic variant in turn, and *betaYse* are the standard errors.
-- *correlation* is a matrix outlining the correlations between the variants. If a correlation matrix is not provided, it is assumed that the variants are uncorrelated.
+- *correlation* is a matrix with the signed correlations between the variants. If a correlation matrix is not provided, it is assumed that the variants are uncorrelated.
 - *exposure* is a character string giving the name of the risk factor, e.g. LDL-cholesterol.
-- *outcome* is a character string giving the name of the outcome, e.g. coronary heart disease.
+- *outcome* is a character string giving the name of the outcome, e.g. coronary heart disease. These inputs are only used in the graphing functions.
 - *snps* is a character vector of the names of the various genetic variants (SNPs) in the dataset, e.g. rs12785878. It is not necessary to name the exposure, outcome, or SNPs, but these names are used in the graphing functions and may be helpful for keeping track of various analyses.
 
 To generate the *MRInput* object slot by slot, one can use the *mr_input()* function :
@@ -48,16 +55,16 @@ MRInputObject <- mr_input(bx = ldlc,
 MRInputObject  # example with uncorrelated variants
 
 MRInputObject.cor <- mr_input(bx = calcium, 
-                             bxse = calciumse, 
-                             by = fastgluc, 
-                             byse = fastglucse,
-                             corr = calc.rho)
+                              bxse = calciumse, 
+                              by = fastgluc, 
+                              byse = fastglucse,
+                              corr = calc.rho)
 
 MRInputObject.cor  # example with correlated variants
 
 ```
 
-It is not necessary for all the slots to be filled. For example, several of the methods do not require *bxse* to be specified; the *mr_ivw* function will still run with *bxse* set to zeros. If the vectors *bx*, *bxse*, *by*, and *byse* are not of equal length, then an error will be reported.
+It is not necessary for all the slots to be filled. For example, some of the methods do not require *bxse* to be specified; for example, the *mr_ivw* function will still run with *bxse* set to zeros. If the vectors *bx*, *bxse*, *by*, and *byse* are not of equal length, then an error will be reported. Note that the package does not implement any harmonization of associations to the same effect allele; this must be done by the user.
 
 It is also possible to run the analysis using the syntax:
 ```{r, eval=FALSE}
@@ -70,19 +77,21 @@ However, care must be taken in this case to give the vectors in the correct orde
 Two sets of data are provided as part of this package:
 
 - *ldlc, ldlcse, hdlc, hdlcse, trig, trigse, chdlodds, chdloddsse*: these are the associations (beta-coefficients and standard errors) of 28 genetic variants with LDL-cholesterol, HDL-cholesterol, triglycerides, and coronary heart disease (CHD) risk (associations with CHD risk are log odds ratios) taken from Waterworth et al (2011) "Genetic variants influencing circulating lipid levels and risk of coronary artery disease", doi: 10.1161/atvbaha.109.201020.
-- *calcium, calciumse, fastgluc, fastglucse*: these are the associations (beta-coefficients and standard errors) of 7 genetic variants in the /CASR/ gene region. These 7 variants are all correlated, and the correlation matrix is provided as *calc.rho*. These data were analysed in Burgess et al (2015) "Using published data in Mendelian randomization: a blueprint for efficient identification of causal risk factors", doi: 10.1007/s10654-015-0011-z.
+- *calcium, calciumse, fastgluc, fastglucse*: these are the associations (beta-coefficients and standard errors) of 7 genetic variants in the *CASR* gene region. These 7 variants are all correlated, and the correlation matrix is provided as *calc.rho*. These data were analysed in Burgess et al (2015) "Using published data in Mendelian randomization: a blueprint for efficient identification of causal risk factors", doi: 10.1007/s10654-015-0011-z.
 
-## Methods
+## Univariable estimation methods
 
-The MendelianRandomization package supports three main methods for causal estimation: the inverse-variance weighted method, the median-based method, and the MR-Egger method.
+The MendelianRandomization package supports several univariable estimation methods (that is, methods for a single exposure variable): the inverse-variance weighted method, the median-based method, the MR-Egger method, the mode-based method, the maximum likelihood method, the heterogeneity penalized method, the contamination mixture method, the lasso method, the debiased inverse-variance weighted method, the penalized inverse-variance weighted method, the constrained maximum likelihood method, and the principal components generalized method of moments (GMM) method. We describe these methods in turn.
 
 ## Inverse-variance weighted method
 
-The inverse-variance method is the equivalent to the standard IV method using individual-level data (the two-stage least squares method). Either a fixed- or a random-effects analysis can be performed; the *"default"* option is a fixed-effect analysis when there are three variants or fewer, and a random-effects analysis otherwise. The *robust* option uses robust regression rather than standard regression in the analysis, and the *penalized* option downweights the contribution to the analysis of genetic variants with outlying (heterogeneous) causal estimates. If a correlation matrix is provided in the *MRInput* object, then the correlated method is used by default (*correl = TRUE*), and the *robust* and *penalized* arguments are ignored. 
+The inverse-variance method is equivalent to the standard instrumental variable method using individual-level data, the two-stage least squares method. Either a fixed- or a random-effects analysis can be performed; the *"default"* option is a fixed-effect analysis when there are three variants or fewer, and a random-effects analysis otherwise. The *robust* option uses robust regression rather than standard regression in the analysis, and the *penalized* option downweights the contribution to the analysis of genetic variants with outlying (heterogeneous) variant-specific estimates. If a correlation matrix is provided in the *MRInput* object, then the correlated method is used by default (*correl = TRUE*), and the *robust* and *penalized* arguments are ignored. 
 
 The default options for constructing confidence intervals are based on a normal distribution and a 95% confidence level, however one can use the t-distribution (*distribution = "t-dist"*) and alternative significance level if desired.
 
-*ADDED IN VERSION 0.2.0* The default option for the weights is *"simple"*, which corresponds to an inverse-variance weighted meta-analysis of the ratio estimates *by/bx* using standard errors *byse/bx*. The expression for the standard error of the ratio estimate is the first-order term of a delta expansion for the variance of a ratio. The corresponding weights in the regression analysis are *byse\^-2*. These weights have been demonstrated to give reasonable inferences in realistic settings. However, they do not take into account uncertainty in the genetic associations with the exposure. Alternatively, the second-order term of the delta expansion is *sqrt(byse\^2/bx\^2+by\^2*bxse\^2/bx\^4-2*psi*by*bxse*byse/bx\^3)*, where *psi* is the correlation for each variant between its association with the exposure and with the outcome. This correlation will be zero (the default value) in a strict two-sample setting in which there is no overlap between the individuals used to estimate associations with the exposure and with the outcome. Paradoxically, although the standard error expression implied by the second-order weights (obtained by setting *weights* equal to *"delta"*) is larger, resulting in wider confidence intervals for a single genetic variant, the use of second-order weights often leads to less heterogeneity between the estimates for the individual variants, and so in narrower confidence intervals.
+The default option for the weights is *"simple"*, which corresponds to an inverse-variance weighted meta-analysis of the ratio estimates *by/bx* using first-order standard errors *byse/bx*. Alternatively, weights can be set to *"delta"*, to include second-order terms of the delta expansion. This makes use of *psi*, which is the correlation for each variant between its association with the exposure and with the outcome.
+
+The *mr_ivw* function automatically calculates an approximation to the first-stage F statistic from regression of the exposure on the genetic variants. This is an important measure of instrument strength. When the correlation matrix is specified, calculation of the estimated F statistic accounts for the correlation between variants. When a correlation matrix is specified, a warning message appears to remind the user of the importance of correct harmonization of the correlation matrix to the same effect and other alleles as the genetic associations with the exposure and outcome.
 
 ```{r}
 IVWObject <- mr_ivw(MRInputObject,
@@ -114,9 +123,9 @@ IVWObject.correl
 
 ## Median-based method
 
-The median-based method calculates a median of the SNP-specific causal estimates from the ratio method for each genetic variant individually. The default option is to calculate a weighted median using the inverse-variance weights. Alternatively, one can calculate a simple (unweighted) median, or a weighted median using penalization of weights for heterogeneous variants. Since the calculation of standard error requires bootstrapping, the number of bootstrap iterations can be varied. The random seed is set automatically so that results are reproducible; however, the value of the seed can be changed if required.
+The median-based method calculates a median of the variant-specific estimates from the ratio method for each genetic variant individually. The default option is to calculate a weighted median using the inverse-variance weights. Alternatively, one can calculate a simple (unweighted) median, or a weighted median using penalization of weights for heterogeneous variants. Since the calculation of standard error requires bootstrapping, the number of bootstrap iterations can be varied. The random seed is set automatically so that results are reproducible; however, the value of the seed can be changed if required. Once the function has been completed, the random seed is reset to its previous value (this is true for all functions in the package).
 
-The median-based method requires data on at least 3 genetic variants. Variants must be uncorrelated provided that the correlation matrix is specified.
+The median-based method requires data on at least 3 genetic variants. Variants must be uncorrelated.
 
 ```{r}
 WeightedMedianObject <- mr_median(MRInputObject, 
@@ -143,7 +152,7 @@ The MR-Egger method is implemented here using a random-effects model only. The *
 
 With a t-distribution, in case of under-dispersion (the estimated residual standard error in the regression model is less than 1), confidence intervals and p-values use either a t-distribution with no correction for under-dispersion, or a normal distribution with the residual standard error set to 1 -- whichever is wider. This means that under-dispersion is not doubly penalized by setting the residual standard error to 1 and using a t-distribution, but also that the confidence intervals are not narrower (p-values not more extreme) than those using a fixed-effect model.
 
-The median-based method requires data on at least 3 genetic variants. Variants are permitted to be correlated.
+The MR-Egger method requires data on at least 3 genetic variants. Variants are permitted to be correlated.
 
 ```{r}
 EggerObject <- mr_egger(MRInputObject, 
@@ -171,11 +180,9 @@ EggerObject.corr
 
 ## Maximum likelihood method
 
-*ADDED IN VERSION 0.2.0* An additional method for causal estimation is the maximum likelihood method, introduced in Burgess et al (2013) "Mendelian randomization analysis with multiple genetic variants using summarized data", doi: 10.1002/gepi.21758. This method has not been used much in the literature, due to its similarity to the inverse-variance weighted method (both methods use the same underlying model), and its relative complexity: the method involves maximizing a likelihood that has one parameter for each genetic variant, plus a causal effect parameter. For large numbers of genetic variants, this entails optimization over a large parameter space, which can lead to numerical issues in the optimization algorithm.
+An alternative estimation method is the maximum likelihood method, introduced in Burgess et al (2013) "Mendelian randomization analysis with multiple genetic variants using summarized data", doi: 10.1002/gepi.21758. 
 
-The method naturally assumes a fixed-effect model -- the same causal effect is estimated by each of the genetic variants. However, if there is heterogeneity between the causal estimates from the different genetic variants, then confidence intervals from a fixed-effect model will be overly precise. We implement a random-effects model by multiplying the standard error from the fixed-effect model by an estimate of the residual standard error obtained: the likelihood ratio heterogeneity test statistic divided by the number of genetic variants less 1, and then square rooted (provided this quantity is greater than 1, otherwise no modification to the standard error is made). This is similar to the residual standard error in a regression model, which can be calculated from the Cochran Q heterogeneity test statistic by the same steps. As with the IVW method, the default option is to implement a fixed-effect model with three variants or fewer, and a random-effects analysis otherwise.
-
-The method has two main advantages over the IVW method: it allows for uncertainty in the genetic associations with the exposure (which is ignored in the IVW method using simple weights), and it allows for genetic associations with the exposure and with the outcome for each variant to be correlated. This correlation arises if the samples for the associations with the exposure and the outcome overlap. In a strict two-sample Mendelian randomization setting, the correlation parameter *psi* is set to zero (the default option). If the associations are estimated in the same individuals (complete sample overlap), then the value of *psi* should be the observed correlation between the exposure and the outcome.
+The method has two main advantages over the IVW method: it allows for uncertainty in the genetic associations with the exposure (which is ignored in the IVW method using simple weights), and it allows for genetic associations with the exposure and with the outcome for each variant to be correlated. This correlation arises if the samples for the associations with the exposure and the outcome overlap. In a strict two-sample Mendelian randomization setting, the correlation parameter *psi* is set to zero (the default option). If the associations are estimated in the same individuals (complete sample overlap), then the observed correlation between the exposure and the outcome is a reasonable proposal for the value of *psi*.
 
 ```{r}
 MaxLikObject <- mr_maxlik(MRInputObject, 
@@ -196,52 +203,21 @@ MaxLikObject.corr <- mr_maxlik(mr_input(bx = calcium, bxse = calciumse,
 MaxLikObject.corr
 ```
 
-## Multivariable Mendelian randomization
+## Mode-based estimation method
 
-*ADDED IN VERSION 0.3.0* An additional method for causal estimation when genetic variants are associated with multiple risk factors is multivariable Mendelian randomization, introduced in Burgess and Thompson (2015) "Multivariable Mendelian randomization: the use of pleiotropic genetic variants to estimate causal effects", doi: 10.1093/aje/kwu283.
+An additional method for robust estimation that gives consistent when a plurality of genetic variants is valid is the mode-based estimation method, introduced in Hartwig, Davey Smith and Bowden (2017) "Robust inference in summary data Mendelian randomization via the zero modal pleiotropy assumption", doi: 10.1093/ije/dyx102.
 
-There are two contexts in which we envision the method being used. First, when there is a set of related risk factors, such as lipid fractions. It is difficult to find genetic predictors of HDL-cholesterol that do not also predict LDL-cholesterol and/or triglycerides. Multivariable Mendelian randomization allows genetic variants to be associated with all the risk factors in the model provided that they do not influence the outcome via other pathways. Secondly, when there is a network of risk factors, typically a primary risk factor and a secondary risk factor or mediator. In both cases, causal estimates reflect direct causal effects - the result of intervening on the risk factor under analysis while keeping other risk factors in the model fixed.
+While the median-based method calculates the variant-specific estimates and then obtains the median of these estimates, and the inverse-variance weighted estimate is a weighted mean of the variant-specific estimates, the mode-based method obtains the "mode" of these estimates. However, in finite samples, no two estimates will be exactly the same, so a mode does not exist. The method proceeds by constructing a kernel-weighted density of the variant-specific estimates, and taking the maximum point of this density as the point estimate. A confidence interval is obtained by bootstrapping.
 
-As the multivariable method requires genetic associations with multiple risk factors, a different input function is needed: *mr_mvinput*:
-
-```{r}
-MRMVInputObject <- mr_mvinput(bx = cbind(ldlc, hdlc, trig),
-                              bxse = cbind(ldlcse, hdlcse, trigse),
-                              by = chdlodds, 
-                              byse = chdloddsse)
-
-MRMVInputObject
-```
-
-The *mr_mvivw* command performs an extension of the inverse-variance weighted method for multivariable Mendelian randomization, performing multivariable weighted linear regression (the standard IVW method method performs univariable weighted linear regression) with the intercept term set to zero. As with the standard IVW method, a correlation matrix can be specified. Multivariable Mendelian randomization requires the number of genetic variants to exceed the number of risk factors; if this is not the case, the method will return an error.
-
-```{r}
-MRMVObject <- mr_mvivw(MRMVInputObject, 
-                          model = "default",
-						  correl = FALSE,
-                          distribution = "normal",
-                          alpha = 0.05)
-
-MRMVObject <- mr_mvivw(MRMVInputObject)
-
-MRMVObject
-```
-
-## Mode-based estimation method of Hartwig et al
-
-*ADDED IN VERSION 0.3.0* An additional method for robust causal estimation that gives consistent when a plurality of genetic variants is valid is the mode-based estimation method, introduced in Hartwig, Davey Smith and Bowden (2017) "Robust inference in summary data Mendelian randomization via the zero modal pleiotropy assumption", doi: 10.1093/ije/dyx102.
-
-While the median-based method calculates the variant-specific estimates and then obtains the mean of these estimates, the mode-based method obtains the "mode" of the estimates. However, in finite samples, no two estimates will be exactly the same, so a mode does not exist. The method proceeds by constructing a kernel-weighted density of the variant-specific estimates, and taking the maximum point of this density as the point estimate. A confidence interval is obtained by bootstrapping.
-
-Several options can be specified: whether the mode should be *"weighted"* or *"unweighted"* (default is weighted), whether the standard errors should be calculated using the *"simple"* or *"delta"* formula above (default is delta), the value of the bandwidth parameter multiplication factor (default is 1), the random seed, and number of iterations in the bootstrap procedure.
+Several options can be specified: whether the mode should be *"weighted"* or *"unweighted"* (default is weighted), whether the standard errors should be calculated using the *"simple"* or *"delta"* formula (default is *delta*), the value of the bandwidth parameter multiplication factor (default is 1), the random seed, and number of iterations in the bootstrap procedure.
 
 ```{r}
 MBEObject <- mr_mbe(MRInputObject, 
                     weighting = "weighted",
-					stderror = "delta",
-					phi = 1,
-					seed = 314159265,
-					iterations = 10000,
+                    stderror = "delta",
+                    phi = 1,
+                    seed = 314159265,
+                    iterations = 10000,
                     distribution = "normal",
                     alpha = 0.05)
 
@@ -253,20 +229,18 @@ MBEObject
 
 ## Heterogeneity-penalized method
 
-*ADDED IN VERSION 0.3.0* An additional method for robust causal estimation that also gives consistent when a plurality of genetic variants is valid is the heterogeneity-penalized model-averaging method, introduced in Burgess et al (2017) "Improving on a modal-based estimation method: model averaging for consistent and efficient estimation in Mendelian randomization when a plurality of candidate instruments are valid", doi: 10.1101/175372.
+Another method for robust estimation that also gives consistent when a plurality of genetic variants is valid is the heterogeneity-penalized model-averaging method, introduced in Burgess et al (2018) "Modal-based estimation via heterogeneity-penalized weighting: model averaging for consistent and efficient estimation in Mendelian randomization when a plurality of candidate instruments are valid", doi: 10.1093/ije/dyy08010.1101/175372.
 
-There are several aspects of the mode-based estimation method that could be improved upon. The choice of bandwidth is arbitrary and has a large effect on estimates and their confidence intervals. The bootstrap procedure is not ideal, as it makes the assumption that the estimate is normally distributed. The method is not particularly efficient.
+The heterogeneity-penalized method uses the same consistency criterion as the mode-based estimation method, but evaluates the modal estimate in a different way. It proceeds by evaluating weights for all subsets of genetic variants (excluding the null set and singletons). Subsets receive greater weight if they include more variants, but are severely downweighted if the variants in the subset have heterogeneous variant-specific estimates. As such, the method will identify the subset with the largest number (by weight) of variants having similar variant-specific estimates.
 
-The heterogeneity-penalized method uses the same consistency criterion as the mode-based estimation method, but evaluates the modal estimate in a different way. It proceeds by evaluating weights for all subsets of genetic variants (excluding the null set and singletons). Subsets receive greater weight if they include more variants, but are severely downweighted if the variants in the subset have heterogeneous causal estimates. As such, the method will identify the subset with the largest number (by weight) of variants having similar causal estimates.
-
-Confidence intervals are evaluated by calculating a log-likelihood function, and finding all points within a given vertical distance of the maximum of the log-likelihood function (which is the causal estimate). As such, if the log-likelihood function is multimodal, then the confidence interval may include multiple disjoint ranges. This may indicate the presence of multiple causal mechanisms by which the exposure may influence the outcome with different magnitudes of causal effect. As the confidence interval is determined by a grid search, care must be taken when chosing the minimum (*CIMin*) and maximum (*CIMax*) values in the search, as well as the step size (*CIStep*). The default values will not be suitable for all applications.
+Confidence intervals are evaluated by calculating a log-likelihood function, and finding all points within a given vertical distance of the maximum of the log-likelihood function (which is the overall estimate). As such, if the log-likelihood function is multimodal, then the confidence interval may include multiple disjoint ranges. This may indicate the presence of multiple causal mechanisms by which the exposure may influence the outcome with different magnitudes of causal effect. As the confidence interval is determined by a grid search, care must be taken when chosing the minimum (*CIMin*) and maximum (*CIMax*) values in the search, as well as the step size (*CIStep*). The default values will not be suitable for all applications.
 
 ```{r, eval = FALSE}
 HetPenObject <- mr_hetpen(MRInputObject, 
                           prior = 0.5,
-					      CIMin = -1,
-						  CIMax = 1,
-						  CIStep = 0.001,
+                          CIMin = -1,
+                          CIMax = 1,
+                          CIStep = 0.001,
                           alpha = 0.05)
 ```
 
@@ -295,10 +269,200 @@ HetPenObject.multimode <- mr_hetpen(mr_input(bx = bcrp, bxse = bcrpse,
 HetPenObject.multimode
 ```
 
+## Other univariable estimation methods
+
+Several other estimation methods are available, which we do not describe in detail, as their operation is similar to methods already described above. We would encourage interested analysts to read the help files for each method, which describe the inputs and outputs of each method.
+
+The contamination mixture method is introduced in Burgess et al (2020) "A robust and efficient method for Mendelian randomization with hundreds of genetic variants", doi: 10.1038/s41467-019-14156-4. It is similar in spirit to the heterogeneity-penalized method, but much more computationally efficient.
+
+```{r}
+ConMixObject <- mr_conmix(MRInputObject, 
+                          psi = 0,
+                          CIMin = NA,
+                          CIMax = NA,
+                          CIStep = 0.01,
+                          alpha = 0.05)
+
+ConMixObject <- mr_conmix(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse))
+
+ConMixObject
+```
+
+The lasso method is introduced in Rees et al (2019) "Robust methods in Mendelian randomization via penalization of heterogeneous causal estimates", doi: 10.1371/journal.pone.0222362. It is an outlier-robust method, which excludes variants with heterogeneous variant-specific estimates using lasso penalization.
+
+```{r}
+LassoObject <- mr_lasso(MRInputObject, 
+                        distribution = "normal",
+                        alpha = 0.05,
+                        lambda = numeric(0))
+
+LassoObject <- mr_lasso(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse))
+
+LassoObject
+```
+
+The debiased inverse-variance weighted method is a variation on the inverse-variance weighted method that is more robust to bias due to weak instruments and winner's curse. It is described in Ting, Shao, Kang (2021) "Debiased inverse-variance weighted estimator in two-sample summary-data Mendelian randomization", doi: 10.1214/20-aos2027.
+
+```{r}
+DIVWObject <- mr_divw(MRInputObject,
+                      over.dispersion = TRUE,
+                      alpha = 0.05,
+                      diagnostics = FALSE)
+
+DIVWObject <- mr_divw(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse))
+
+DIVWObject
+```
+
+The penalized inverse-variance weighted method is a further extension of the inverse-variance weighted and debiased inverse-variance weighted methods to deal with selection of variants more explicitly. It is described in Wang et al (2022) "A novel penalized inverse-variance weighted estimator for Mendelian randomization with applications to COVID-19 outcomes", doi: 10.1111/biom.13732.
+
+```{r}
+PIVWObject <- mr_pivw(MRInputObject,
+                      over.dispersion = TRUE,
+                      delta = 0, 
+                      sel.pval = NULL,
+                      Boot.Fieller = TRUE,
+                      alpha = 0.05)
+
+PIVWObject <- mr_pivw(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse))
+
+PIVWObject
+```
+
+The constrained maximum likelihood method is a robust method that can account for violation of any of the three instrumental variable assumptions under mild assumptions. In a maximum likelihood framework, this method constrains the number of invalid instruments with horizontal pleiotropy. The number of invalid instruments is asymptotically consistently selected by the Bayesian information criterion. It is described in Xue, Shen, Pan (2021) "Constrained maximum likelihood-based Mendelian randomization robust to both correlated and uncorrelated pleiotropic effects", doi: 10.1016/j.ajhg.2021.05.014.
+
+Note that this method requires the sample size used to calculate the genetic associations with the exposure and/or outcome to be specified (if these differ, then it is recommended to use the lower value; see reference for details).
+
+```{r, eval=FALSE}
+cMLObject <- mr_cML(MRInputObject,
+                    MA = TRUE,
+                    DP = TRUE,
+                    K_vec = 0:(length(object@betaX)-2), 
+                    random_start = 0,
+                    num_pert = 200,
+                    random_start_pert = 0,
+                    maxit = 100,
+                    random_seed = 314,
+                    n,
+                    Alpha = 0.05)
+```
+
+```{r}
+cMLObject <- mr_cML(mr_input(bx = ldlc, bxse = ldlcse,
+  by = chdlodds, byse = chdloddsse), n = 17723)
+
+cMLObject
+```
+
+The principal components GMM method is an implementation of the GMM method with summarized data that is designed for use when performing Mendelian randomization using genetic variants from a single gene region. As an alternative to pruning and clumping approaches, which take a large number of variants from a gene region (potentially hundreds or thousands) and select a small number of uncorrelated (or weakly correlated) variants, the principal components approach performs dimension reduction on the full set of variant associations. The principal components are then used as instrument variables, rather than the individual genetic variants. The method is described in Patel et al (2023) "Robust use of phenotypic heterogeneity at drug target genes for mechanistic insights: application of cis-multivariable Mendelian randomization to GLP1R gene region", doi: 10.1101/2023.07.20.23292958.
+
+Note that this method requires the sample size used to calculate the genetic associations with the exposure (*nx*) and outcome (*ny*) to be specified. The number of principal components includes as instruments can either be set directly, by setting *r*, or indirectly, by setting *thres*. The default option *thres = 0.999* includes enough principal components to explain 99.9% of the variance in the weighted variant correlation matrix.
+
+```{r, eval=FALSE}
+pcGMMObject <- mr_pcgmm(MRInputObject.cor,
+                        nx,
+                        ny,
+                        r = NULL,
+                        thres = 0.999,
+                        robust = TRUE,
+                        alpha = 0.05)
+```
+
+```{r}
+pcGMMObject <- mr_pcgmm(mr_input(bx = calcium, bxse = calciumse,
+   by = fastgluc, byse = fastglucse, corr = calc.rho),
+   nx=6351, ny=133010)
+
+pcGMMObject
+```
+
+
+## Multivariable Mendelian randomization
+
+An analytic approach when genetic variants are associated with multiple risk factors is multivariable Mendelian randomization, introduced in Burgess and Thompson (2015) "Multivariable Mendelian randomization: the use of pleiotropic genetic variants to estimate causal effects", doi: 10.1093/aje/kwu283.
+
+There are two contexts in which we envision the method being used. First, when there is a set of related risk factors, such as lipid fractions. It is difficult to find genetic predictors of HDL-cholesterol that do not also predict LDL-cholesterol and/or triglycerides. Multivariable Mendelian randomization allows genetic variants to be associated with all the risk factors in the model provided that they do not influence the outcome via other pathways. Secondly, when there is a network of risk factors, typically a primary risk factor and a secondary risk factor or mediator. In both cases, multivariable estimates reflect direct causal effects - the result of intervening on the risk factor under analysis while keeping other risk factors in the model fixed.
+
+As the multivariable method requires genetic associations with multiple risk factors, a different input function is needed: *mr_mvinput*, which creates an *MRMVInput* object:
+
+```{r}
+MVMRInputObject <- mr_mvinput(bx = cbind(ldlc, hdlc, trig),
+                              bxse = cbind(ldlcse, hdlcse, trigse),
+                              by = chdlodds, 
+                              byse = chdloddsse)
+
+MVMRInputObject
+
+MVMRInputObject.cor <- mr_mvinput(bx = cbind(ldlc, hdlc, trig),
+                                  bxse = cbind(ldlcse, hdlcse, trigse),
+                                  by = chdlodds, 
+                                  byse = chdloddsse,
+                                  correlation = diag(length(ldlc)))
+```
+
+The *mr_mvivw* command performs an extension of the inverse-variance weighted method for multivariable Mendelian randomization, implementing multivariable weighted linear regression (the standard IVW method method performs univariable weighted linear regression) with the intercept term set to zero. As with the standard IVW method, a correlation matrix can be specified. Multivariable Mendelian randomization requires the number of genetic variants to exceed the number of risk factors; if this is not the case, the method will return an error.
+
+```{r}
+MVIVWObject <- mr_mvivw(MVMRInputObject, 
+                         model = "default",
+                         correl = FALSE,
+                         correl.x = NULL,
+                         nx = NA,
+                         distribution = "normal",
+                         alpha = 0.05)
+
+MVIVWObject <- mr_mvivw(MVMRInputObject)
+
+MVIVWObject
+```
+
+*Conditional F statistics:* The *nx* option specifies the sample size(s) for the genetic associations with the exposures (either a single value if these are all equal, or a vector if they differ). The *correl.x* option specifies the correlation between the genetic associations with the exposures. If the genetic assocations with the exposures are estimates in separate datasets, then this correlation matrix should be set to the identity matrix (this is the default option). This matrix cannot be calculated from summarized data; if it is unknown, then a sensitivity analysis for its value is recommended. The *nx* and *correl.x* options are not used in the calculation of estimates from the multivariable inverse-variance weighted method method, but only in the calculation of conditional F statistics. Conditional F statistics are the relevant measure of instrument strength for multivariable Mendelian randomization. For more detail, see Sanderson, Spiller, Bowden (2021) "Testing and correcting for weak and pleiotropic instruments in two-sample multivariable Mendelian randomization", doi: 10.1002/sim.9133.
+
+```{r}
+MVIVWObject.condF <- mr_mvivw(MVMRInputObject, nx = 17723)
+
+MVIVWObject.condF
+```
+
+## Other univariable estimation methods
+
+In addition to the multivariable inverse-variance weighted method, several other multivariable estimation methods are available, which generally are multivariable extensions of univariable methods: multivariable MR-Egger, multivariable median-based method, multivariable lasso method, multivariable constrained maximum likelihood, multivariable GMM, and multivariable principal components GMM.
+
+```{r}
+MVEggerObject <- mr_mvegger(MVMRInputObject)
+
+MVEggerObject
+
+MVMedianObject <- mr_mvmedian(MVMRInputObject)
+
+MVMedianObject
+
+MVLassoObject <- mr_mvlasso(MVMRInputObject)
+
+MVLassoObject
+
+MVcMLObject <- mr_mvcML(MVMRInputObject, n = 17723)
+
+MVcMLObject
+
+MVGMMObject <- mr_mvgmm(MVMRInputObject, nx=rep(17723,3), ny=17723)
+
+MVGMMObject
+
+MVpcGMMObject <- mr_mvpcgmm(MVMRInputObject.cor, nx=rep(17723,3), ny=17723)
+
+MVpcGMMObject
+```
+
+Note that the *mr_mvpcgmm* example does not use variants from a single gene region, and so is provided to demonstrate that the code works, rather than to illustrate a recommended use case.
 
 ## Summaries of multiple methods
 
-The *mr_allmethods* function is provided to easily compare results (Estimate, Standard Error, 95% CI, and p-value) from multiple methods. One can look at results from all methods (*method = "all"*), or a partial result setting method to *"egger"*, *"ivw"*, or *"median"* to get a more selective set of results. The final option is *"main"*, which gives results from the simple median, weighted median, IVW, and MR-Egger methods only.
+The *mr_allmethods* function is provided to easily compare results (Estimate, Standard Error, 95% CI, and p-value) from multiple methods. One can look at results from a wide range of methods (*method = "all"*), or a limited set of results by setting method to *"egger"*, *"ivw"*, or *"median"*. The final option is *"main"*, which gives results from the simple median, weighted median, IVW, and MR-Egger methods only.
 
 ```{r}
 MRInputObject <- mr_input(bx = ldlc, 
@@ -320,7 +484,7 @@ MRAllObject_main
 
 ### Applied to MRInput object - display of data
 
-The *mr_plot* function has two different functionalities. First, if the function is applied to an *MRInput* object, then the output is an interactive graph that can be used to explore the associations of the different genetic variants.
+The *mr_plot* function has two different functionalities. First, if the function is applied to an *MRInput* object, then the output is an interactive graph that can be used to explore the associations of the different genetic variants and look for outliers, which may represent pleiotropic variants.
 
 The syntax is:
 
@@ -333,7 +497,7 @@ An interactive graph does not reproduce well in a vignette, so we encourage read
 
 The option *error = TRUE* plots error bars (95% confidence intervals) for the associations with the exposure and with the outcome. The option *orientate = TRUE* sets all the associations with the exposure to be positive, and re-orientates the associations with the outcome if needed. This option is encouraged for the MR-Egger method (as otherwise points having negative associations with the exposure can appear to be far from the regression line), although by default it is set to *FALSE*. The *line* option can be set to *"ivw"* (to show the inverse-variance weighted estimate) or to *"egger"* (to show the MR-Egger estimate).
 
-*ADDED IN VERSION 0.2.0* A static version of this graph is also available, by setting *interactive = FALSE*: 
+A static version of this graph is also available, by setting *interactive = FALSE*: 
 ```{r}
 mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
  error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE)
@@ -341,7 +505,7 @@ mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
 
 This version of the graph is less useful for detecting outliers, but easier to save as a file and share with colleagues.
 
-Outliers can be detected using the *labels = TRUE* option:
+Outliers can be identified using the *labels = TRUE* option:
 ```{r}
 mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
  error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE, labels = TRUE)
@@ -349,9 +513,17 @@ mr_plot(mr_input(bx = ldlc, bxse = ldlcse, by = chdlodds, byse = chdloddsse),
 
 The resulting graph is quite ugly, but it is easy to identify the individual points.
 
+### Applied to MRMVInput object - display of data
+
+The *mr_plot* command can also be applied to an *MRMVInput* object created using the *mr_mvinput()* function. In this case, the horizontal axis does not present the associations with any single exposure, but the fitted value from the multivariable IVW method, representing the expected genetic association with the outcome based on the genetic associations with the exposures.
+
+```{r}
+mr_plot(MVMRInputObject, interactive = FALSE)
+```
+
 ### Applied to MRAll object - comparison of estimates
 
-Secondly, if the *mr_plot* function is applied to the output of the *mr_allmethods* function, estimates from the different methods can be compared graphically.
+Finally, if the *mr_plot* function is applied to the output of the *mr_allmethods* function, estimates from the different methods can be compared graphically.
 
 ```{r}
 mr_plot(MRAllObject_all)
@@ -368,60 +540,83 @@ mr_plot(mr_allmethods(mr_input(bx = hdlc, bxse = hdlcse,
 
 We see that estimates from all methods are similar when LDL-cholesterol is the risk factor, but the MR-Egger estimates differ substantially when HDL-cholesterol is the risk factor.
 
-## Extracting association estimates from publicly available datasets
+### Other graphical functions
 
-The PhenoScanner bioinformatic tool (http://phenoscanner.medschl.cam.ac.uk) is a curated database of publicly available results from large-scale genetic association studies. The database currently contains over 350 million association results and over 10 million unique genetic variants, mostly single nucleotide polymorphisms.
+Other graphical functions are the *mr_forest* command, which can either provide a forest plot of the variant-specific estimates:
 
-Our desire is to enable PhenoScanner to be queried directly from the MendelianRandomization package. Currently, PhenoScanner is only available via a web browser. The *extract.pheno.csv()* function takes the output from the web version of PhenoScanner, and converts this into an *MRInput* object. PhenoScanner is still under development, and so *extract.pheno.csv()* should be considered as an experimental function. This function is designed for output from PhenoScanner version 1.1 (Little Miss Sunshine).
+```{r}
+mr_forest(MRInputObject, ordered=TRUE)
+```
 
-The initial steps required to run the *extract.pheno.csv()* function are:
+Or the comparison of various estimates from different methods:
 
-1. Open http://www.phenoscanner.medschl.cam.ac.uk/ in your browser. 
-2. Input the SNPs in question by uploading a file with the rsIDs or hg19 chrN:pos names (separated by newline). 
-3. Choose whether to include proxies or not for SNPs that do not have association data for the given risk factor and/or outcome (and if so, the R-squared threshold value for defining a proxy variant). PhenoScanner currently allows correlation estimates to be taken from the 1000 Genomes or HapMap datasets.
-4. Run the analysis and download the resulting association .csv file. 
+```{r}
+mr_forest(MRInputObject,
+          methods = c("ivw", "median", "wmedian", "egger", "maxlik", "mbe", "conmix"),
+          snp_estimates = FALSE)
+```
 
-In order to obtain the relevant SNP summary estimates, run the *extract.pheno.csv()* function with:
+The *mr_funnel* command, which provides a funnel plot of the variant-specific estimates against their precision (that is, the reciprocal of the standard error):
+
+```{r}
+ mr_funnel(mr_input(bx = ldlc[1:8], bxse = ldlcse[1:8],
+            by = chdlodds[1:8], byse = chdloddsse[1:8]))
+```
+
+(Note we only plot the first 8 variants here)
+
+And the *mr_loo* command, which provides the leave-one-out estimates - that is, the estimate based on all variants except variant 1, then the based on all variants except variant 2, and so on.
+
+```{r}
+mr_loo(MRInputObject)
+```
+
+These plots are all *ggplot* objects, and so can be edited using commands from the *ggplot2* package. For example, to set the x-axis to run from -5 to +5:
+
+```{r, eval=FALSE}
+library(ggplot2)
+forest  = mr_forest(mr_input(ldlc, ldlcse, chdlodds, chdloddsse))
+forest2 = forest + coord_cartesian(xlim=c(-5,5))
+forest2
+```
+
+## Extracting association estimates from PhenoScanner
+
+The PhenoScanner bioinformatic tool (http://phenoscanner.medschl.cam.ac.uk) is a curated database of publicly available results from large-scale genetic association studies. The database currently contains over 65 billion associations and association results and over 150 million unique genetic variants, mostly single nucleotide polymorphisms.
+
+PhenoScanner can be called directly from the MendelianRandomization package using the *pheno_input()* function. This creates an *MRInput* function, which can be directly used as an input to any of the estimation functions. For example:
+
+```{r, eval = FALSE}
+mr_ivw(pheno_input(snps=c("rs12916", "rs2479409", 
+                          "rs217434", "rs1367117",
+                          "rs4299376", "rs629301",
+                          "rs4420638", "rs6511720"),
+                   exposure = "Low density lipoprotein",
+                   pmidE = "24097068", 
+                   ancestryE = "European",
+                   outcome = "Coronary artery disease",
+                   pmidO = "26343387",
+                   ancestryO = "Mixed"))
+```
+
+(We do not implement this code here, as it requires a connection to the internet, and hence produces an error if an internet connection cannot be found. But please copy it and try it for yourself!)
+
+In order to obtain the relevant summary estimates, run the *pheno_input()* function with:
+  - *snps* is a character vector giving the rsid identifiers of the genetic variants.
   - *exposure* is a character vector giving the name of the risk factor.
   - *pmidE* is the PubMed ID of the paper where the association estimates with the exposure were first published.
   - *ancestryE* is the ancestry of the participants on whom the association estimates with the exposure were estimated. (For some traits and PubMed IDs, results are given for multiple ancestries.) Usually, ancestry is *"European"* or *"Mixed"*.
   - *outcome* is a character vector giving the name of the outcome.
   - *pmidO* is the PubMed ID of the paper where the association estimates with the outcome were first published.
-  - *ancestryE* is the ancestry of the participants on whom the association estimates with the exposure were estimated.
-  - *file* is the file path to the PhenoScanner output .csv file.
-  - *rsq.proxy* is the threshold R-squared value for proxies to be included in the analysis. If a proxy variant is used as part of the analysis, this is reported. The default value of *rsq.proxy* is 1, meaning that only perfect proxies will be used.
-  - *snps* is the SNPs that will be included in the analysis. The default value is "all", indicating that all SNPs in the .csv file will be used in the analysis. If only a limited number of SNPs are to be included, *snps* can be set as a character vector with the named to the SNPs to be included in the analysis.
+  - *ancestryO* is the ancestry of the participants on whom the association estimates with the exposure were estimated.
 
-Two example .csv files from PhenoScanner are included as part of the package: vitD_snps_PhenoScanner.csv (which does not include proxies), and vitD_snps_PhenoScanner_proxies.csv (which includes proxies at an R-squared threshold of 0.6).
-
-```{r}
-path.noproxy <- system.file("extdata", "vitD_snps_PhenoScanner.csv",
-  package = "MendelianRandomization")
-path.proxies <- system.file("extdata", "vitD_snps_PhenoScanner_proxies.csv",
-  package = "MendelianRandomization")
-
-
-extract.pheno.csv(
-  exposure = "log(eGFR creatinine)", pmidE = 26831199, ancestryE = "European",
-  outcome = "Tanner stage", pmidO = 24770850, ancestryO = "European", 
-  file = path.noproxy)
-
-extract.pheno.csv(
-  exposure = "log(eGFR creatinine)", pmidE = 26831199, ancestryE = "European",
-  outcome = "Tanner stage", pmidO = 24770850, ancestryO = "European",
-  rsq.proxy = 0.6, 
-  file = path.proxies)
-
-extract.pheno.csv(
-  exposure = "log(eGFR creatinine)", pmidE = 26831199, ancestryE = "European",
-  outcome = "Asthma", pmidO = 20860503, ancestryO = "European",
-  rsq.proxy = 0.6, 
-  file = path.proxies)
-```
-
-The output from the *extract.pheno.csv* function is an MRInput object, which can be plotted using *mr_plot*, causal estimates can be obtained using *mr_ivw*, and so on.
+We note that the spelling of the exposure and outcome, the PubMed ID, and the ancestry information need to correspond exactly to the values in the PhenoScanner dataset. If these are not spelled exactly as in the PhenoScanner dataset (including upper/lower case), the association estimates will not be found.
 
 ## Final note of caution
 
-Particularly with the development of Mendelian randomization with summarized data, two-sample Mendelian randomization (where associations with the risk factor and with the outcome are taken from separate datasets), and bioinformatic tools for obtaining and analysing summarized data (including this package), Mendelian randomization is becoming increasingly accessible as a tool for answering epidemiological questions. This is undoubtably a Good Thing. However, it is important to remember that the difficult part of a Mendelian randomization analysis is not the computational method, but deciding what should go into the analysis: which risk factor, which outcome, and (most importantly) which genetic variants. Hopefully, the availability of these tools will enable less attention to be paid to the mechanics of the analysis, and more attention to these choices. The note of caution is that tools that make Mendelian randomization simple to perform run the risk of encouraging large numbers of speculative analyses to be performed in an unprincipled way. It is important that Mendelian randomization is not performed in a way that avoids critical thought. In releasing this package, the hope is that it will lead to more comprehensive and more reproducible causal inferences from Mendelian randomization, and not simply add more noise to the literature.
+Particularly with the development of Mendelian randomization with summarized data, two-sample Mendelian randomization (where associations with the risk factor and with the outcome are taken from separate datasets), and bioinformatic tools for obtaining and analysing summarized data (including this package), Mendelian randomization is becoming increasingly accessible as a tool for answering epidemiological questions. This is undoubtably a Good Thing.
+
+However, it is important to remember that the difficult part of a Mendelian randomization analysis is not the computational method, but deciding what should go into the analysis: which risk factor, which outcome, and (most importantly) which genetic variants. Hopefully, the availability of these tools will enable less attention to be paid to the mechanics of the analysis, and more attention to these choices.
+
+The note of caution is that tools that make Mendelian randomization simple to perform run the risk of encouraging large numbers of speculative analyses to be performed in an unprincipled way. It is important that Mendelian randomization is not performed in a way that avoids critical thought. In releasing this package, the hope is that it will lead to more comprehensive and more reproducible causal inferences from Mendelian randomization, and not simply add more noise to the literature.
 

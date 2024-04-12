@@ -12,7 +12,7 @@ mr_mvpcgmm(
   ny,
   cor.x = NULL,
   r = NULL,
-  thres = 0.999,
+  thres = 0.99,
   robust = TRUE,
   alpha = 0.05,
   ...
@@ -24,7 +24,7 @@ mr_mvpcgmm(
   ny,
   cor.x = NULL,
   r = NULL,
-  thres = 0.999,
+  thres = 0.99,
   robust = TRUE,
   alpha = 0.05,
   ...
@@ -41,7 +41,7 @@ mr_mvpcgmm(
 
 \item{r}{The number of genetic principal components to be used to instrument the exposures. Default chooses \code{r} to explain 99.9\% of variation in a sample weighted genetic correlation matrix (this can be varied by setting the \code{thres} parameter).}
 
-\item{thres}{The threshold value of variation in the sample weighted genetic correlation matrix explained by the genetic principal components. The default value is 0.999, indicating that 99.9\% of variation is explained by the principal components. Note that if \code{r} and \code{thres} are both specified, then \code{r} will take precedence and \code{thres} will be ignored.}
+\item{thres}{The threshold value of variation in the sample weighted genetic correlation matrix explained by the genetic principal components. The default value is 0.99, indicating that 99\% of variation is explained by the principal components. Note that if \code{r} and \code{thres} are both specified, then \code{r} will take precedence and \code{thres} will be ignored.}
 
 \item{robust}{Indicates whether overdispersion heterogeneity is accounted for in the model. Default is TRUE.}
 

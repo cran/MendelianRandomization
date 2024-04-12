@@ -460,6 +460,48 @@ setMethod("show",
 #--------------------------------------------------------------------------------------------
 
 setMethod("show",
+          "MVIVWME",
+          function(object){
+
+            Interval_type <- paste(100*(1-object@Alpha), "% CI", sep = "")
+            
+            Statistic <- c("Exposure", "Estimate", "Std Error", Interval_type, "", "p-value")
+
+            Value <- cbind(object@Exposure, decimals(object@Estimate, 3), decimals(object@StdError,3),
+                       paste(decimals(object@CILower, 3), ",", sep = ""), decimals(object@CIUpper,3),
+                             decimals(object@Pvalue, 3))
+            
+            output.table <- data.frame(matrix(Value, nrow = length(object@Exposure)))
+            colnames(output.table) <- Statistic
+            
+			correlation <- ifelse(sum(is.na(object@Correlation)) == 0,
+			 "correlated", "uncorrelated")
+            
+            cat("\nMultivariable inverse-variance weighted method accounting for measurement error\n")
+            cat("(variants ", correlation, ", ", object@Model, "-effect model)\n\n" , sep = "")
+
+            cat("Number of Variants :", object@SNPs, "\n")
+
+            cat("------------------------------------------------------------------\n")
+            print(output.table, quote = F, row.names = FALSE, justify = "left")
+            cat("------------------------------------------------------------------\n")
+
+            cat("Residual standard error = ", decimals(object@RSE, 3), "\n")
+            if(object@Model == "fixed") { cat("Residual standard error is set to 1 in calculation of confidence interval by fixed-effect assumption.\n") }
+            if(object@RSE<1) { cat("Residual standard error is set to 1 in calculation of confidence interval when its estimate is less than 1.\n") }
+            if(is.na(object@Heter.Stat[1])) {
+              cat("Heterogeneity is not calculated when weights are penalized, or when there is only one variant in the analysis.")
+            } else {
+            cat("Heterogeneity test statistic = ", decimals(object@Heter.Stat[1],4), " on ", object@SNPs-length(object@Exposure),
+                    " degrees of freedom, (p-value = ", decimals(object@Heter.Stat[2], 4),")\n", sep = "")
+            }
+          }
+)
+
+
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
           "MVEgger",
           function(object){
 
@@ -779,8 +821,38 @@ setMethod("show",
              print(output.table, quote = F, row.names = FALSE, justify = "left")
              cat("------------------------------------------------------------------\n")
              
-             if(object@robust == TRUE) { cat("\nOverdispersion heterogeneity parameter estimate =", object@Overdispersion, "\n") }
+             if(object@robust == TRUE) { cat("\nOverdispersion heterogeneity parameter estimate =", decimals(object@Overdispersion,3), "\n") }
              if(object@robust == FALSE) { cat("\nHeterogeneity test statistic = ", decimals(object@Heter.Stat[1],4), " (p-value = ", decimals(object@Heter.Stat[2], 4),")\n", sep = "")}
              if(object@robust == TRUE) { cat("\nHeterogeneity test statistic = ", decimals(object@Heter.Stat[1],4),"\n", sep = "")}
+          }
+)
+
+#--------------------------------------------------------------------------------------------
+
+setMethod("show",
+          "CLR",
+          function(object){
+            dps = max(ceiling(-log10(object@CIStep)), 1)
+cat("\n--------------------------------------------------------------------------\n")
+            cat("\n",(1-object@Alpha)*100,"% confidence intervals using identification-robust methods \n")
+            cat("\nAnderson--Rubin:              "); if(length(object@ARlower) == 0) cat("No estimate is compatible with the data")  else{ for(j in 1:length(object@ARlower)) cat("[", ifelse(object@ARlower[j]==object@CIMin, "<", ""), decimals(object@ARlower[j], dps),",", ifelse(object@ARupper[j]==object@CIMax, ">", ""), decimals(object@ARupper[j],dps),"]  ") }
+            cat("\nKleibergen:                   "); if(length(object@Klower) == 0) cat("No estimate is compatible with the data")  else{ for(j in 1:length(object@Klower)) cat("[", ifelse(object@Klower[j]==object@CIMin, "<", ""), decimals(object@Klower[j], dps),",",
+ifelse(object@Kupper[j]==object@CIMax, ">", ""), decimals(object@Kupper[j], dps),"]  ") }
+            cat("\nConditional likelihood ratio: "); if(length(object@CLRlower) == 0) cat("No estimate is compatible with the data")  else{ for(j in 1:length(object@CLRlower)) cat("[", ifelse(object@CLRlower[j]==object@CIMin, "<", ""),
+decimals(object@CLRlower[j],dps),",",
+ifelse(object@Kupper[j]==object@CIMax, ">", ""), decimals(object@CLRupper[j],dps),"]  ") }
+            cat("\n--------------------------------------------------------------------------\n")
+if (length(object@ARlower)>1|length(object@Klower)>1|length(object@CLRlower)>1) {
+cat("Note: at least one confidence interval contains multiple ranges of values.\n") }
+if (length(object@ARlower)==0|length(object@Klower)==0|length(object@CLRlower)==0) {
+cat("Note: for at least one method, a valid confidence interval does not exist.\n") }
+if(object@CIMin%in%c(object@ARlower, object@ARupper,
+              object@Klower, object@Kupper,
+              object@CLRlower, object@CLRupper)) { cat("CIMin is not low enough to provide an accurate value for the lower CI bound. Please reduce and retry. If this message persists despite reducing CIMin, the true lower CI bound may be minus infinity.\n") }
+
+if(object@CIMax%in%c(object@ARlower, object@ARupper,
+              object@Klower, object@Kupper,
+              object@CLRlower, object@CLRupper)) { cat("CIMax is not large enough to provide an accurate value for the upper CI bound. Please increase and retry.\n  If this message persists despite increasing CIMax, the upper CI bound may be infinity.\n") }
+
           }
 )

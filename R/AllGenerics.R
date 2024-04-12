@@ -455,6 +455,60 @@ setGeneric(name = "mr_mvivw",
 
 #--------------------------------------------------------------------------------------------
 
+
+#' Multivariable inverse-variance weighted method with measurement error
+#'
+#' @description The \code{mr_mvivwme} function performs multivariable Mendelian randomization via the inverse-variance method with measurement error.
+#'
+#' @param object An \code{MRMVInput} object.
+#' @param model What type of model should be used: \code{"default"}, \code{"random"} or \code{"fixed"}. The random-effects model (\code{"random"}) is a multiplicative random-effects model, allowing overdispersion in the weighted linear regression (the residual standard error is not fixed to be 1, but is not allowed to take values below 1). The fixed-effect model (\code{"fixed"}) sets the residual standard error to be 1. The \code{"default"} setting is to use a fixed-effect model with 3 genetic variants or fewer, and otherwise to use a random-effects model.
+#' @param correl If the genetic variants are correlated, then this correlation can be accounted for.
+#' @param correl.x Correlation matrix for exposures. Default is to assume the exposures are uncorrelated.
+#' @param distribution The type of distribution used to calculate the confidence intervals. Options are \code{"normal"} (default) or \code{"t-dist"}.
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#' @param max_iter The maximum number of iterations in the optimisation procedure.
+#' @param no_ini The number of initial values for the optimisation procedure.
+#' @param seed The random seed to use for the optimisation procedure. The default value is 20201201. If set to \code{NA}, the random seed will not be set (for example, if the function is used as part of a larger simulation).
+#' @param ... Additional arguments to be passed to the regression method.
+#'
+#' @details The extension of multivariable Mendelian randomization to account for measurement error in the genetic associations with the exposure traits.
+#'
+#'
+#' @return The output from the function is an \code{MVIVWME} object containing:
+#'
+#'  \item{Model}{A character string giving the type of model used (\code{"fixed"}, \code{"random"}, or \code{"default"}).}
+#'  \item{Exposure}{A character vector with the names given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Estimate}{A vector of causal estimates.}
+#'  \item{StdError}{A vector of standard errors of the causal estimates.}
+#'  \item{CILower}{The lower bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{CIUpper}{The upper bounds of the causal estimates based on the estimated standard errors and the significance level provided.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'  \item{Pvalue}{The p-values associated with the estimates (calculated as Estimate/StdError as per Wald test) using a normal or t-distribution (as specified in \code{distribution}).}
+#'  \item{Correlation}{The matrix of genetic correlations.}
+#'  \item{SNPs}{The number of genetic variants (SNPs) included in the analysis.}
+#'  \item{RSE}{The estimated residual standard error from the regression model.}
+#'  \item{Heter.Stat}{Heterogeneity statistic (Cochran's Q statistic) and associated p-value: the null hypothesis is that all genetic variants estimate the same causal parameter; rejection of the null is an indication that one or more variants may be pleiotropic.}
+#'
+#' @examples mr_mvivwme(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
+#'    by = chdlodds, byse = chdloddsse))
+#'
+#' @references Zhu, Jiazheng, Stephen Burgess, and Andrew J. Grant. Bias in Multivariable Mendelian Randomization Studies Due to Measurement Error on Exposures, 2022. https://doi.org/10.48550/arXiv.2203.08668.
+#'
+#' @export
+
+setGeneric(name = "mr_mvivwme",
+           def = function(object, model = "default",
+						  correl = FALSE,
+                          correl.x = NULL,
+                          distribution = "normal", alpha = 0.05,
+						  max_iter = 100, no_ini = 1, seed = 20201201,
+						  ...)
+           {standardGeneric("mr_mvivwme")})
+
+#--------------------------------------------------------------------------------------------
+
+
 #' Multivariable MR-Egger method
 #'
 #' @description The \code{mr_mvegger} function performs multivariable Mendelian randomization via the MR-Egger method. This is implemented by multivariable weighted linear regression.
@@ -1093,7 +1147,7 @@ setGeneric(name = "mr_pivw",
 #' rho_mat = matrix(c(1,-0.1,0.2,0,-0.1,1,-0.3,0,
 #'  				  0.2,-0.3,1,0,0,0,0,1),ncol=4) ## Toy example of rho_mat
 #' mr_mvcML(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
-#'    by = chdlodds, byse = chdloddsse), n = 17723, num_pert = 100, rho_mat = rho_mat)
+#'    by = chdlodds, byse = chdloddsse), n = 17723, num_pert = 5, rho_mat = rho_mat)
 #'
 #' # Perform MVMRcML-BIC:
 #' mr_mvcML(mr_mvinput(bx = cbind(ldlc, hdlc, trig), bxse = cbind(ldlcse, hdlcse, trigse),
@@ -1128,7 +1182,7 @@ setGeneric(name = "mr_mvcML",
 #' @param nx The sample size used to compute genetic associations with the exposure. 
 #' @param ny The sample size used to compute genetic associations with the outcome. 
 #' @param r The number of genetic principal components to be used to instrument the exposure. Default chooses \code{r} to explain 99.9\% of variation in a sample weighted genetic correlation matrix (this can be varied by setting the \code{thres} parameter).
-#' @param thres The threshold value of variation in the sample weighted genetic correlation matrix explained by the genetic principal components. The default value is 0.999, indicating that 99.9\% of variation is explained by the principal components. Note that if \code{r} and \code{thres} are both specified, then \code{r} will take precedence and \code{thres} will be ignored.
+#' @param thres The threshold value of variation in the sample weighted genetic correlation matrix explained by the genetic principal components. The default value is 0.99, indicating that 99\% of variation is explained by the principal components. Note that if \code{r} and \code{thres} are both specified, then \code{r} will take precedence and \code{thres} will be ignored.
 #' @param robust Indicates whether overdispersion heterogeneity is accounted for in the model. Default is TRUE.
 #' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
 #' @param ... Additional arguments to be passed to the optimization routines to calculate the GMM estimate and overdispersion parameter.
@@ -1164,7 +1218,7 @@ setGeneric(name = "mr_mvcML",
 #' @export
 
 setGeneric(name = "mr_pcgmm",
-           def = function(object, nx, ny, r = NULL, thres = 0.999, robust=TRUE, alpha=0.05, ...)
+           def = function(object, nx, ny, r = NULL, thres = 0.99, robust=TRUE, alpha=0.05, ...)
            {standardGeneric("mr_pcgmm")})
 
 
@@ -1179,7 +1233,7 @@ setGeneric(name = "mr_pcgmm",
 #' @param ny The sample size used to compute genetic associations with the outcome. 
 #' @param cor.x Correlation matrix for exposures. Default is to assume the exposures are uncorrelated.
 #' @param r The number of genetic principal components to be used to instrument the exposures. Default chooses \code{r} to explain 99.9\% of variation in a sample weighted genetic correlation matrix (this can be varied by setting the \code{thres} parameter).
-#' @param thres The threshold value of variation in the sample weighted genetic correlation matrix explained by the genetic principal components. The default value is 0.999, indicating that 99.9\% of variation is explained by the principal components. Note that if \code{r} and \code{thres} are both specified, then \code{r} will take precedence and \code{thres} will be ignored.
+#' @param thres The threshold value of variation in the sample weighted genetic correlation matrix explained by the genetic principal components. The default value is 0.99, indicating that 99\% of variation is explained by the principal components. Note that if \code{r} and \code{thres} are both specified, then \code{r} will take precedence and \code{thres} will be ignored.
 #' @param robust Indicates whether overdispersion heterogeneity is accounted for in the model. Default is TRUE.
 #' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
 #' @param ... Additional arguments to be passed to the optimization routines to calculate GMM estimates and overdispersion parameter.
@@ -1220,7 +1274,7 @@ setGeneric(name = "mr_pcgmm",
 #' @export
 
 setGeneric(name = "mr_mvpcgmm",
-           def = function(object, nx, ny, cor.x=NULL, r = NULL, thres = 0.999, robust=TRUE, alpha=0.05, ...)
+           def = function(object, nx, ny, cor.x=NULL, r = NULL, thres = 0.99, robust=TRUE, alpha=0.05, ...)
            {standardGeneric("mr_mvpcgmm")})
 
 #--------------------------------------------------------------------------------------------
@@ -1266,3 +1320,52 @@ setGeneric(name = "mr_mvpcgmm",
 setGeneric(name = "mr_mvgmm",
            def = function(object, nx, ny, cor.x=NULL, robust=TRUE, alpha=0.05, ...)
            {standardGeneric("mr_mvgmm")})
+
+#--------------------------------------------------------------------------------------------
+
+#' Conditional likelihood ratio (CLR) method
+#'
+#' @description The \code{mr_clr} function calculates confidence intervals based on inverting the conditional likelihood ratio and other identification-robust tests.
+#'
+#' @param object An \code{MRInput} object.
+#' @param nx The sample size used to compute genetic associations with the exposure. 
+#' @param ny The sample size used to compute genetic associations with the outcome. 
+#' @param alpha The significance level used to calculate the confidence interval. The default value is 0.05.
+#' @param CIMin The smallest value to use in the search to find the confidence interval (default is -10).
+#' @param CIMax The largest value to use in the search to find the confidence interval (default is +10).
+#' @param CIStep The step size to use in the search to find the confidence interval (default is 0.01). Using a lower value (such as 0.001) will give more precise confidence intervals, but increase run time.
+#'
+#' @details  In weak instrument settings, usual inference based on point estimates and standard errors may not be accurate. This method calculates confidence intervals based on inverting identification-robust tests proposed in Wang and Kang (2021, Biometrics) that provide valid inferences regardless of instrument strength.
+#'
+#' This includes conditional likelihood ratio (CLR), Kleibergen (K), and Anderson and Rubin (AR) tests.
+#'
+#' Evidence from the econometrics literature suggests that CLR inference is the best option in terms of power under a wide range of settings.
+#' 
+#' Please note that these methods do not provide point estimates, only confidence intervals. While most examples provide a confidence interval that is a single range of values, in some cases the confidence interval may comprise multiple ranges of values. In other cases, a valid confidence interval may not exist.
+#'
+#' @return The output from the function is an \code{CLR} object containing:
+#'
+#'  \item{Exposure}{A character string with the name given to the exposure.}
+#'  \item{Outcome}{A character string with the names given to the outcome.}
+#'  \item{Correlation}{The matrix of genetic correlations.}
+#'  \item{ARlower}{The lower bounds of the causal estimate based on inverting Anderson and Rubin's test.}
+#'  \item{ARupper}{The upper bounds of the causal estimate based on inverting Anderson and Rubin's test.}
+#'  \item{Klower}{The lower bounds of the causal estimate based on inverting Kleibergen's test.}
+#'  \item{Kupper}{The upper bounds of the causal estimate based on inverting Kleibergen's test.}
+#'  \item{CLRlower}{The lower bounds of the causal estimate based on inverting Moreira's conditional likelihood ratio test.}
+#'  \item{CLRupper}{The upper bounds of the causal estimate based on inverting Moreira's conditional likelihood ratio test.}
+#'  \item{CIMin}{The smallest value used in the search to find the confidence interval.}
+#'  \item{CIMax}{The largest value used in the search to find the confidence interval.}
+#'  \item{CIStep}{The step size used in the search to find the confidence interval.}
+#'  \item{Alpha}{The significance level used when calculating the confidence intervals.}
+#'
+#' @examples mr_clr(mr_input(bx = calcium, bxse = calciumse,
+#'    by = fastgluc, byse = fastglucse, correl = calc.rho), nx=6351, ny=133010)
+#'
+#' @references Description of the CLR method: "Weak-instrument robust tests in two-sample summary-data Mendelian randomization", S. Wang and H. Kang, Biometrics, 2021.
+#'
+#' @export
+
+setGeneric(name = "mr_clr",
+           def = function(object, nx, ny, alpha=0.05, CIMin=-10, CIMax=10, CIStep=0.01)
+           {standardGeneric("mr_clr")})

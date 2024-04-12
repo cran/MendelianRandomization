@@ -37,6 +37,3 @@ Estimates can either be specified by the user, or extracted from the PhenoScanne
 \item{\code{eaf}}{The expected allele frequencies (numeric). The slots \code{effect_allele}, \code{other_allele}, and \code{eaf} are neither required, nor currently used in the MendelianRandomization package. They are included for future compatibility with the MR-Base suite of functions.}
 }}
 
-\seealso{
-\code{extract.pheno.csv()} for a description of how the above values can be extracted from PhenoScanner \url{http://www.phenoscanner.medschl.cam.ac.uk/}.
-}

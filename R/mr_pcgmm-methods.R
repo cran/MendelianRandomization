@@ -3,7 +3,7 @@
 
 setMethod("mr_pcgmm",
           "MRInput",
-          function(object, nx, ny, r = NULL, thres=0.999, robust=TRUE, alpha=0.05, ...){
+          function(object, nx, ny, r = NULL, thres=0.99, robust=TRUE, alpha=0.05, ...){
             
             bx = object@betaX
             by = object@betaY
@@ -16,7 +16,7 @@ setMethod("mr_pcgmm",
             
             # estimate principal components
             Phi <- ((abs(bx)/sy)%*%t(abs(bx)/sy))*ld
-            if(is.na(thres)) { thres <- 0.999 }
+            if(is.na(thres)) { thres <- 0.99 }
             if(missing(r)){r <- which(cumsum(prcomp(Phi,scale=FALSE)$sdev^2/sum((prcomp(Phi,scale=FALSE)$sdev^2)))>thres)[1]
             } else {r <- r}
             
